@@ -43,14 +43,17 @@ export default class User extends BaseModel {
   @column()
   public blocked: boolean
 
+  @column({ serializeAs: null })
+  public cityId: number
 
-  @column.dateTime({ autoCreate: true })
+
+  @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
   public updatedAt: DateTime
 
-  @column.dateTime()
+  @column.dateTime({ serializeAs: null })
   public deletedAt: DateTime
 
 

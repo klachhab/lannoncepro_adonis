@@ -1,9 +1,15 @@
 import { DateTime } from 'luxon'
-import {BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel, column,
+  BelongsTo, belongsTo,
+  HasMany, hasMany
+} from '@ioc:Adonis/Lucid/Orm'
+
 import Department from "App/Models/Department";
 import User from "App/Models/User";
 
 export default class City extends BaseModel {
+
   @column({ isPrimary: true })
   public id: number
 
@@ -13,10 +19,14 @@ export default class City extends BaseModel {
   @column()
   public code: string
 
-  @column.dateTime({ autoCreate: true })
+  @column({ serializeAs: null })
+  public departmentId: number
+
+
+  @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
   public updatedAt: DateTime
 
 

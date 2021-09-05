@@ -20,6 +20,22 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 
+// WEB Routes
 Route.get('/', async ({ view }) => {
   return view.render('welcome')
 })
+
+
+
+
+
+// API Routes
+Route.group( () => {
+
+  Route.resource('cities', 'CitiesController')
+      // .except(['create', 'edit'])
+
+  Route.resource('departments', 'DepartmentsController')
+      // .except(['show'])
+
+}).prefix('/api')

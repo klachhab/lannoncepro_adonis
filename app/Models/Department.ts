@@ -12,13 +12,13 @@ export default class Department extends BaseModel {
   @column()
   public code: string
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
   public updatedAt: DateTime
 
 
   @hasMany( () => City)
-  public users: HasMany<typeof City>
+  public cities: HasMany<typeof City>
 }
