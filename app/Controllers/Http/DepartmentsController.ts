@@ -10,9 +10,6 @@ export default class DepartmentsController {
         .preload('cities', (query) => {
           query.groupLimit(5)
         })
-
-
-
     return {
       departments
     }

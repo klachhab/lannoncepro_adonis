@@ -57,11 +57,11 @@ export default class User extends BaseModel {
   public deletedAt: DateTime
 
 
-
+// Relationships -------------------------------------
   @belongsTo( () => City)
   public city: BelongsTo<typeof City>
 
-
+// Events -------------------------------------
   @beforeCreate()
   public static async hashPassword(user: User) {
     if (user.$dirty.password) {

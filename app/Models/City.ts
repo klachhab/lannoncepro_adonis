@@ -22,7 +22,6 @@ export default class City extends BaseModel {
   @column({ serializeAs: null })
   public departmentId: number
 
-
   @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
@@ -30,6 +29,7 @@ export default class City extends BaseModel {
   public updatedAt: DateTime
 
 
+// Relationships -------------------------------------
   @belongsTo( () => Department)
   public department: BelongsTo<typeof Department>
 
