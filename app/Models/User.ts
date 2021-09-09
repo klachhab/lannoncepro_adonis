@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import {BaseModel, beforeCreate, BelongsTo, belongsTo, column} from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
+import Post from "App/Models/Post";
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -60,6 +61,9 @@ export default class User extends BaseModel {
 // Relationships -------------------------------------
   @belongsTo( () => City)
   public city: BelongsTo<typeof City>
+
+  @hasMany( () => Post)
+  public posts: HasMany<typeof Post>
 
 // Events -------------------------------------
   @beforeCreate()

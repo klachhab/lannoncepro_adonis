@@ -32,10 +32,8 @@ Route.get('/', async ({ view }) => {
 // API Routes
 Route.group( () => {
 
-  Route.resource('cities', 'CitiesController')
-      // .except(['create', 'edit'])
-
-  Route.resource('departments', 'DepartmentsController')
-      // .except(['show'])
+  Route.resource('cities', 'CitiesController')// .except(['create', 'edit'])
+  Route.resource('departments', 'DepartmentsController')// .except(['show'])
+  Route.resource('posts', 'PostsController')// .except(['show'])
 
 }).prefix('/api')

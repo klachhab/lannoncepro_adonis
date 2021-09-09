@@ -14,8 +14,8 @@ export default class Users extends BaseSchema {
       table.string('password').notNullable();
       table.boolean('email_verified').defaultTo(false);
       table.enum('user_type', ['admin', 'user'])
-          .notNullable()
-          .defaultTo('user');
+          .notNullable().defaultTo('user');
+
       table.integer('phone', 10).notNullable();
       table.boolean('is_pro')
           .notNullable()
@@ -29,12 +29,14 @@ export default class Users extends BaseSchema {
           .notNullable()
           .defaultTo(false);
 
-
+      // Relations ================================================
       table
           .integer('city_id')
           .unsigned()
           .references('cities.id')
           .onDelete('CASCADE')
+      // !Relations ================================================
+
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */

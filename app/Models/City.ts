@@ -7,6 +7,7 @@ import {
 
 import Department from "App/Models/Department";
 import User from "App/Models/User";
+import Post from "App/Models/Post";
 
 export default class City extends BaseModel {
 
@@ -35,4 +36,7 @@ export default class City extends BaseModel {
 
   @hasMany( () => User)
   public users: HasMany<typeof User>
+
+  @hasMany( () => Post)
+  public posts: HasMany<typeof Post>
 }

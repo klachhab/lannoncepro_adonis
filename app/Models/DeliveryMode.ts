@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import Post from "App/Models/Post";
 
 export default class DeliveryMode extends BaseModel {
   @column({ isPrimary: true })
@@ -13,5 +14,10 @@ export default class DeliveryMode extends BaseModel {
 
   @column.dateTime()
   public deletedAt: DateTime
+
+  // Relationships -------------------------------------
+
+  @hasMany( () => Post)
+  public posts: HasMany<typeof Post>
 
 }
