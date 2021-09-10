@@ -12,29 +12,29 @@ export default class Posts extends BaseSchema {
       table
           .integer('user_id').unsigned()
           .references('users.id')
-          .onDelete('CASCADE')
+          .onDelete('CASCADE').notNullable()
 
       table.integer('category_id').unsigned()
           .references('categories.id')
-          .onDelete('CASCADE')
+          .onDelete('CASCADE').notNullable()
 
       table.integer('city_id').unsigned()
           .references('cities.id')
-          .onDelete('CASCADE')
+          .onDelete('CASCADE').notNullable()
 
       table.integer('delivery_mode_id').unsigned()
           .references('delivery_modes.id')
-          .onDelete('CASCADE')
+          .onDelete('CASCADE').notNullable()
 
       // ! Relations ================================================
 
       table.string('title').notNullable()
       table.text('description').notNullable()
       table.enum('condition', ['new', 'used']).notNullable()
-      table.float('price', 10).nullable()
+      table.float('price',11, 2).nullable()
       table.boolean('negotiable').defaultTo(false)
-      table.float('lat', 11, 3).nullable()
-      table.float('lon', 11, 3).nullable()
+      table.float('lat', 11, 2).nullable()
+      table.float('lon', 11, 2).nullable()
       table.enum('video_type', ['iframe', 'video']).nullable()
       table.string('video_link').nullable()
 

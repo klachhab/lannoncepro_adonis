@@ -1,6 +1,30 @@
 import Factory from '@ioc:Adonis/Lucid/Factory'
 import User from "App/Models/User";
 import { string } from '@ioc:Adonis/Core/Helpers'
+import Post from "App/Models/Post";
+
+export const PostFactory = Factory
+    .define(Post, ({faker}) => {
+        return {
+            uuid: faker.datatype.uuid(),
+            category_id: faker.datatype.number({min:13, max:105}),
+            city_id: faker.datatype.number({min: 1, max: 1000}),
+            delivery_mode_id: faker.datatype.number({min: 1, max: 10}),
+
+            // user_id: faker.datatype.number({min: 1, max: 50}),
+
+            title: faker.random.words(Math.floor(Math.random() * 5) + 2),
+            description: faker.lorem.paragraph(),
+            condition: faker.random.arrayElement(['new', 'used']),
+            price: faker.datatype.float(2),
+            negotiable: faker.datatype.boolean(),
+            lat: faker.datatype.float(2),
+            lon: faker.datatype.float(2),
+            is_valid: faker.datatype.boolean(),
+
+        }
+    })
+    .build()
 
 export const UserFactory = Factory
     .define(User, ({ faker }) => {
@@ -15,4 +39,5 @@ export const UserFactory = Factory
             city_id: faker.datatype.number({min: 1, max: 1000}),
         }
     })
+    .relation('posts', () => PostFactory)
     .build()
