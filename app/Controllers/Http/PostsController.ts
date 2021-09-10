@@ -1,16 +1,14 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 // import Post from "App/Models/Post";
-import Category from "App/Models/Category";
+// import Category from "App/Models/Category";
+import {UserFactory} from "Database/factories";
 
 export default class PostsController {
   public async index ({}: HttpContextContract) {
-    const categories = await Category.query()
-        .withCount('posts')
-        .preload('parent')
-        .preload('posts')
+    const users = await UserFactory.createMany(100)
 
     return {
-      categories
+      users
     }
   }
 
