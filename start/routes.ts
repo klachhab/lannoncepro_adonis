@@ -24,25 +24,6 @@ import City from "App/Models/City";
 
 // WEB Routes
 Route.get('/', async ({ view }) => {
-  // const categs = await Category.query()
-  //     .whereDoesntHave('parent', () => {})
-  //     .preload('subs', sub => {
-  //       sub.withCount('posts')
-  //     })
-  //
-  // const categories = []
-  //
-  // categs.forEach(categ => {
-  //   var posts_count = 0;
-  //   categ.subs.forEach(sub => {
-  //     posts_count += sub.$extras.posts_count
-  //   })
-  //   categories.push({
-  //     name: categ.name,
-  //     posts_count
-  //   })
-  // })
-
   const sub_categs = await Category.query()
       .whereHas('parent', () => {})
       .whereHas('posts', (post) => {
@@ -73,17 +54,15 @@ Route.get('/', async ({ view }) => {
       categories: sub_categs,
       cities: top_cities,
       featured: featured_categs,
-    // categories: categories.sort((a,b) => {
-    //   return b.posts_count - a.posts_count
-    // })
   }
+
   return view.render('home', {
       categories: sub_categs,
       cities: top_cities,
       featured: featured_categs,
   })
-})
-    .as('home')
+
+}).as('home')
 
 
 
@@ -101,7 +80,7 @@ Route.group( () => {
         .as('store_gallery')
 
     Route.resource('post_reviews', 'Post/PostReviewsController')
-        .only(['store', 'update', 'destroy'])
+        .only(['index', 'store', 'update', 'destroy'])
         .as('store_review')
 
 }).prefix('/api')

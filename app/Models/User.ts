@@ -3,6 +3,7 @@ import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, HasMany, hasMany}
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
 import Post from "App/Models/Post/Post";
+import PostReview from "App/Models/Post/PostReview";
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -64,6 +65,9 @@ export default class User extends BaseModel {
 
   @hasMany( () => Post)
   public posts: HasMany<typeof Post>
+
+  @hasMany( () => PostReview)
+  public reviews: HasMany<typeof PostReview>
 
 // Events -------------------------------------
   @beforeCreate()

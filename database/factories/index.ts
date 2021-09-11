@@ -2,6 +2,19 @@ import Factory from '@ioc:Adonis/Lucid/Factory'
 import User from "App/Models/User";
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Post from "App/Models/Post/Post";
+import PostReview from "App/Models/Post/PostReview";
+
+
+export const ReviewFactory = Factory
+    .define(PostReview, ({faker}) => {
+        return {
+            comment: faker.lorem.paragraph(),
+            rating: faker.datatype.number({min: 1, max: 5}),
+            user_id: faker.datatype.number({min: 1, max: 20}),
+        }
+    })
+    .build()
+
 
 export const PostFactory = Factory
     .define(Post, ({faker}) => {
@@ -25,6 +38,7 @@ export const PostFactory = Factory
 
         }
     })
+    .relation('reviews', () => ReviewFactory)
     .build()
 
 export const UserFactory = Factory
