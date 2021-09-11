@@ -39,6 +39,7 @@ export default class Posts extends BaseSchema {
       table.string('video_link').nullable()
 
       table.boolean('is_valid').defaultTo(false)
+      table.boolean('featured').defaultTo(false)
 
       /**
        * Uses timestampTz for PostgreSQL and DATETIME2 for MSSQL

@@ -3,7 +3,7 @@ import {PostFactory} from "Database/factories";
 
 export default class PostSeederSeeder extends BaseSeeder {
   public async run () {
-    await PostFactory.createMany(Math.floor(Math.random() * 10) + 2)
+    await PostFactory.createMany(Math.floor(Math.random() * 200) + 2)
 
   }
 }

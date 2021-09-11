@@ -17,15 +17,13 @@ export default class Category extends BaseModel {
   public icon: string
 
   @column({ serializeAs: null })
-  public parentId: number
+  public categoryId: number
 
   @column.dateTime()
   public deletedAt: DateTime
 
 // Relationships -------------------------------------
-  @belongsTo( () => Category, {
-    foreignKey: "parentId"
-  })
+  @belongsTo( () => Category)
   public parent: BelongsTo<typeof Category>
 
   @hasMany( () => Category)

@@ -42,6 +42,9 @@ export default class Post extends BaseModel {
   @column()
   public is_valid: boolean
 
+  @column()
+  public featured: boolean
+
 
   @column({serializeAs: null})
   public userId: number

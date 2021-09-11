@@ -11,7 +11,7 @@ export const PostFactory = Factory
             city_id: faker.datatype.number({min: 1, max: 1000}),
             delivery_mode_id: faker.datatype.number({min: 1, max: 10}),
 
-            // user_id: faker.datatype.number({min: 1, max: 50}),
+            user_id: faker.datatype.number({min: 1, max: 20}),
 
             title: faker.random.words(Math.floor(Math.random() * 5) + 2),
             description: faker.lorem.paragraph(),
@@ -21,6 +21,7 @@ export const PostFactory = Factory
             lat: faker.datatype.float(2),
             lon: faker.datatype.float(2),
             is_valid: faker.datatype.boolean(),
+            featured: faker.datatype.boolean(),
 
         }
     })

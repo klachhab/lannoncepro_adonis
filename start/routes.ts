@@ -19,11 +19,71 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import Category from "App/Models/Category";
+import City from "App/Models/City";
 
 // WEB Routes
 Route.get('/', async ({ view }) => {
-  return view.render('welcome')
+  // const categs = await Category.query()
+  //     .whereDoesntHave('parent', () => {})
+  //     .preload('subs', sub => {
+  //       sub.withCount('posts')
+  //     })
+  //
+  // const categories = []
+  //
+  // categs.forEach(categ => {
+  //   var posts_count = 0;
+  //   categ.subs.forEach(sub => {
+  //     posts_count += sub.$extras.posts_count
+  //   })
+  //   categories.push({
+  //     name: categ.name,
+  //     posts_count
+  //   })
+  // })
+
+  const sub_categs = await Category.query()
+      .whereHas('parent', () => {})
+      .whereHas('posts', (post) => {
+        post.where('is_valid', true)
+      })
+      .withCount('posts', (post) => {
+        post.as('posts_count')
+      })
+      .limit(10)
+      .orderBy('posts_count', 'desc')
+
+  const top_cities = await City.query()
+      .whereHas('posts', () => {})
+      .withCount('posts', (post) => {
+        post.as('posts_count')
+      })
+      .orderBy('posts_count', 'desc')
+      .limit(14)
+
+  const featured_categs = await Category.query()
+      .whereHas('posts', (post) => {
+        post.where('is_valid', true)
+            .andWhere('featured', true)
+      })
+      .limit(10)
+
+  return {
+      categories: sub_categs,
+      cities: top_cities,
+      featured: featured_categs,
+    // categories: categories.sort((a,b) => {
+    //   return b.posts_count - a.posts_count
+    // })
+  }
+  return view.render('home', {
+      categories: sub_categs,
+      cities: top_cities,
+      featured: featured_categs,
+  })
 })
+    .as('home')
 
 
 
@@ -35,5 +95,6 @@ Route.group( () => {
   Route.resource('cities', 'CitiesController')// .except(['create', 'edit'])
   Route.resource('departments', 'DepartmentsController')// .except(['show'])
   Route.resource('posts', 'PostsController')// .except(['show'])
+  Route.resource('users', 'UsersController')// .except(['show'])
 
 }).prefix('/api')

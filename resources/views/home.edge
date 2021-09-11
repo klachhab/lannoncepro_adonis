@@ -17,17 +17,12 @@
       </p>
 
       <ul>
-        <li>
-          The route for this page is defined inside <code>start/routes.ts</code> file
-        </li>
-
-        <li>
-          You can update this page by editing <code>resources/views/welcome.edge</code> file
-        </li>
-
-        <li>
-          If you run into problems, you can reach us on <a href="https://discord.gg/vDcEjq6?">Discord</a> or the <a href="https://forum.adonisjs.com/">Forum</a>.
-        </li>
+        @each(top_categ in top_categs)
+          <li>
+            {{ top_categ.name }} ({{ top_categ.$extras.posts_count }})
+            : <b>{{ top_categ.parent.name }}</b>
+          </li>
+        @end
       </ul>
     </div>
   </main>

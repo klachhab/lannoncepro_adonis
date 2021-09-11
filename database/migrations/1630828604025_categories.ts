@@ -10,7 +10,7 @@ export default class Categories extends BaseSchema {
       table.string('slug').notNullable()
       table.string('icon')
 
-      table.integer('parent_id')
+      table.integer('category_id')
           .unsigned()
           .references('categories.id')
           .onDelete('cascade')
