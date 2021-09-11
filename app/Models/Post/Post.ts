@@ -94,7 +94,7 @@ export default class Post extends BaseModel {
 // Events -------------------------------------
   @beforeCreate()
   public static async slugPost(post: Post) {
-    post.slug = string.dashCase(post.slug)
+    post.slug = string.dashCase(post.title)
   }
 
 }
