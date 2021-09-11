@@ -14,7 +14,6 @@ export default class PostsController {
                       builder.select('name')
                   })
           })
-          .preload('reviews')
           .preload('category', builder => {
               builder.select('name', 'category_id')
                   .preload('parent', builder => {
@@ -38,6 +37,10 @@ export default class PostsController {
 
   public async show ({params}: HttpContextContract) {
       const post = await Post.findOrFail(params.id)
+
+      await post.load('images', image => {
+          image.select('path')
+      })
       await post.load('reviews', review => {
           review
               .preload('user', user => {

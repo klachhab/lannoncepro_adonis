@@ -7,16 +7,13 @@ export default class PostGallery extends BaseModel {
   public id: number
 
   @column()
-  public path: number
+  public path: string
 
   @column()
   public postId: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
 
   @column.dateTime()
   public deletedAt: DateTime

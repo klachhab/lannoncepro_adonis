@@ -3,6 +3,8 @@ import User from "App/Models/User";
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Post from "App/Models/Post/Post";
 import PostReview from "App/Models/Post/PostReview";
+import PostGallery from "App/Models/Post/PostGallery";
+// import PostGallery from "App/Models/Post/PostGallery";
 
 
 export const ReviewFactory = Factory
@@ -11,6 +13,14 @@ export const ReviewFactory = Factory
             comment: faker.lorem.paragraph(),
             rating: faker.datatype.number({min: 1, max: 5}),
             user_id: faker.datatype.number({min: 1, max: 20}),
+        }
+    })
+    .build()
+
+export const GalleryFactory = Factory
+    .define(PostGallery, ({faker}) => {
+        return {
+            path: faker.random.image()
         }
     })
     .build()
@@ -39,6 +49,7 @@ export const PostFactory = Factory
         }
     })
     .relation('reviews', () => ReviewFactory)
+    .relation('images', () => GalleryFactory)
     .build()
 
 export const UserFactory = Factory

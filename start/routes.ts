@@ -72,15 +72,18 @@ Route.group( () => {
 
     Route.resource('cities', 'CitiesController')
     Route.resource('departments', 'DepartmentsController')
+        // .only(['show', 'index'])
+
     Route.resource('users', 'UsersController')
 
     Route.resource('posts', 'Post/PostsController')
+
     Route.resource('post_galleries', 'Post/PostGalleriesController')
-        .only(['store', 'destroy'])
+        .only(['destroy'])
         .as('store_gallery')
 
     Route.resource('post_reviews', 'Post/PostReviewsController')
-        .only(['index', 'store', 'update', 'destroy'])
+        .only(['destroy'])
         .as('store_review')
 
 }).prefix('/api')
