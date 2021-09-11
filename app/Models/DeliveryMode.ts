@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import {BaseModel, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
-import Post from "App/Models/Post";
+import Post from "App/Models/Post/Post";
 
 export default class DeliveryMode extends BaseModel {
   @column({ isPrimary: true })

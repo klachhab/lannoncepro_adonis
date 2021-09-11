@@ -88,13 +88,20 @@ Route.get('/', async ({ view }) => {
 
 
 
-
 // API Routes
 Route.group( () => {
 
-  Route.resource('cities', 'CitiesController')// .except(['create', 'edit'])
-  Route.resource('departments', 'DepartmentsController')// .except(['show'])
-  Route.resource('posts', 'PostsController')// .except(['show'])
-  Route.resource('users', 'UsersController')// .except(['show'])
+    Route.resource('cities', 'CitiesController')
+    Route.resource('departments', 'DepartmentsController')
+    Route.resource('users', 'UsersController')
+
+    Route.resource('posts', 'Post/PostsController')
+    Route.resource('post_galleries', 'Post/PostGalleriesController')
+        .only(['store', 'destroy'])
+        .as('store_gallery')
+
+    Route.resource('post_reviews', 'Post/PostReviewsController')
+        .only(['store', 'update', 'destroy'])
+        .as('store_review')
 
 }).prefix('/api')

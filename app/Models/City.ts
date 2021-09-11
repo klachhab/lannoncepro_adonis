@@ -7,7 +7,7 @@ import {
 
 import Department from "App/Models/Department";
 import User from "App/Models/User";
-import Post from "App/Models/Post";
+import Post from "App/Models/Post/Post";
 
 export default class City extends BaseModel {
 

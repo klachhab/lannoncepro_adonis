@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, hasMany, HasMany} from '@ioc:Adonis/Lucid/Orm'
 import {string} from "@ioc:Adonis/Core/Helpers";
-import Post from "App/Models/Post";
+import Post from "App/Models/Post/Post";
 
 export default class Category extends BaseModel {
   @column({ isPrimary: true })

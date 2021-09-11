@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
-import Post from "App/Models/Post";
+import Post from "App/Models/Post/Post";
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })

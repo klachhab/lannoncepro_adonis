@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
-import {BaseModel, BelongsTo, belongsTo, column} from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import Category from "App/Models/Category";
 import User from "App/Models/User";
 import City from "App/Models/City";
 import DeliveryMode from "App/Models/DeliveryMode";
+import PostGallery from "App/Models/Post/PostGallery";
+import PostReview from "App/Models/Post/PostReview";
 
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
@@ -82,5 +84,10 @@ export default class Post extends BaseModel {
   public deliveryMode: BelongsTo<typeof DeliveryMode>
 
 
+  @hasMany( () => PostGallery)
+  public images: HasMany<typeof PostGallery>
+
+  @hasMany( () => PostReview)
+  public reviews: HasMany<typeof PostReview>
 
 }

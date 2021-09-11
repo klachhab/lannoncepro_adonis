@@ -1,7 +1,7 @@
 import Factory from '@ioc:Adonis/Lucid/Factory'
 import User from "App/Models/User";
 import { string } from '@ioc:Adonis/Core/Helpers'
-import Post from "App/Models/Post";
+import Post from "App/Models/Post/Post";
 
 export const PostFactory = Factory
     .define(Post, ({faker}) => {
