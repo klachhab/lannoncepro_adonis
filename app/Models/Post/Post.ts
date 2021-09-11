@@ -1,18 +1,19 @@
 import { DateTime } from 'luxon'
-import {BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import Category from "App/Models/Category";
 import User from "App/Models/User";
 import City from "App/Models/City";
 import DeliveryMode from "App/Models/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostReview from "App/Models/Post/PostReview";
+import {string} from "@ioc:Adonis/Core/Helpers";
 
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public uuid: string
+  public slug: string
 
   @column()
   public title: string
@@ -89,5 +90,11 @@ export default class Post extends BaseModel {
 
   @hasMany( () => PostReview)
   public reviews: HasMany<typeof PostReview>
+
+// Events -------------------------------------
+  @beforeCreate()
+  public static async slugPost(post: Post) {
+    post.slug = string.dashCase(post.slug)
+  }
 
 }

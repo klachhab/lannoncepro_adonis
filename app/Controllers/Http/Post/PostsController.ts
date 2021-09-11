@@ -2,7 +2,8 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
 
 export default class PostsController {
-  public async index ({request}: HttpContextContract) {
+
+    public async index ({request}: HttpContextContract) {
       const posts = await Post.query()
           .preload('user', builder => {
               builder.select('is_pro')
@@ -25,7 +26,6 @@ export default class PostsController {
           )
           .paginate(request.qs().page, 10)
 
-
     return { posts }
   }
 
@@ -36,18 +36,20 @@ export default class PostsController {
   }
 
   public async show ({params}: HttpContextContract) {
-      const post = await Post.findOrFail(params.id)
+      const post = await Post.query()
+          .where('slug', params.id)
+          .first()
 
-      await post.load('images', image => {
+      await post?.load('images', image => {
           image.select('path')
       })
-      await post.load('reviews', review => {
+      await post?.load('reviews', review => {
           review
               .preload('user', user => {
                   user.select('name', 'picture')
               })
       })
-      await post.load('user', user => {
+      await post?.load('user', user => {
           user.select('name', 'is_pro')
       })
 

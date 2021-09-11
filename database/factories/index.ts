@@ -29,7 +29,6 @@ export const GalleryFactory = Factory
 export const PostFactory = Factory
     .define(Post, ({faker}) => {
         return {
-            uuid: faker.datatype.uuid(),
             category_id: faker.datatype.number({min:13, max:105}),
             city_id: faker.datatype.number({min: 1, max: 1000}),
             delivery_mode_id: faker.datatype.number({min: 1, max: 10}),
