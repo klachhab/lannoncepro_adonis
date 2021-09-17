@@ -44,17 +44,22 @@ export default class PostsController {
           }
 
           const post = await Post.create(request.all())
-          const images = request.files('images')
-          if (images){
-              images.forEach( image => {
-                  const path = Application.publicPath('uploads/posts/' + post.slug)
-                  image.move(path)
+          if (post) {
+              const images = request.files('images')
+              if (images) {
+                  images.forEach(image => {
+                      const path = Application.publicPath('uploads/posts/' + post.slug)
+                      image.move(path)
 
-                  post.related('images').create({
-                      path: '/uploads/post/' + post.slug + "/" + image.clientName
+                      post.related('images').create({
+                          path: '/uploads/post/' + post.slug + "/" + image.clientName
+                      })
+
                   })
-
-              })
+              }
+          }
+          else return {
+              error: "error lors de la creation"
           }
 
           return {post}
@@ -105,9 +110,9 @@ export default class PostsController {
   public async update ({request, params}: HttpContextContract) {
       try {
           const post = await Post.query()
-              .where('id', params.id)
-              .update(request.all())
+              .where('id', params.id).firstOrFail()
 
+          await post.merge(request.all()).save()
           return {post}
       }
       // @ts-ignore

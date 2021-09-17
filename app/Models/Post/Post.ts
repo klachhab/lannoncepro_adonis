@@ -1,19 +1,36 @@
 import { DateTime } from 'luxon'
-import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import {
+  // afterUpdate,
+  BaseModel,
+  // beforeCreate,
+  // beforeUpdate,
+  BelongsTo,
+  belongsTo,
+  column,
+  HasMany,
+  hasMany
+} from '@ioc:Adonis/Lucid/Orm'
 import Category from "App/Models/Category";
 import User from "App/Models/User";
 import City from "App/Models/City";
 import DeliveryMode from "App/Models/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostReview from "App/Models/Post/PostReview";
-import {string} from "@ioc:Adonis/Core/Helpers";
+// import {string} from "@ioc:Adonis/Core/Helpers";
 import PostReport from "App/Models/Post/PostReport";
+import {slugify} from "@ioc:Adonis/Addons/LucidSlugify";
 
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
+  @slugify({
+    strategy: 'simple',
+    fields: ['title'],
+    allowUpdates: true,
+    completeWords: true,
+  })
   public slug: string
 
   @column()
@@ -66,10 +83,10 @@ export default class Post extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
+  @column.dateTime({ autoCreate: true, serializeAs: null })
   public deletedAt: DateTime
 
 // Relationships -------------------------------------
@@ -96,9 +113,13 @@ export default class Post extends BaseModel {
   public reports: HasMany<typeof PostReport>
 
 // Events -------------------------------------
-  @beforeCreate()
-  public static async slugPost(post: Post) {
-    post.slug = string.dashCase(post.title)
-  }
+//   @beforeCreate()
+//   public static async postSlug(post: Post) {
+//     post.slug = string.dashCase(post.title)
+//   }
+//   @afterUpdate()
+//   public static async updatePostSlug(post: Post) {
+//     post.slug = string.dashCase(post.condition)
+//   }
 
 }
