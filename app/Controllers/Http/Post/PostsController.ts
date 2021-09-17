@@ -1,5 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
+import {HttpException} from "@adonisjs/http-server/build/src/Exceptions/HttpException";
 
 export default class PostsController {
 
@@ -33,8 +34,14 @@ export default class PostsController {
   }
 
   public async store ({request}: HttpContextContract) {
-      const post = await Post.create(request.all())
-      return { post }
+      try {
+          const post = await Post.create(request.all())
+          return {post}
+      }
+      // @ts-ignore
+      catch (e: HttpException) {
+          return { error: e.code }
+      }
   }
 
   public async show ({params, view}: HttpContextContract) {
@@ -75,21 +82,28 @@ export default class PostsController {
   }
 
   public async update ({request, params}: HttpContextContract) {
-      const post = await Post.query()
-          .where('id', params.id)
-          .update(request.all())
+      try {
+          const post = await Post.query()
+              .where('id', params.id)
+              .update(request.all())
 
-      return { post }
+          return {post}
+      }
+      // @ts-ignore
+      catch (e: HttpException) {
+          return { error: e.code }
+      }
   }
 
   public async destroy ({params}: HttpContextContract) {
       try {
           const post = await Post.findOrFail(params.id)
+          await post.delete()
           return {post}
-      } catch (e) {
-          return {
-              post: null
-          }
+      }
+      // @ts-ignore
+      catch (e: HttpException) {
+          return { error: e.code }
       }
   }
 }

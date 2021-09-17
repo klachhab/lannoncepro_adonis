@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import {BaseModel, belongsTo, column, BelongsTo} from '@ioc:Adonis/Lucid/Orm'
 import Post from "App/Models/Post/Post";
 import User from "App/Models/User";
+import ReportType from "App/Models/Post/ReportType";
 
 export default class PostReport extends BaseModel {
   @column({ isPrimary: true })
@@ -13,13 +14,16 @@ export default class PostReport extends BaseModel {
   @column({ serializeAs: null })
   public postId: number
 
+  @column({ serializeAs: null })
+  public postTypeId: number
+
   @column()
   public comment: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @column.dateTime()
+  @column.dateTime({ serializeAs: null })
   public deletedAt: DateTime
 
   // Relationships -------------------------------------
@@ -28,4 +32,7 @@ export default class PostReport extends BaseModel {
 
   @belongsTo( () => User)
   public user: BelongsTo<typeof User>
+
+  @belongsTo( () => ReportType)
+  public report_type: BelongsTo<typeof ReportType>
 }

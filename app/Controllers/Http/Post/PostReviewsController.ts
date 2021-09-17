@@ -26,7 +26,7 @@ export default class PostReviewsController {
     // @ts-ignore
     catch (e: HttpException) {
       return {
-        error: e.message
+        error: e.code
       }
     }
 
@@ -43,7 +43,7 @@ export default class PostReviewsController {
     }
     // @ts-ignore
     catch (e: HttpException) {
-      return { error: e.message }
+      return { error: e.code }
     }
   }
 
@@ -57,7 +57,7 @@ export default class PostReviewsController {
     }
     // @ts-ignore
     catch (e: HttpException) {
-      return { error: e.message }
+      return { error: e.code }
     }
   }
 }

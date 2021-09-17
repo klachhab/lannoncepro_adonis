@@ -7,16 +7,25 @@ export default class PostReports extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
+      table.text('comment').notNullable()
+
       table
-          .integer('user_id').unsigned()
+          .integer('report_type_id')
+          .unsigned().notNullable()
+          .references('report_types.id')
+          .onDelete('CASCADE')
+
+      table
+          .integer('user_id')
+          .unsigned().notNullable()
           .references('users.id')
           .onDelete('CASCADE').notNullable()
 
-      table.integer('post_id').unsigned()
+      table.integer('post_id')
+          .unsigned().notNullable()
           .references('posts.id')
           .onDelete('CASCADE').notNullable()
 
-      table.text('comment').notNullable()
       /**
        * Uses timestampTz for PostgreSQL and DATETIME2 for MSSQL
        */
