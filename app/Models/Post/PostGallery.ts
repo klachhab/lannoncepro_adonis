@@ -9,7 +9,7 @@ export default class PostGallery extends BaseModel {
   @column()
   public path: string
 
-  @column()
+  @column({ serializeAs: null })
   public postId: number
 
   @column.dateTime({ autoCreate: true })

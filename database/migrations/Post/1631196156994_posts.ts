@@ -28,7 +28,7 @@ export default class Posts extends BaseSchema {
 
       // ! Relations ================================================
 
-      table.string('title').notNullable()
+      table.text('title').notNullable()
       table.text('description').notNullable()
       table.enum('condition', ['new', 'used']).notNullable()
       table.float('price',11, 2).nullable()

@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
 import {HttpException} from "@adonisjs/http-server/build/src/Exceptions/HttpException";
+import Application from "@ioc:Adonis/Core/Application";
 
 export default class PostsController {
 
@@ -35,7 +36,27 @@ export default class PostsController {
 
   public async store ({request}: HttpContextContract) {
       try {
+          const exist_post = await Post.query().where('title', request.qs().title)
+          if (exist_post.length) {
+              return {
+                  error: "Une autre annonce avec le même titre déjà existe."
+              }
+          }
+
           const post = await Post.create(request.all())
+          const images = request.files('images')
+          if (images){
+              images.forEach( image => {
+                  const path = Application.publicPath('uploads/posts/' + post.slug)
+                  image.move(path)
+
+                  post.related('images').create({
+                      path: '/uploads/post/' + post.slug + "/" + image.clientName
+                  })
+
+              })
+          }
+
           return {post}
       }
       // @ts-ignore
