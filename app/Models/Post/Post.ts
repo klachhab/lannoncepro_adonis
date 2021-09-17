@@ -1,9 +1,6 @@
 import { DateTime } from 'luxon'
 import {
-  // afterUpdate,
   BaseModel,
-  // beforeCreate,
-  // beforeUpdate,
   BelongsTo,
   belongsTo,
   column,
@@ -16,11 +13,12 @@ import City from "App/Models/City";
 import DeliveryMode from "App/Models/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostReview from "App/Models/Post/PostReview";
-// import {string} from "@ioc:Adonis/Core/Helpers";
 import PostReport from "App/Models/Post/PostReport";
 import {slugify} from "@ioc:Adonis/Addons/LucidSlugify";
+import {compose} from "@poppinss/utils/build/src/Helpers";
+import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class Post extends BaseModel {
+export default class Post extends compose(BaseModel, SoftDeletes) {
   @column({ isPrimary: true })
   public id: number
 
@@ -86,8 +84,8 @@ export default class Post extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @column.dateTime({ autoCreate: true, serializeAs: null })
-  public deletedAt: DateTime
+  @column.dateTime({ serializeAs: null })
+  public deletedAt: DateTime | null
 
 // Relationships -------------------------------------
   @belongsTo( () => Category)
@@ -111,15 +109,5 @@ export default class Post extends BaseModel {
 
   @hasMany( () => PostReport)
   public reports: HasMany<typeof PostReport>
-
-// Events -------------------------------------
-//   @beforeCreate()
-//   public static async postSlug(post: Post) {
-//     post.slug = string.dashCase(post.title)
-//   }
-//   @afterUpdate()
-//   public static async updatePostSlug(post: Post) {
-//     post.slug = string.dashCase(post.condition)
-//   }
 
 }

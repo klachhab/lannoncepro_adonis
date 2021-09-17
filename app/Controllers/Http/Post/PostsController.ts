@@ -122,14 +122,14 @@ export default class PostsController {
   }
 
   public async destroy ({params}: HttpContextContract) {
-      try {
-          const post = await Post.findOrFail(params.id)
-          await post.delete()
-          return {post}
-      }
-      // @ts-ignore
+        try {
+            const post = await Post.findOrFail(params.id)
+            await post.delete()
+            return {post}
+        }
+        // @ts-ignore
       catch (e: HttpException) {
-          return { error: e.code }
-      }
+            return { error: e.code }
+        }
   }
 }

@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon'
 import {BaseModel, BelongsTo, belongsTo, column} from '@ioc:Adonis/Lucid/Orm'
 import Post from "App/Models/Post/Post";
+import {compose} from "@poppinss/utils/build/src/Helpers";
+import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class PostGallery extends BaseModel {
+export default class PostGallery extends compose(BaseModel, SoftDeletes) {
   @column({ isPrimary: true })
   public id: number
 
@@ -15,7 +17,7 @@ export default class PostGallery extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @column.dateTime()
+  @column.dateTime({ serializeAs: null })
   public deletedAt: DateTime
 
   // Relationships -------------------------------------

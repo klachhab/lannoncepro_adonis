@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon'
 import {BaseModel, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import PostReport from "App/Models/Post/PostReport";
+import {compose} from "@poppinss/utils/build/src/Helpers";
+import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class ReportType extends BaseModel {
+export default class ReportType extends compose(BaseModel, SoftDeletes)  {
   @column({ isPrimary: true })
   public id: number
 

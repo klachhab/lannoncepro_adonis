@@ -4,8 +4,10 @@ import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
 import Post from "App/Models/Post/Post";
 import PostReview from "App/Models/Post/PostReview";
+import {compose} from "@poppinss/utils/build/src/Helpers";
+import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class User extends BaseModel {
+export default class User extends compose(BaseModel, SoftDeletes) {
   @column({ isPrimary: true })
   public id: number
 

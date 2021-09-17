@@ -2,9 +2,10 @@ import { DateTime } from 'luxon'
 import {BaseModel, BelongsTo, belongsTo, column} from '@ioc:Adonis/Lucid/Orm'
 import User from "App/Models/User";
 import Post from "App/Models/Post/Post";
-// import Post from "App/Models/Post/Post";
+import {compose} from "@poppinss/utils/build/src/Helpers";
+import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class PostReview extends BaseModel {
+export default class PostReview extends compose(BaseModel, SoftDeletes)  {
   @column({ isPrimary: true })
   public id: number
 

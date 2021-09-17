@@ -3,8 +3,10 @@ import {BaseModel, belongsTo, column, BelongsTo} from '@ioc:Adonis/Lucid/Orm'
 import Post from "App/Models/Post/Post";
 import User from "App/Models/User";
 import ReportType from "App/Models/Post/ReportType";
+import {compose} from "@poppinss/utils/build/src/Helpers";
+import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class PostReport extends BaseModel {
+export default class PostReport extends compose(BaseModel, SoftDeletes)  {
   @column({ isPrimary: true })
   public id: number
 
