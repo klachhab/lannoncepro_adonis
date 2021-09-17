@@ -5,7 +5,9 @@
   "scripts": {
     "build": "node ace build --production",
     "start": "node server.js",
-    "dev": "node ace serve --watch"
+    "dev": "node ace serve --watch",
+    "migrate": "node ace migration:run",
+    "copy-routes": "node ace list:routes --json | pbcopy"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^5.3.5",

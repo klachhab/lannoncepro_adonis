@@ -9,18 +9,18 @@ export default class PostsController {
                 builder.select('is_pro')
             })
             .preload('city',builder => {
-              builder
-                  .select('name', 'department_id')
-                  .preload('department', builder => {
-                      builder.select('name')
-                  })
-          })
+                builder
+                    .select('name', 'department_id')
+                    .preload('department', builder => {
+                        builder.select('name')
+                    })
+            })
             .preload('category', builder => {
-              builder.select('name', 'category_id')
-                  .preload('parent', builder => {
-                      builder.select('name')
-                  })
-          })
+                builder.select('name', 'category_id')
+                    .preload('parent', builder => {
+                        builder.select('name')
+                    })
+            })
             .select('id', 'user_id', 'category_id', 'city_id',
                 'title', 'price', 'negotiable'
             )

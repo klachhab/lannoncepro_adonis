@@ -70,7 +70,7 @@ Route.get('/', async ({ view }) => {
 // API Routes
 Route.group( () => {
 
-    Route.resource('cities', 'CitiesController')
+    Route.resource('cities', 'CitiesController').apiOnly()
     Route.resource('departments', 'DepartmentsController')
         // .only(['show', 'index'])
 
@@ -80,10 +80,13 @@ Route.group( () => {
 
     Route.resource('post_galleries', 'Post/PostGalleriesController')
         .only(['destroy'])
-        .as('store_gallery')
 
     Route.resource('post_reviews', 'Post/PostReviewsController')
-        .only(['destroy'])
-        .as('store_review')
+        .apiOnly()
+        .except(['show'])
+
+    Route.resource('post_reports', 'Post/PostReportsController')
+        .apiOnly()
+        .except(['show'])
 
 }).prefix('/api')

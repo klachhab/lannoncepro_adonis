@@ -7,6 +7,7 @@ import DeliveryMode from "App/Models/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostReview from "App/Models/Post/PostReview";
 import {string} from "@ioc:Adonis/Core/Helpers";
+import PostReport from "App/Models/Post/PostReport";
 
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
@@ -90,6 +91,9 @@ export default class Post extends BaseModel {
 
   @hasMany( () => PostReview)
   public reviews: HasMany<typeof PostReview>
+
+  @hasMany( () => PostReport)
+  public reports: HasMany<typeof PostReport>
 
 // Events -------------------------------------
   @beforeCreate()
