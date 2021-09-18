@@ -9,7 +9,7 @@ export default class PostGalleries extends BaseSchema {
 
       table.integer('post_id').unsigned()
           .references('posts.id')
-          .onDelete('CASCADE').notNullable()
+          .notNullable()
 
       table.string('path').notNullable()
       /**

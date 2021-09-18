@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import {
+  afterDelete,
   BaseModel,
   BelongsTo,
   belongsTo,
@@ -10,7 +11,7 @@ import {
 import Category from "App/Models/Category";
 import User from "App/Models/User";
 import City from "App/Models/City";
-import DeliveryMode from "App/Models/DeliveryMode";
+import DeliveryMode from "App/Models/Post/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostReview from "App/Models/Post/PostReview";
 import PostReport from "App/Models/Post/PostReport";
@@ -109,5 +110,24 @@ export default class Post extends compose(BaseModel, SoftDeletes) {
 
   @hasMany( () => PostReport)
   public reports: HasMany<typeof PostReport>
+
+//  Hooks -------------------------------------
+
+  @afterDelete()
+  public static async deleteRelated(post: Post){
+    const reviews = await post.related('reviews').query()
+    const reports = await post.related('reports').query()
+    const images = await post.related('images').query()
+
+    reviews.forEach( (review: PostReview) => {
+      review.delete()
+    })
+    reports.forEach( (report: PostReport) => {
+      report.delete()
+    })
+    images.forEach( (image: PostGallery) => {
+      image.delete()
+    })
+  }
 
 }

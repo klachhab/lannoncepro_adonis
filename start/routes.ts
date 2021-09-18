@@ -77,6 +77,8 @@ Route.group( () => {
     Route.resource('users', 'UsersController')
 
     Route.resource('posts', 'Post/PostsController')
+    Route.post('posts/:id/restore', 'Post/PostsController.restore')
+        .as('posts.restore')
 
     Route.resource('post_galleries', 'Post/PostGalleriesController')
         .only(['destroy'])

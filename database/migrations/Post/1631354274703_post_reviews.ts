@@ -10,11 +10,11 @@ export default class PostReviews extends BaseSchema {
       table
           .integer('user_id').unsigned()
           .references('users.id')
-          .onDelete('CASCADE').notNullable()
+          .notNullable()
 
       table.integer('post_id').unsigned()
           .references('posts.id')
-          .onDelete('CASCADE').notNullable()
+          .notNullable()
 
       table.text('comment').nullable()
       table.integer('rating', 1).notNullable()
