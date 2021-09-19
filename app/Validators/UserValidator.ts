@@ -55,10 +55,10 @@ export default class UserValidator {
 			rules.exists({table: 'cities', column: 'id'})
 		]),
 
-		avatar: schema.file({
-			size: '2mb',
-			extnames: ['jpg', 'gif', 'png'],
-		}),
+		// avatar: schema.file({
+		// 	size: '2mb',
+		// 	extnames: ['jpg', 'gif', 'png'],
+		// }),
   })
 
 	/**
@@ -95,7 +95,7 @@ export default class UserValidator {
 
 		'city_id.exists' : "Cette ville/commune n'existe pas dans nos bases de données<sup>*</sup>",
 
-		"avatar.size": "La taille de l'image ne doit pas dépasser {{ options.size}}",
-		"avatar.extnames": "L'image doit être sous format JPG, JPEG ou PNG",
+		// "avatar.size": "La taille de l'image ne doit pas dépasser {{ options.size}}",
+		// "avatar.extnames": "L'image doit être sous format JPG, JPEG ou PNG",
   }
 }

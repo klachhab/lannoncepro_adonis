@@ -75,9 +75,9 @@ Route.group( () => {
         // .only(['show', 'index'])
 
     Route.resource('profile', 'UsersController')
-    Route.post('users/:id/restore', 'UsersController.restore')
+    Route.post('profile/:username/restore', 'UsersController.restore')
         .as('users.restore')
-    Route.delete('users/:id/force-delete', 'UsersController.forceDelete')
+    Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
         .as('users.forceDelete')
 
     Route.resource('posts', 'Post/PostsController')
