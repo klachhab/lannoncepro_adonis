@@ -3,6 +3,8 @@ import {BaseModel, column, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import City from "App/Models/City";
 
 export default class Department extends BaseModel {
+  public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 

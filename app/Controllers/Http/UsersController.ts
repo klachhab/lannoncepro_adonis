@@ -1,11 +1,13 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from "App/Models/User";
 import {HttpException} from "@adonisjs/http-server/build/src/Exceptions/HttpException";
-import Application from "@ioc:Adonis/Core/Application";
-import {Exception} from "@poppinss/utils";
 import Post from "App/Models/Post/Post";
 import PostReview from "App/Models/Post/PostReview";
 import PostReport from "App/Models/Post/PostReport";
+import UserValidator from "App/Validators/UserValidator";
+import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
+import {Exception} from "@poppinss/utils";
+import Application from "@ioc:Adonis/Core/Application";
 
 export default class UsersController {
   public async index ({}: HttpContextContract) {
@@ -27,45 +29,75 @@ export default class UsersController {
   }
 
   public async store ({request}: HttpContextContract) {
-    try {
-      const user = await User.create(request.all())
 
-      const avatar = request.file('avatar')
-      if (avatar){
-        const path = `uploads/users/${user.username}`
-        // await avatar.move(Application.publicPath(path))
-        //     .then( () => {
-        //       user.merge({
-        //         avatar: "/" + path
-        //       }).save()
-        //     })
-        //     .catch( err => {
-        //       return {err}
-        //     })
+    return await request.validate(UserValidator)
+        .then( async (resp: Object) => {
+          return await User.create(resp)
+              .then( async (user: User) => {
+                const avatar = request.file('avatar')
 
+                if (avatar) {
+                  const path = `uploads/profiles/${user.username}`
+                  await avatar.move(Application.publicPath(path), {
+                    name: `avatar.${avatar.extname}`,
+                    overwrite: true
+                  }).then( () => {
+                    user.merge({
+                      avatar: `/uploads/profiles/${user.username}/avatar.${avatar.extname}`
+                    }).save()
+                  })
+                }
 
-        try {
-          await avatar.move(Application.publicPath(path), {
-            name: `avatar.${avatar.extname}`,
-            overwrite: true
-          })
-        }
-        // @ts-ignore
-        catch (e: Exception) {
-          return {error: e}
-        }
+                return {
+                  success: true,
+                  response: user
+                }
+              })
+              .catch( (err: Exception) => {
+                return {
+                  success: false,
+                  response: err.code
+                }
+              })
 
-      }
-      else return
+        })
 
-      return {
-        user: await user.load("city")
-      }
-    }
-    // @ts-ignore
-    catch (e: HttpException) {
-      return { error: e.code }
-    }
+        .catch( (err: ValidationException) => {
+          return {
+            success: false,
+            response: err.messages
+          }
+        })
+
+    // const user = await User.create(data)
+    //     .then( (user: User) => {
+    //       const avatar = request.file('avatar')
+    //       const path = `uploads/users/${user.username}`
+    //
+    //       if (avatar){
+    //         avatar.move(Application.publicPath(path), {
+    //           name: `avatar.${avatar.extname}`,
+    //           overwrite: true
+    //         }).then( () => {
+    //           user.merge({
+    //             avatar: `/uploads/users/${user.username}`
+    //           }).save()
+    //         })
+    //       }
+    //     })
+    //
+    //     .catch((error: Exception) => {
+    //       return {
+    //         success: false,
+    //         response: error.message,
+    //       }
+    //     })
+    //
+    // return {
+    //   success: true,
+    //   response: user,
+    // }
+
   }
 
   public async show ({}: HttpContextContract) {
@@ -74,24 +106,35 @@ export default class UsersController {
   public async edit ({}: HttpContextContract) {
   }
 
+
   public async update ({params, request}: HttpContextContract) {
     const user = await User.query()
         .where('id', params.id)
         .firstOrFail()
-    await user.merge(request.all())
+
+    user.merge(request.all())
+        .save()
   }
 
+
   public async destroy ({params}: HttpContextContract) {
-    try {
-      const user = await User.findOrFail(params.id)
-      await user.delete()
-      return {user: user.name}
-    }
-        // @ts-ignore
-    catch (e: HttpException) {
-      return { error: e.code }
-    }
+    return await User.findOrFail(params.id)
+        .then( async user => {
+          await user.delete()
+          return {
+            success: true,
+            result: user
+          }
+        })
+        .catch( (err: Exception) => {
+          return {
+            success: false,
+            result: err.code
+            // result: user
+          }
+        })
   }
+
 
   public async restore ({params}: HttpContextContract) {
     try {
@@ -114,5 +157,25 @@ export default class UsersController {
         error: e.code
       }
     }
+  }
+
+  public async forceDelete({params} : HttpContextContract) {
+    return await User.onlyTrashed()
+        .where('id', params.id)
+        .firstOrFail()
+        .then( async user => {
+          // await user.forceDelete()
+          return {
+            success: true,
+            result: await user.forceDelete()
+          }
+        })
+        .catch( (error: Exception) => {
+          return {
+            success: false,
+            result: error.code
+          }
+        })
+
   }
 }

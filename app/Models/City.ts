@@ -11,6 +11,8 @@ import Post from "App/Models/Post/Post";
 
 export default class City extends BaseModel {
 
+  public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 

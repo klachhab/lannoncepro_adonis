@@ -20,6 +20,9 @@ import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
 export default class Post extends compose(BaseModel, SoftDeletes) {
+
+  public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 

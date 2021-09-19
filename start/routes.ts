@@ -74,9 +74,11 @@ Route.group( () => {
     Route.resource('departments', 'DepartmentsController')
         // .only(['show', 'index'])
 
-    Route.resource('users', 'UsersController')
+    Route.resource('profile', 'UsersController')
     Route.post('users/:id/restore', 'UsersController.restore')
         .as('users.restore')
+    Route.delete('users/:id/force-delete', 'UsersController.forceDelete')
+        .as('users.forceDelete')
 
     Route.resource('posts', 'Post/PostsController')
     Route.post('posts/:id/restore', 'Post/PostsController.restore')

@@ -18,6 +18,9 @@ import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import PostReport from "App/Models/Post/PostReport";
 
 export default class User extends compose(BaseModel, SoftDeletes) {
+
+  public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 
