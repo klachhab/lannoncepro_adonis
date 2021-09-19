@@ -128,10 +128,10 @@ export default class PostsController {
         try {
             const post = await Post.findOrFail(params.id)
             await post.delete()
-            return {post}
+            return {post: post.title}
         }
         // @ts-ignore
-      catch (e: HttpException) {
+        catch (e: HttpException) {
             return { error: e.code }
         }
   }

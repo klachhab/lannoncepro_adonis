@@ -75,6 +75,8 @@ Route.group( () => {
         // .only(['show', 'index'])
 
     Route.resource('users', 'UsersController')
+    Route.post('users/:id/restore', 'UsersController.restore')
+        .as('users.restore')
 
     Route.resource('posts', 'Post/PostsController')
     Route.post('posts/:id/restore', 'Post/PostsController.restore')
