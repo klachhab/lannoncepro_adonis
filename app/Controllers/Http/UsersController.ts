@@ -10,18 +10,12 @@ import Application from "@ioc:Adonis/Core/Application";
 
 export default class UsersController {
   public async index ({}: HttpContextContract) {
-    const users = await User.withTrashed()
+
+      return await User.withTrashed()
         .withCount('posts')
         .withCount('reports')
         .withCount('reviews')
 
-    users.forEach( (user: User) => {
-      console.log(user.$extras)
-    })
-
-    return {
-      users
-    }
   }
 
   public async create ({}: HttpContextContract) {
@@ -69,25 +63,24 @@ export default class UsersController {
 
   public async show ({params}: HttpContextContract) {
 
-      try {
-          return {
-              success: true,
-              user: await User.query()
-                  .where('username', params.id)
-                  .preload('posts', posts => {
-                      posts.withTrashed()
-                  })
-                  .withCount('posts')
-                  .firstOrFail()
-          }
-      }
-      catch (e) {
-          return {
-              success: false,
-              user: e.code
-          }
-      }
-
+      return await User.query().where('username', params.id)
+          .preload('posts', posts => {
+              posts.withTrashed()
+          })
+          .withCount('posts')
+          .firstOrFail()
+          .then( async user => {
+              return {
+                  success: true,
+                  user
+              }
+          })
+          .catch( (error: Exception) => {
+              return {
+                  success: false,
+                  error: error.code
+              }
+          })
 
   }
 

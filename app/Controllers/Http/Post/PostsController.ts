@@ -1,15 +1,18 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
-import {HttpException} from "@adonisjs/http-server/build/src/Exceptions/HttpException";
 import Application from "@ioc:Adonis/Core/Application";
 import PostReview from "App/Models/Post/PostReview";
 import PostReport from "App/Models/Post/PostReport";
 import PostGallery from "App/Models/Post/PostGallery";
+import PostValidator from "App/Validators/PostValidator";
+import {Exception} from "@poppinss/utils";
+import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 
 export default class PostsController {
 
     public async index ({request}: HttpContextContract) {
-        const posts = await Post.query()
+
+        return await Post.query()
             .preload('user', builder => {
                 builder.select('is_pro')
             })
@@ -30,74 +33,92 @@ export default class PostsController {
                 'title', 'price', 'negotiable'
             )
             .paginate(request.qs().page, 10)
-
-        return { posts }
   }
 
   public async create ({}: HttpContextContract) {
   }
 
   public async store ({request}: HttpContextContract) {
-      try {
-          const exist_post = await Post.query().where('title', request.qs().title)
-          if (exist_post.length) {
-              return {
-                  error: "Une autre annonce avec le même titre déjà existe."
-              }
-          }
 
-          const post = await Post.create(request.all())
-          if (post) {
-              const images = request.files('images')
-              if (images) {
-                  images.forEach(image => {
-                      const path = Application.publicPath('uploads/posts/' + post.slug)
-                      image.move(path)
+        return await request.validate(PostValidator)
+            .then( async (response: Object) => {
 
-                      post.related('images').create({
-                          path: '/uploads/post/' + post.slug + "/" + image.clientName
-                      })
+                return await Post.create(response)
+                    .then( post => {
+                        const images = request.files('images')
+                        if (images.length) {
 
-                  })
-              }
-          }
-          else return {
-              error: "error lors de la creation"
-          }
+                            images.forEach(image => {
+                                const path = Application.publicPath('uploads/posts/' + post.slug)
+                                image.move(path)
+                                    .then( async () => {
+                                        post.related('images').create({
+                                            path: '/uploads/post/' + post.slug + "/" + image.clientName
+                                        })
+                                    })
+                                    .catch( (err: Exception) => {
+                                        return {
+                                            success: false,
+                                            message: err.code,
+                                        }
+                                    })
 
-          return {post}
-      }
-      // @ts-ignore
-      catch (e: HttpException) {
-          return { error: e.code }
-      }
+                            })
+
+                        }
+
+                        return {
+                            success: true,
+                            message: post,
+                        }
+                    })
+                    .catch( (err: Exception) => {
+                        return {
+                            success: false,
+                            message: err.code,
+                        }
+                    })
+
+            })
+
+            .catch( (err: ValidationException) => {
+                return {
+                    success: false,
+                    message: err.messages,
+                }
+            })
   }
 
-  public async show ({params, view}: HttpContextContract) {
-      try {
-          const post = await Post.query()
-              .where('slug', params.id)
-              .first()
 
-          await post?.load('images', image => {
-              image.select('path')
-          })
-          await post?.load('reviews', review => {
-              review
-                  .preload('user', user => {
+  public async show ({params}: HttpContextContract) {
+      return await Post.query()
+          .where('slug', params.id)
+          .firstOrFail()
+          .then( async post => {
+              await post.load('images', image => {
+                  image.select('path')
+              })
+              await post.load('reviews', review => {
+                  review.preload('user', user => {
                       user.select('name', 'picture')
                   })
-          })
-          await post?.load('user', user => {
-              user.select('name', 'is_pro')
-          })
+              })
+              await post.load('user', image => {
+                  image.select('patname', 'is_proh')
+              })
 
-          return {
-              post,
-          }
-      } catch (e) {
-          return await view.render('errors.not-found')
-      }
+              return {
+                  success: true,
+                  post
+              }
+          })
+          .catch( async (e: Exception) => {
+              return {
+                  success: false,
+                  error: e.code,
+              }
+              // return await view.render('errors.not-found')
+          })
   }
 
   public async edit ({params, view}: HttpContextContract) {
@@ -110,51 +131,198 @@ export default class PostsController {
       }
   }
 
-  public async update ({request, params}: HttpContextContract) {
-      try {
-          const post = await Post.query()
-              .where('id', params.id).firstOrFail()
 
-          await post.merge(request.all()).save()
-          return {post}
-      }
-      // @ts-ignore
-      catch (e: HttpException) {
-          return { error: e.code }
-      }
+  public async update ({request, params}: HttpContextContract) {
+        return await Post.query()
+            .where('slug', params.id)
+            .firstOrFail()
+            .then( async post => {
+                return await request.validate(PostValidator)
+                    .then( async (resp: Object) => {
+
+                        return await post.merge(resp)
+                            .save()
+                            .then( post => {
+                                return {
+                                    success: true,
+                                    post
+                                }
+                            })
+                            .catch( (err: Exception) => {
+                                return {
+                                    success: false,
+                                    error: err.code,
+                                }
+                            })
+
+                    })
+                    .catch( (err: ValidationException) => {
+                        return {
+                            success: false,
+                            error: err.messages,
+                        }
+                    })
+
+            })
+            .catch( (err: Exception) => {
+                return {
+                    success: false,
+                    message: err.code,
+                }
+            })
   }
 
+
   public async destroy ({params}: HttpContextContract) {
-        try {
-            const post = await Post.findOrFail(params.id)
-            await post.delete()
-            return {post: post.title}
-        }
-        // @ts-ignore
-        catch (e: HttpException) {
-            return { error: e.code }
-        }
+      return await Post.query()
+          .where('slug', params.id)
+          .firstOrFail()
+          .then( async post => {
+              return await post.delete()
+                  .then( async () => {
+                      await PostReview.query().where('post_id', post.id)
+                          .then( (reviews) => {
+                              reviews.forEach( (review) => {
+                                  review.delete()
+                              })
+                          })
+
+                      await PostReport.query().where('post_id', post.id)
+                          .then( (reports) => {
+                              reports.forEach( (report) => {
+                                  report.delete()
+                              })
+                          })
+
+                      await PostGallery.query().where('post_id', post.id)
+                          .then( (images) => {
+                              images.forEach( (image) => {
+                                  image.delete()
+                              })
+                          })
+
+                      return {
+                          success: true,
+                          result: post
+                      }
+                  })
+                  .catch( (e: Exception) => {
+                      return {
+                          success: false,
+                          result: e.code
+                      }
+                  })
+
+
+          })
+          .catch( (err: Exception) => {
+              return {
+                  success: false,
+                  result: err.code
+              }
+          })
+
   }
 
   public async restore ({params}: HttpContextContract) {
-        try {
-            const post = await Post.onlyTrashed().where('id', params.id).firstOrFail()
-            await post.restore().then( () => {
-                PostReview.onlyTrashed().where("post_id", post.id).restore()
-                PostReport.onlyTrashed().where("post_id", post.id).restore()
-                PostGallery.onlyTrashed().where("post_id", post.id).restore()
+        return await Post.onlyTrashed()
+            .where('slug', params.slug)
+            .firstOrFail()
+            .then( async post => {
+                return await post.restore()
+                    .then( async () => {
+                        await PostReview.onlyTrashed().where('post_id', post.id)
+                            .then( (reviews) => {
+                              reviews.forEach( (review) => {
+                                  review.restore()
+                                  post.preload('reviews')
+                              })
+                          })
+
+                        await PostReport.onlyTrashed().where('post_id', post.id)
+                            .then( (reports) => {
+                              reports.forEach( (report) => {
+                                  report.restore()
+                                  post.preload('reports')
+                              })
+                          })
+
+                        await PostGallery.onlyTrashed().where('post_id', post.id)
+                            .then( (images) => {
+                              images.forEach( (image) => {
+                                  image.restore()
+                                  post.preload('images')
+                              })
+                          })
+
+                        return {
+                          success: true,
+                          result: post
+                        }
+                    })
+                    .catch( (e: Exception) => {
+                        return {
+                            success: false,
+                            result: e.code
+                        }
+                    })
+            })
+            .catch( (err: Exception) => {
+              return {
+                  success: false,
+                  result: err.code
+              }
+            })
+  }
+
+  public async forceDelete({params} : HttpContextContract) {
+        return await Post.onlyTrashed()
+            .where('slug', params.slug)
+            .firstOrFail()
+            .then( async post => {
+                return await post.forceDelete()
+                    .then( async () => {
+                        await PostReview.onlyTrashed().where('post_id', post.id)
+                            .then( (reviews) => {
+                                reviews.forEach( (review) => {
+                                    review.forceDelete()
+                                })
+                            })
+
+                        await PostReport.onlyTrashed().where('post_id', post.id)
+                            .then( (reports) => {
+                                reports.forEach( (report) => {
+                                    report.forceDelete()
+                                })
+                            })
+
+                        await PostGallery.onlyTrashed().where('post_id', post.id)
+                            .then( (images) => {
+                                images.forEach( (image) => {
+                                    image.forceDelete()
+                                })
+                            })
+
+                        return {
+                            success: true,
+                            result: post
+                        }
+                    })
+                    .catch( (e: Exception) => {
+                        return {
+                            success: false,
+                            result: e.code
+                        }
+                    })
+
+
+            })
+            .catch( (err: Exception) => {
+                return {
+                    success: false,
+                    result: err.code
+                }
             })
 
-            return {
-                restored: true,
-            }
-        }
-        // @ts-ignore
-        catch (e: HttpException) {
-            return {
-                restored: false,
-                error: e.code
-            }
-        }
-  }
+    }
 }

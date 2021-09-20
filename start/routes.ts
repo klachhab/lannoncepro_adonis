@@ -76,13 +76,17 @@ Route.group( () => {
 
     Route.resource('profile', 'UsersController')
     Route.post('profile/:username/restore', 'UsersController.restore')
-        .as('users.restore')
+        .as('profile.restore')
     Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
-        .as('users.forceDelete')
+        .as('profile.forceDelete')
+
 
     Route.resource('posts', 'Post/PostsController')
-    Route.post('posts/:id/restore', 'Post/PostsController.restore')
+    Route.post('posts/:slug/restore', 'Post/PostsController.restore')
         .as('posts.restore')
+    Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
+        .as('posts.forceDelete')
+
 
     Route.resource('post_galleries', 'Post/PostGalleriesController')
         .only(['destroy'])

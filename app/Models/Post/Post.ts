@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import {
-  afterDelete,
+  // afterDelete,
   BaseModel,
   BelongsTo,
   belongsTo,
@@ -116,21 +116,21 @@ export default class Post extends compose(BaseModel, SoftDeletes) {
 
 //  Hooks -------------------------------------
 
-  @afterDelete()
-  public static async deleteRelated(post: Post){
-    const reviews = await post.related('reviews').query()
-    const reports = await post.related('reports').query()
-    const images = await post.related('images').query()
-
-    reviews.forEach( (review: PostReview) => {
-      review.delete()
-    })
-    reports.forEach( (report: PostReport) => {
-      report.delete()
-    })
-    images.forEach( (image: PostGallery) => {
-      image.delete()
-    })
-  }
+  // @afterDelete()
+  // public static async deleteRelated(post: Post){
+  //   const reviews = await post.related('reviews').query()
+  //   const reports = await post.related('reports').query()
+  //   const images = await post.related('images').query()
+  //
+  //   reviews.forEach( (review: PostReview) => {
+  //     review.delete()
+  //   })
+  //   reports.forEach( (report: PostReport) => {
+  //     report.delete()
+  //   })
+  //   images.forEach( (image: PostGallery) => {
+  //     image.delete()
+  //   })
+  // }
 
 }
