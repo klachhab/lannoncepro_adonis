@@ -60,9 +60,9 @@ export const UserFactory = Factory
             email: faker.internet.email(),
             password: 'password',
             phone: faker.datatype.number({min: 11111111, max: 99999999}),
-            picture: faker.random.image(),
+            avatar: faker.random.image(),
             city_id: faker.datatype.number({min: 1, max: 1000}),
         }
     })
-    .relation('posts', () => PostFactory)
+    // .relation('posts', () => PostFactory)
     .build()

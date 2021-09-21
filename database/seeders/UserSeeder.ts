@@ -4,7 +4,7 @@ import {UserFactory} from "Database/factories";
 export default class UserSeederSeeder extends BaseSeeder {
   public async run () {
     await UserFactory
-        .with("posts", Math.floor(Math.random() * 100))
+        // .with("posts", Math.floor(Math.random() * 100))
         .createMany(20)
   }
 }
