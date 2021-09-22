@@ -22,7 +22,7 @@ import Route from '@ioc:Adonis/Core/Route'
 import Category from "App/Models/Category";
 import City from "App/Models/City";
 import Department from 'App/Models/Department';
-import axios from 'axios';
+import DeliveryMode from 'App/Models/Post/DeliveryMode';
 
 // WEB Routes
 Route.get('/', async ({ view }) => {
@@ -68,38 +68,16 @@ Route.get('/', async ({ view }) => {
 
 
 Route.get('/tests', async ({}) => {
-    
-    const departments = await Department.query()
-        .withCount('cities')
 
-    // return { deps}
-
-    // departments.forEach(department => {
-        
-    //     if (!department.$extras.cities_count) {
-    //         axios.get('https://geo.api.gouv.fr/departements/' + department.code + '/communes')
-
-    //             .then(async (result) => {
-    //                 await result.data.forEach(async city => {
-    //                     await department.related('cities').create({
-    //                         name: city.nom,
-    //                         code: city.code,
-    //                         departmentId: department.id
-    //                     })
-    //                 });
-    //             })
-    //             .catch((err) => {
-    //                 return 
-    //             });
-    //     }
-
-    return { departments}
-
-    });
-    
-    
-
-    
+    return { 
+        deps: await Department.query().withCount('cities'),
+        categs: await Category.query()
+        .whereNull('category_id')
+        .withCount('subs', subs => {
+            subs.as('sub_categories')
+        }),
+        delevery_modes: await DeliveryMode.query()
+    }
 })
 
 // API Routes

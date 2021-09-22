@@ -5,14 +5,17 @@ import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
 export default class DeliveryMode extends compose(BaseModel, SoftDeletes)  {
+
+  public serializeExtras = true
+  
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public key: number
+  public key: string
 
   @column()
-  public mode: number
+  public mode: string
 
   @column.dateTime()
   public deletedAt: DateTime
