@@ -4,7 +4,7 @@ import Application from "@ioc:Adonis/Core/Application";
 import PostReview from "App/Models/Post/PostReview";
 import PostReport from "App/Models/Post/PostReport";
 import PostGallery from "App/Models/Post/PostGallery";
-import PostValidator from "App/Validators/PostValidator";
+import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 

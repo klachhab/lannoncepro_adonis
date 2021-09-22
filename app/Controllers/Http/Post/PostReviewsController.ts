@@ -2,6 +2,9 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import PostReview from "App/Models/Post/PostReview";
 import Post from "App/Models/Post/Post";
 import {HttpException} from "@adonisjs/http-server/build/src/Exceptions/HttpException";
+import PostReviewValidator from 'App/Validators/Post/PostReviewValidator';
+import { ValidationException } from '@adonisjs/validator/build/src/ValidationException';
+import { Exception } from '@poppinss/utils';
 
 export default class PostReviewsController {
 
@@ -16,35 +19,65 @@ export default class PostReviewsController {
 
   public async store ({request}: HttpContextContract) {
 
-    try {
-      const post = await Post.findOrFail(request.qs().post)
-      const review = await post.related('reviews').create(request.all())
+    return await request.validate(PostReviewValidator)
+    .then(async (result: Object) => {
+      return await Post.query()
+        .where('slug',request.qs().post)
+        .firstOrFail()
+      
+        .then( async (pst) => {
+          return {
+            success: true,
+            review: await pst.related('reviews').create(result)
+          }
+        })
+        .catch((err: Exception) => {
+          return {
+            success: false,
+            message: err.message,
+          }
+        });
 
-      return { review }
-
-    }
-    // @ts-ignore
-    catch (e: HttpException) {
+      
+    })
+    .catch((err: ValidationException) => {
       return {
-        error: e.code
+        success: false,
+        message: err.messages,
       }
-    }
+    });
 
   }
 
   public async update ({request, params}: HttpContextContract) {
-    try {
-      const review = await PostReview.query()
-          .where('id', params.id)
-          .update(request.all())
+    
+    return await request.validate(PostReviewValidator)
+    .then(async (result: Object) => {
 
-      return { review }
+      await PostReview.query()
+      .where('id', params.id)
+      .update(result)
+      .then(async (result) => {
+        return await {
+          success: true,
+          result,
+        }
+      }).catch(async (err: Exception) => {
+        return await {
+          success: false,
+          message: err.message,
+        }
+      });
 
-    }
-    // @ts-ignore
-    catch (e: HttpException) {
-      return { error: e.code }
-    }
+    })
+    
+    .catch((err: ValidationException) => {
+      return {
+        success: false,
+        message: err.messages,
+      }
+    });
+    
   }
 
   public async destroy ({params}: HttpContextContract) {
