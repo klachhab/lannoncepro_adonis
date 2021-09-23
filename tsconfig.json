@@ -34,7 +34,8 @@
       "@adonisjs/lucid",
       "@adonisjs/lucid-slugify",
       "adonis-lucid-soft-deletes",
-      "@adonisjs/validator"
+      "@adonisjs/validator",
+      "adonis-lucid-filter"
     ]
   }
 }

@@ -7,11 +7,44 @@ import PostGallery from "App/Models/Post/PostGallery";
 import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
+import PostFilter from 'App/Models/Filters/PostFilter';
+import Category from 'App/Models/Category';
 
 export default class PostsController {
 
     public async index ({request}: HttpContextContract) {
 
+        // return await Category.query()
+        //     .where('slug', request.qs().ctg)
+        //     .preload('subs')
+        //     .firstOrFail()
+
+
+        // return await Post.query().whereHas('category', categ => {
+
+        //     if (category.subs.length) {
+        //         const slugs = category.subs.map(sub => sub.slug)
+        //         categ.whereIn('slug', slugs)
+        //     }
+        //     else categ.where('slug', request.qs().ctg)
+
+        //     // categ.whereIn('slug', slugs)
+            
+        // })
+
+        // return Post.query().whereHas('category', categ => {
+
+        //     if (category.subs.length) {
+            
+        //         const slugs = category.subs.map(sub => sub.slug)
+        //         categ.whereIn('slug', slugs)
+        //     }
+        //     else categ.where('slug', request.qs().ctg)
+        // })
+
+        return Post.filter(request.qs(), PostFilter)
+
+        
         return await Post.query()
             .preload('user', builder => {
                 builder.select('is_pro')

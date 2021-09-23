@@ -18,9 +18,11 @@ import PostReport from "App/Models/Post/PostReport";
 import {slugify} from "@ioc:Adonis/Addons/LucidSlugify";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter';
 
-export default class Post extends compose(BaseModel, SoftDeletes) {
+export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
+  
   public serializeExtras = true
 
   @column({ isPrimary: true })
@@ -75,7 +77,8 @@ export default class Post extends compose(BaseModel, SoftDeletes) {
   @column({serializeAs: null})
   public categoryId: number
 
-  @column({serializeAs: null})
+  @column()
+  // @column({serializeAs: null})
   public cityId: number
 
   @column({serializeAs: null})
