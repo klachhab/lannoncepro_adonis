@@ -7,65 +7,13 @@ import PostGallery from "App/Models/Post/PostGallery";
 import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
-import PostFilter from 'App/Models/Filters/PostFilter';
-import Category from 'App/Models/Category';
 
 export default class PostsController {
 
+    protected ids: number[]
     public async index ({request}: HttpContextContract) {
-
-        // return await Category.query()
-        //     .where('slug', request.qs().ctg)
-        //     .preload('subs')
-        //     .firstOrFail()
-
-
-        // return await Post.query().whereHas('category', categ => {
-
-        //     if (category.subs.length) {
-        //         const slugs = category.subs.map(sub => sub.slug)
-        //         categ.whereIn('slug', slugs)
-        //     }
-        //     else categ.where('slug', request.qs().ctg)
-
-        //     // categ.whereIn('slug', slugs)
-            
-        // })
-
-        // return Post.query().whereHas('category', categ => {
-
-        //     if (category.subs.length) {
-            
-        //         const slugs = category.subs.map(sub => sub.slug)
-        //         categ.whereIn('slug', slugs)
-        //     }
-        //     else categ.where('slug', request.qs().ctg)
-        // })
-
-        return Post.filter(request.qs(), PostFilter)
-
-        
-        return await Post.query()
-            .preload('user', builder => {
-                builder.select('is_pro')
-            })
-            .preload('city',builder => {
-                builder
-                    .select('name', 'department_id')
-                    .preload('department', builder => {
-                        builder.select('name')
-                    })
-            })
-            .preload('category', builder => {
-                builder.select('name', 'category_id')
-                    .preload('parent', builder => {
-                        builder.select('name')
-                    })
-            })
-            .select('id', 'user_id', 'category_id', 'city_id',
-                'title', 'price', 'negotiable'
-            )
-            .paginate(request.qs().page, 10)
+        return await Post.filter(request.qs())
+            .paginate(1, 20)
   }
 
   public async create ({}: HttpContextContract) {
