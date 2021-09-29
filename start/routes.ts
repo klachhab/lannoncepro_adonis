@@ -71,21 +71,23 @@ Route.get('/', async ({ view }) => {
 Route.group( () => {
 
     Route.resource('cities', 'CitiesController').apiOnly()
-    Route.resource('departments', 'DepartmentsController')
+    Route.resource('departments', 'DepartmentsController').apiOnly()
         // .only(['show', 'index'])
 
-    Route.resource('profile', 'UsersController')
+    Route.resource('profile', 'UsersController').apiOnly()
     Route.post('profile/:username/restore', 'UsersController.restore')
         .as('profile.restore')
     Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
         .as('profile.forceDelete')
 
 
-    Route.resource('posts', 'Post/PostsController')
+    Route.resource('posts', 'Post/PostsController').apiOnly()
     Route.post('posts/:slug/restore', 'Post/PostsController.restore')
         .as('posts.restore')
     Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
         .as('posts.forceDelete')
+    Route.post('posts/:slug/favourite', 'Post/PostsController.addToFavourite')
+        .as('posts.addToFavourite')
 
 
     Route.resource('post_galleries', 'Post/PostGalleriesController')

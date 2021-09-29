@@ -7,7 +7,7 @@ import {
   belongsTo,
   column,
   HasMany,
-  hasMany
+  hasMany, ManyToMany, manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
@@ -86,6 +86,11 @@ export default class User extends compose(BaseModel, SoftDeletes) {
 
   @hasMany( () => PostReport)
   public reports: HasMany<typeof PostReport>
+
+  @manyToMany( () => Post,{
+    pivotTable: "favourites"
+  })
+  public favourites: ManyToMany<typeof Post>
 
 // Hooks -------------------------------------
   @beforeCreate()
