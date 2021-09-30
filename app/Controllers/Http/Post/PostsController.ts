@@ -1,8 +1,6 @@
 import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
 import Application from "@ioc:Adonis/Core/Application";
-import PostReview from "App/Models/Post/PostReview";
-import PostReport from "App/Models/Post/PostReport";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
@@ -163,19 +161,9 @@ export default class PostsController {
             .then(async post => {
                 return await post.delete()
                     .then(async () => {
-                        await PostReview.query().where('post_id', post.id)
-                            .then((reviews) => {
-                                reviews.forEach((review) => {
-                                    review.delete()
-                                })
-                            })
-
-                        await PostReport.query().where('post_id', post.id)
-                            .then((reports) => {
-                                reports.forEach((report) => {
-                                    report.delete()
-                                })
-                            })
+                        // await post.related('favourites').detach()
+                        // await post.related('reports').detach()
+                        // await post.related('reviews').detach()
 
                         await PostGallery.query().where('post_id', post.id)
                             .then((images) => {
@@ -208,7 +196,6 @@ export default class PostsController {
     }
 
 
-
     public async restore({params}: HttpContextContract) {
         return await Post.onlyTrashed()
             .where('slug', params.slug)
@@ -216,7 +203,7 @@ export default class PostsController {
             .then(async post => {
                 return await post.restore()
                     .then(async () => {
-                        await PostReview.onlyTrashed().where('post_id', post.id)
+                        /*await PostReview.onlyTrashed().where('post_id', post.id)
                             .then((reviews) => {
                                 reviews.forEach((review) => {
                                     review.restore()
@@ -230,7 +217,7 @@ export default class PostsController {
                                     report.restore()
                                     post.preload('reports')
                                 })
-                            })
+                            })*/
 
                         await PostGallery.onlyTrashed().where('post_id', post.id)
                             .then((images) => {
@@ -267,33 +254,12 @@ export default class PostsController {
             .then(async post => {
                 return await post.forceDelete()
                     .then(async () => {
-                        await PostReview.onlyTrashed().where('post_id', post.id)
-                            .then((reviews) => {
-                                reviews.forEach((review) => {
-                                    review.forceDelete()
-                                })
-                            })
-
-                        await PostReport.onlyTrashed().where('post_id', post.id)
-                            .then((reports) => {
-                                reports.forEach((report) => {
-                                    report.forceDelete()
-                                })
-                            })
-
-                        await PostGallery.onlyTrashed().where('post_id', post.id)
-                            .then((images) => {
-                                images.forEach((image) => {
-                                    image.forceDelete()
-                                })
-                            })
-
                         return {
                             success: true,
-                            result: post
+                            result: "forceDeleted"
                         }
                     })
-                    .catch((e: Exception) => {
+                    .catch( e => {
                         return {
                             success: false,
                             result: e.code
@@ -314,12 +280,14 @@ export default class PostsController {
         return await Post.query()
             .where('slug', params.slug)
             .select(['id'])
-            .withCount('favourites')
+            .withCount('favourites', favourites => {
+                favourites.wherePivot('user_id', request.qs().user)
+            })
             .firstOrFail()
             .then(async post => {
                 return await User.findOrFail(request.qs().user)
                     .then( async user => {
-
+                        // return user
                         const favourites = await post.related('favourites')
 
                         if (!post.$extras.favourites_count) {
@@ -468,7 +436,9 @@ export default class PostsController {
                 return await Post.query()
                     .where('slug', params.slug)
                     .select(['id'])
-                    .withCount('reports')
+                    .withCount('reports', reports => {
+                        reports .wherePivot('user_id', request.qs().user)
+                    })
                     .firstOrFail()
                     .then( async post => {
                         return await User.findOrFail(request.qs().user)

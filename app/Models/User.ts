@@ -1,127 +1,129 @@
-import { DateTime } from 'luxon'
+import {DateTime} from 'luxon'
 import {
-  afterDelete,
-  BaseModel,
-  beforeCreate,
-  BelongsTo,
-  belongsTo,
-  column,
-  HasMany,
-  hasMany, ManyToMany, manyToMany
+    afterDelete,
+    BaseModel,
+    beforeCreate,
+    BelongsTo,
+    belongsTo,
+    column,
+    HasMany,
+    hasMany, ManyToMany, manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
 import Post from "App/Models/Post/Post";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
-import PostReport from "App/Models/Post/PostReport";
 
 export default class User extends compose(BaseModel, SoftDeletes) {
 
-  public serializeExtras = true
+    public serializeExtras = true
 
-  @column({ isPrimary: true })
-  public id: number
+    @column({isPrimary: true})
+    public id: number
 
-  @column()
-  public title: string
+    @column()
+    public title: string
 
-  @column()
-  public name: string
+    @column()
+    public name: string
 
-  @column()
-  public username: string
+    @column()
+    public username: string
 
-  @column()
-  public email: string
+    @column()
+    public email: string
 
-  @column()
-  public password: string
+    @column()
+    public password: string
 
-  @column()
-  public avatar: string
+    @column()
+    public avatar: string
 
-  @column()
-  public email_verified: boolean
+    @column()
+    public email_verified: boolean
 
-  @column()
-  public user_type: string
+    @column()
+    public user_type: string
 
-  @column()
-  public phone: number
+    @column()
+    public phone: number
 
-  @column()
-  public is_pro: boolean
+    @column()
+    public is_pro: boolean
 
-  @column()
-  public can_receive_news: boolean
+    @column()
+    public can_receive_news: boolean
 
-  @column()
-  public blocked: boolean
+    @column()
+    public blocked: boolean
 
-  @column({ serializeAs: null })
-  public cityId: number
+    @column({serializeAs: null})
+    public cityId: number
 
 
-  @column.dateTime({ autoCreate: true, serializeAs: null })
-  public createdAt: DateTime
+    @column.dateTime({autoCreate: true, serializeAs: null})
+    public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
-  public updatedAt: DateTime
+    @column.dateTime({autoCreate: true, autoUpdate: true, serializeAs: null})
+    public updatedAt: DateTime
 
-  @column.dateTime({ serializeAs: null })
-  public deletedAt: DateTime
+    @column.dateTime({serializeAs: null})
+    public deletedAt: DateTime
 
 
 // Relationships -------------------------------------
-  @belongsTo( () => City)
-  public city: BelongsTo<typeof City>
+    @belongsTo(() => City)
+    public city: BelongsTo<typeof City>
 
-  @hasMany( () => Post)
-  public posts: HasMany<typeof Post>
+    @hasMany(() => Post)
+    public posts: HasMany<typeof Post>
 
-  @hasMany( () => PostReport)
-  public reports: HasMany<typeof PostReport>
+    @manyToMany(() => Post, {
+        pivotTable: "favourites"
+    })
+    public favourites: ManyToMany<typeof Post>
 
-  @manyToMany( () => Post,{
-    pivotTable: "favourites"
-  })
-  public favourites: ManyToMany<typeof Post>
+    @manyToMany(() => Post, {
+        pivotColumns: ['comment', 'rating'],
+        pivotTable: "post_reviews",
+        pivotTimestamps: {
+            createdAt: true,
+            updatedAt: false
+        },
+    })
+    public reviews: ManyToMany<typeof Post>
 
-  @manyToMany( () => Post,{
-    pivotColumns: ['comment', 'rating'],
-    pivotTable: "reviews",
-    pivotTimestamps: {
-      createdAt: true,
-      updatedAt: false
-    },
-  })
-  public reviews: ManyToMany<typeof Post>
+    @manyToMany(() => Post, {
+        pivotColumns: ['comment', 'report_type'],
+        pivotTable: "post_reports",
+        pivotTimestamps: {
+            createdAt: true,
+            updatedAt: false
+        },
+    })
+    public reports: ManyToMany<typeof Post>
 
 // Hooks -------------------------------------
-  @beforeCreate()
-  public static async hashPassword(user: User) {
-    if (user.$dirty.password) {
-      user.password = await Hash.make(user.password);
+    @beforeCreate()
+    public static async hashPassword(user: User) {
+        if (user.$dirty.password) {
+            user.password = await Hash.make(user.password);
+        }
     }
-  }
 
-  @afterDelete()
-  public static async deleteRelated(user: User) {
-    const posts = await user.related('posts').query()
-    const reports = await user.related('reports').query()
+    @afterDelete()
+    public static async deleteRelated(user: User) {
+        const posts = await user.related('posts').query()
 
-    posts.forEach( (post: Post) => {
-      // post.related('reviews').detach([user.id])
-      post.delete()
-    })
-    // reviews.forEach( (review: PostReview) => {
-    //   review.delete()
-    // })
-    reports.forEach( (report: PostReport) => {
-      report.delete()
-    })
-  }
+        // await user.related('favourites').detach()
+        // await user.related('reports').detach()
+        // await user.related('reviews').detach()
+
+        posts.forEach( (post: Post) => {
+            post.delete()
+        })
+    }
 
 
 }
