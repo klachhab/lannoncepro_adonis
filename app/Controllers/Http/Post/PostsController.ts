@@ -8,7 +8,6 @@ import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 import User from "App/Models/User";
-import {DateTime} from "luxon";
 import PostReviewValidator from "App/Validators/Post/PostReviewValidator";
 
 export default class PostsController {
@@ -313,56 +312,59 @@ export default class PostsController {
     public async addToFavourite({params, request}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.slug)
-            .withCount('favourites', user => {
-                user.wherePivot('user_id', request.qs().user)
-                    .select()
-            })
-            .select([
-                'id', 'user_id', 'slug', 'title',
-            ])
+            .select(['id'])
+            .withCount('favourites')
             .firstOrFail()
             .then(async post => {
+                return await User.findOrFail(request.qs().user)
+                    .then( async user => {
 
-                if (!post.$extras.favourites_count) {
+                        const favourites = await post.related('favourites')
 
-                    return await User.findOrFail(request.qs().user)
-                        .then( async user => {
-                            return await post.related('favourites').attach({
-                                [user.id]: {
-                                    created_at: DateTime.now().toJSDate(),
-                                }
-                            })
+                        if (!post.$extras.favourites_count) {
+
+                            return favourites
+                                .attach([user.id])
                                 .then( () => {
                                     return {
                                         success: true,
-                                        result: 'attached',
+                                        result: 'attached'
                                     }
                                 })
-
-                                .catch( (err: Exception) => {
+                                .catch( err => {
                                     return {
                                         success: false,
-                                        result: err.code,
-                                        model: 'attach'
+                                        error: err.code,
                                     }
                                 })
 
-                        })
-                        .catch( () => {
-                            return {
-                                success: false,
-                                result: 'user_not_fount',
-                                model: 'user'
-                            }
-                        })
-                }
+                        }
 
-                else {
-                    return {
-                        success: false,
-                        result: 'already_attached'
-                    }
-                }
+                        else {
+                            return favourites
+                                .detach([user.id])
+                                .then( () => {
+                                    return {
+                                        success: true,
+                                        result: 'detached'
+                                    }
+                                })
+
+                                .catch( err => {
+                                    return {
+                                        success: false,
+                                        error: err.code,
+                                    }
+                                })
+                        }
+
+                    })
+                    .catch( () => {
+                        return {
+                            success: false,
+                            error: 'user_not_fount',
+                        }
+                    })
 
             })
             .catch( () => {
@@ -374,7 +376,8 @@ export default class PostsController {
 
     }
 
-    public async attachReview({params, request}: HttpContextContract) {
+
+    public async addReview({params, request}: HttpContextContract) {
 
         return await request.validate(PostReviewValidator)
 

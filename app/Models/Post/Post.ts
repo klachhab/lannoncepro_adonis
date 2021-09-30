@@ -115,6 +115,10 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
   @manyToMany( () => User,{
     pivotTable: "favourites",
+    pivotTimestamps: {
+      createdAt: true,
+      updatedAt: false
+    },
   })
   public favourites: ManyToMany<typeof User>
 
