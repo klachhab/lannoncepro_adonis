@@ -74,20 +74,31 @@ Route.group( () => {
     Route.resource('departments', 'DepartmentsController').apiOnly()
         // .only(['show', 'index'])
 
-    Route.resource('profile', 'UsersController').apiOnly()
-    Route.post('profile/:username/restore', 'UsersController.restore')
-        .as('profile.restore')
-    Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
-        .as('profile.forceDelete')
+    // Profile -------------------------------------
+    Route.group( () => {
+        Route.resource('profile', 'UsersController').apiOnly()
+        Route.post('profile/:username/restore', 'UsersController.restore')
+            .as('profile.restore')
+        Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
+            .as('profile.forceDelete')
+    }).as("users_actions")
 
+    // Posts -------------------------------------
+    Route.group( () => {
+        Route.resource('posts', 'Post/PostsController').apiOnly()
+        Route.post('posts/:slug/restore', 'Post/PostsController.restore')
+            .as('posts.restore')
 
-    Route.resource('posts', 'Post/PostsController').apiOnly()
-    Route.post('posts/:slug/restore', 'Post/PostsController.restore')
-        .as('posts.restore')
-    Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
-        .as('posts.forceDelete')
-    Route.post('posts/:slug/favourite', 'Post/PostsController.addToFavourite')
-        .as('posts.addToFavourite')
+        Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
+            .as('posts.forceDelete')
+
+        Route.post('posts/:slug/favourite', 'Post/PostsController.addToFavourite')
+            .as('posts.addToFavourite')
+
+        Route.post('posts/:slug/add_review', 'Post/PostsController.addReview')
+            .as('posts.attachReview')
+
+    }).as("posts_actions")
 
 
     Route.resource('post_galleries', 'Post/PostGalleriesController')

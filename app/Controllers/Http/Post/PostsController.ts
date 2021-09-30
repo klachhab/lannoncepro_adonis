@@ -8,6 +8,8 @@ import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 import User from "App/Models/User";
+import {DateTime} from "luxon";
+import PostReviewValidator from "App/Validators/Post/PostReviewValidator";
 
 export default class PostsController {
 
@@ -81,10 +83,8 @@ export default class PostsController {
                 await post.load('images', image => {
                     image.select('path')
                 })
-                await post.load('reviews', review => {
-                    review.preload('user', user => {
-                        user.select('name', 'picture')
-                    })
+                await post.load('reviews', user => {
+                    user.select('name', 'picture')
                 })
                 await post.load('user', image => {
                     image.select('patname', 'is_proh')
@@ -308,6 +308,8 @@ export default class PostsController {
             })
     }
 
+
+
     public async addToFavourite({params, request}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.slug)
@@ -325,7 +327,11 @@ export default class PostsController {
 
                     return await User.findOrFail(request.qs().user)
                         .then( async user => {
-                            return await post.related('favourites').attach([user.id])
+                            return await post.related('favourites').attach({
+                                [user.id]: {
+                                    created_at: DateTime.now().toJSDate(),
+                                }
+                            })
                                 .then( () => {
                                     return {
                                         success: true,
@@ -342,10 +348,10 @@ export default class PostsController {
                                 })
 
                         })
-                        .catch( (err: Exception) => {
+                        .catch( () => {
                             return {
                                 success: false,
-                                result: err.code,
+                                result: 'user_not_fount',
                                 model: 'user'
                             }
                         })
@@ -359,12 +365,163 @@ export default class PostsController {
                 }
 
             })
-            .catch( (e: Exception) => {
+            .catch( () => {
                 return {
                     success: false,
-                    result: e.message
+                    result: 'post_not_fount',
                 }
             })
 
     }
+
+    public async attachReview({params, request}: HttpContextContract) {
+
+        return await request.validate(PostReviewValidator)
+
+            .then( async valid_review => {
+
+                return await Post.query()
+                    .where('slug', params.slug)
+                    .withCount('reviews', user => {
+                        user.wherePivot('user_id', valid_review.user)
+                    })
+                    .preload('reviews', user => {
+                        user
+                            .wherePivot('user_id', valid_review.user)
+                            .select('name')
+                    })
+                    .select([
+                        'user_id', 'slug', 'title',
+                    ])
+                    .firstOrFail()
+                    .then( async post => {
+
+                        return await User.findOrFail(valid_review.user)
+                            .then( async user => {
+
+                                if (!post.$extras.reviews_count) {
+
+                                    return await post.related('reviews').attach({
+                                        [user.id]: {
+                                            comment: valid_review.comment,
+                                            rating: valid_review.rating,
+                                        }
+                                    })
+                                        .then( () => {
+                                            return {
+                                                success: true,
+                                                result: 'attached',
+                                            }
+                                        })
+
+                                        .catch( (err: Exception) => {
+                                            return {
+                                                success: false,
+                                                result: err.code,
+                                                model: 'reviews_attach'
+                                            }
+                                        })
+
+                                }
+
+                                else {
+                                    return {
+                                        success: false,
+                                        result: 'already_attached'
+                                    }
+                                }
+
+                            })
+
+                            .catch( () => {
+                                return {
+                                    success: false,
+                                    result: 'user_not_fount',
+                                    model: 'user'
+                                }
+                            })
+
+                    })
+                    .catch( () => {
+                        return {
+                            success: false,
+                            result: 'post_not_fount',
+                        }
+                    })
+
+            })
+            .catch( (e: ValidationException) => {
+                return e.messages
+            })
+
+        // return await Post.query()
+        //     .where('slug', params.slug)
+        //     .withCount('reviews', user => {
+        //         user.wherePivot('user_id', request.qs().user)
+        //             .select()
+        //     })
+        //     .select([
+        //         'id', 'user_id', 'slug', 'title',
+        //     ])
+        //     .firstOrFail()
+        //     .then(async post => {
+        //
+        //         return await User.findOrFail(request.qs().user)
+        //             .then( async user => {
+        //                 const reviews = await post.related('reviews')
+        //
+        //                 if (!post.$extras.reviews_count) {
+        //
+        //                     return reviews.attach({
+        //                         [user.id]: {
+        //                             comment: request.qs().comment,
+        //                             rating: request.qs().rating,
+        //                             created_at: DateTime.now().toJSDate(),
+        //                         }
+        //                     })
+        //                         .then( () => {
+        //                             return {
+        //                                 success: true,
+        //                                 result: 'attached',
+        //                             }
+        //                         })
+        //
+        //                         .catch( (err: Exception) => {
+        //                             return {
+        //                                 success: false,
+        //                                 result: err.code,
+        //                                 model: 'reviews_attach'
+        //                             }
+        //                         })
+        //
+        //                 }
+        //
+        //                 else {
+        //                     return {
+        //                         success: false,
+        //                         result: 'already_attached'
+        //                     }
+        //                 }
+        //
+        //             })
+        //
+        //             .catch( () => {
+        //                 return {
+        //                     success: false,
+        //                     result: 'user_not_fount',
+        //                     model: 'user'
+        //                 }
+        //             })
+        //
+        //     })
+        //     .catch( () => {
+        //         return {
+        //             success: false,
+        //             result: 'post_not_fount',
+        //         }
+        //     })
+
+    }
+
+
 }

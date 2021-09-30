@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import {
-  // afterDelete,
   BaseModel,
   BelongsTo,
   belongsTo,
@@ -13,7 +12,6 @@ import User from "App/Models/User";
 import City from "App/Models/City";
 import DeliveryMode from "App/Models/Post/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
-import PostReview from "App/Models/Post/PostReview";
 import PostReport from "App/Models/Post/PostReport";
 import {slugify} from "@ioc:Adonis/Addons/LucidSlugify";
 import {compose} from "@poppinss/utils/build/src/Helpers";
@@ -112,9 +110,6 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
   @hasMany( () => PostGallery)
   public images: HasMany<typeof PostGallery>
 
-  @hasMany( () => PostReview)
-  public reviews: HasMany<typeof PostReview>
-
   @hasMany( () => PostReport)
   public reports: HasMany<typeof PostReport>
 
@@ -122,6 +117,16 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     pivotTable: "favourites",
   })
   public favourites: ManyToMany<typeof User>
+
+  @manyToMany( () => User,{
+    pivotColumns: ['comment', 'rating'],
+    pivotTable: "reviews",
+    pivotTimestamps: {
+      createdAt: true,
+      updatedAt: false
+    },
+  })
+  public reviews: ManyToMany<typeof User>
 
 //  Hooks -------------------------------------
 
