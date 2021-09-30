@@ -1,7 +1,7 @@
 import {schema, rules} from '@ioc:Adonis/Core/Validator'
 import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 
-export default class PostReviewValidator {
+export default class ReviewValidator {
     constructor(protected ctx: HttpContextContract) {
     }
 
@@ -26,14 +26,6 @@ export default class PostReviewValidator {
      */
 
     public schema = schema.create({
-
-        // Relations ================================================
-        // user_id: schema.string({}, [
-        //     rules.exists({table: 'users', column: 'id'})
-        // ]),
-        // post: schema.string.optional({}, [
-        //     rules.exists({table: 'posts', column: 'slug'})
-        // ]),
 
         user: schema.string({}, [
             rules.exists({table: 'users', column: 'id'})
@@ -61,9 +53,9 @@ export default class PostReviewValidator {
     public messages = {
         'rating.required': "La note d'évaluation est obligatoire",
         'rating.unsigned': "La note d'évaluation ne doit pas être négative",
-        'rating.range': "La note doit être entre 1 et 5",
+        'rating.range': "La note d'évaluation doit être entre 1 et 5",
 
-        'user.required': "Vous devez être connecté pour pouvoir ajouter publier une annonce",
+        'user.required': "Vous devez être connecté pour pouvoir ajouter un avis",
         'user.exists': "Utilisateur inconnu",
 
         // 'post.required': "Assuez-vous que vous évaluer la bonne annonce",

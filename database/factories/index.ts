@@ -3,8 +3,6 @@ import User from "App/Models/User";
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Post from "App/Models/Post/Post";
 import PostGallery from "App/Models/Post/PostGallery";
-// import PostGallery from "App/Models/Post/PostGallery";
-
 
 export const GalleryFactory = Factory
     .define(PostGallery, ({faker}) => {

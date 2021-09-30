@@ -24,23 +24,19 @@ export default class ReportValidator {
 	 *     ])
 	 *    ```
 	 */
-  
+
 	public schema = schema.create({
 
 		// Relations ================================================
-		user_id: schema.string({}, [
+		user: schema.string({}, [
 			rules.exists({table: 'users', column: 'id'})
 		]),
 
-		post: schema.string({}, [
-			rules.exists({table: 'posts', column: 'id'})
+		report_type: schema.string({}, [
+			rules.exists({table: 'report_types', column: 'ref'})
 		]),
 
-		report_type: schema.string({}, [
-			rules.exists({table: 'report_types', column: 'id'})
-		]),
-		
-		
+
 		comment: schema.string({},[
 			rules.minLength(200)
 		]),
@@ -60,16 +56,13 @@ export default class ReportValidator {
 	 */
 
 	public messages = {
-		'user_id.required' : "Vous devez être connecté pour pouvoir ajouter publier une annonce",
-		'user_id.exists' : "Nom d'utilisateur incorrecte",
-
-		'post.required' : "Assuez-vous que vous évaluer la bonne annonce",
-		'post.exists' : "Assuez-vous que vous évaluer la bonne annonce",
+		'user.required': "Vous devez être connecté pour pouvoir ajouter un avis",
+		'user.exists': "Utilisateur inconnu",
 
 		'report_type.required' : "Veuillez selectionner le type de rapport",
 		'report_type.exists' : "Vous devez selectionner le bon type de rapport",
 
-		'comment.required': "Merci d'ajouter un commentaire a votre rapport",
+		'comment.required': "Merci d'ajouter un commentaire dans votre rapport",
 		'comment.minLength': "Votre commentaire doit contenir au moins {{ options.minLength }} caractères afin de bien détailler votre rapport"
 	}
 }

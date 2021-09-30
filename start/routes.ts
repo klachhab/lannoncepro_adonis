@@ -99,18 +99,9 @@ Route.group( () => {
         Route.post('posts/:slug/add_review', 'Post/PostsController.addReview')
             .as('posts.attachReview')
 
+        Route.post('posts/:slug/add_report', 'Post/PostsController.addReport')
+            .as('posts.addReport')
+
     }).as("posts_actions")
-
-
-    // Route.resource('post_galleries', 'Post/PostGalleriesController')
-    //     .only(['destroy'])
-    //
-    // Route.resource('post_reviews', 'Post/PostReviewsController')
-    //     .apiOnly()
-    //     .except(['show'])
-    //
-    // Route.resource('post_reports', 'Post/PostReportsController')
-    //     .apiOnly()
-    //     .except(['show'])
-
+    
 }).prefix('/api')

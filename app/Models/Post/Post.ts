@@ -12,7 +12,6 @@ import User from "App/Models/User";
 import City from "App/Models/City";
 import DeliveryMode from "App/Models/Post/DeliveryMode";
 import PostGallery from "App/Models/Post/PostGallery";
-import PostReport from "App/Models/Post/PostReport";
 import {slugify} from "@ioc:Adonis/Addons/LucidSlugify";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
@@ -110,9 +109,6 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
   @hasMany( () => PostGallery)
   public images: HasMany<typeof PostGallery>
 
-  @hasMany( () => PostReport)
-  public reports: HasMany<typeof PostReport>
-
   @manyToMany( () => User,{
     pivotTable: "favourites",
     pivotTimestamps: {
@@ -124,13 +120,24 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
   @manyToMany( () => User,{
     pivotColumns: ['comment', 'rating'],
-    pivotTable: "reviews",
+    pivotTable: "post_reviews",
     pivotTimestamps: {
       createdAt: true,
       updatedAt: false
     },
   })
   public reviews: ManyToMany<typeof User>
+
+  @manyToMany( () => User,{
+    pivotColumns: ['comment', 'report_type'],
+    pivotTable: "post_reports",
+    pivotTimestamps: {
+      createdAt: true,
+      updatedAt: false
+    },
+  })
+  public reports: ManyToMany<typeof User>
+
 
 //  Hooks -------------------------------------
 
