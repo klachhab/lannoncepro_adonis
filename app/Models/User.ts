@@ -7,12 +7,11 @@ import {
   belongsTo,
   column,
   HasMany,
-  hasMany
+  hasMany, ManyToMany, manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
 import Post from "App/Models/Post/Post";
-import PostReview from "App/Models/Post/PostReview";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import PostReport from "App/Models/Post/PostReport";
@@ -81,11 +80,23 @@ export default class User extends compose(BaseModel, SoftDeletes) {
   @hasMany( () => Post)
   public posts: HasMany<typeof Post>
 
-  @hasMany( () => PostReview)
-  public reviews: HasMany<typeof PostReview>
-
   @hasMany( () => PostReport)
   public reports: HasMany<typeof PostReport>
+
+  @manyToMany( () => Post,{
+    pivotTable: "favourites"
+  })
+  public favourites: ManyToMany<typeof Post>
+
+  @manyToMany( () => Post,{
+    pivotColumns: ['comment', 'rating'],
+    pivotTable: "reviews",
+    pivotTimestamps: {
+      createdAt: true,
+      updatedAt: false
+    },
+  })
+  public reviews: ManyToMany<typeof Post>
 
 // Hooks -------------------------------------
   @beforeCreate()
@@ -98,15 +109,15 @@ export default class User extends compose(BaseModel, SoftDeletes) {
   @afterDelete()
   public static async deleteRelated(user: User) {
     const posts = await user.related('posts').query()
-    const reviews = await user.related('reviews').query()
     const reports = await user.related('reports').query()
 
     posts.forEach( (post: Post) => {
+      // post.related('reviews').detach([user.id])
       post.delete()
     })
-    reviews.forEach( (review: PostReview) => {
-      review.delete()
-    })
+    // reviews.forEach( (review: PostReview) => {
+    //   review.delete()
+    // })
     reports.forEach( (report: PostReport) => {
       report.delete()
     })

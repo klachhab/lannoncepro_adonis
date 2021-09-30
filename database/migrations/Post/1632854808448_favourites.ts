@@ -1,13 +1,11 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
-export default class PostReports extends BaseSchema {
-  protected tableName = 'post_reports'
+export default class Favourites extends BaseSchema {
+  protected tableName = 'favourites'
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.text('comment').notNullable()
-      table.text('report_type').notNullable()
 
       table.integer('user_id')
           .unsigned()

@@ -84,32 +84,37 @@ Route.get('/tests', async ({}) => {
 Route.group( () => {
 
     Route.resource('cities', 'CitiesController').apiOnly()
-    Route.resource('departments', 'DepartmentsController')
+    Route.resource('departments', 'DepartmentsController').apiOnly()
         // .only(['show', 'index'])
 
-    Route.resource('profile', 'UsersController')
-    Route.post('profile/:username/restore', 'UsersController.restore')
-        .as('profile.restore')
-    Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
-        .as('profile.forceDelete')
+    // Profile -------------------------------------
+    Route.group( () => {
+        Route.resource('profile', 'UsersController').apiOnly()
+        Route.post('profile/:username/restore', 'UsersController.restore')
+            .as('profile.restore')
+        Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
+            .as('profile.forceDelete')
+    }).as("users_actions")
 
+    // Posts -------------------------------------
+    Route.group( () => {
+        Route.resource('posts', 'Post/PostsController').apiOnly()
 
-    Route.resource('posts', 'Post/PostsController')
-    Route.post('posts/:slug/restore', 'Post/PostsController.restore')
-        .as('posts.restore')
-    Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
-        .as('posts.forceDelete')
+        Route.post('posts/:slug/restore', 'Post/PostsController.restore')
+            .as('posts.restore')
 
+        Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
+            .as('posts.forceDelete')
 
-    Route.resource('post_galleries', 'Post/PostGalleriesController')
-        .only(['destroy'])
+        Route.post('posts/:slug/favourite', 'Post/PostsController.addToFavourite')
+            .as('posts.addToFavourite')
 
-    Route.resource('post_reviews', 'Post/PostReviewsController')
-        .apiOnly()
-        .except(['show'])
+        Route.post('posts/:slug/add_review', 'Post/PostsController.addReview')
+            .as('posts.attachReview')
 
-    Route.resource('post_reports', 'Post/PostReportsController')
-        .apiOnly()
-        .except(['show'])
+        Route.post('posts/:slug/add_report', 'Post/PostsController.addReport')
+            .as('posts.addReport')
 
+    }).as("posts_actions")
+    
 }).prefix('/api')

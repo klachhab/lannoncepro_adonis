@@ -4,7 +4,8 @@
     "./commands",
     "@adonisjs/core/commands",
     "@adonisjs/repl/build/commands",
-    "@adonisjs/lucid/build/commands"
+    "@adonisjs/lucid/build/commands",
+    "adonis-lucid-filter/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -26,7 +27,8 @@
     "@adonisjs/lucid",
     "@adonisjs/lucid-slugify",
     "adonis-lucid-soft-deletes",
-    "@adonisjs/validator"
+    "@adonisjs/validator",
+    "adonis-lucid-filter"
   ],
   "metaFiles": [
     ".env",
