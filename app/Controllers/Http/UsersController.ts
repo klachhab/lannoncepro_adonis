@@ -7,6 +7,7 @@ import {Exception} from "@poppinss/utils";
 import Application from "@ioc:Adonis/Core/Application";
 
 export default class UsersController {
+
     public async index({}: HttpContextContract) {
 
         return await User.withTrashed()
@@ -19,7 +20,12 @@ export default class UsersController {
     public async create({}: HttpContextContract) {
     }
 
+    public async edit({}: HttpContextContract) {
+    }
+
+
     public async store({request}: HttpContextContract) {
+
         return await request.validate(UserValidator).then(async (resp: Object) => {
 
             return await User.create(resp)
@@ -80,10 +86,6 @@ export default class UsersController {
                 }
             })
 
-    }
-
-
-    public async edit({}: HttpContextContract) {
     }
 
 

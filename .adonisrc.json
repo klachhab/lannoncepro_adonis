@@ -28,7 +28,8 @@
     "@adonisjs/lucid-slugify",
     "adonis-lucid-soft-deletes",
     "@adonisjs/validator",
-    "adonis-lucid-filter"
+    "adonis-lucid-filter",
+    "@adonisjs/auth"
   ],
   "metaFiles": [
     ".env",

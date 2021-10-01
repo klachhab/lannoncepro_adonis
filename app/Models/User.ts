@@ -34,13 +34,13 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @column()
     public email: string
 
-    @column()
+    @column({ serializeAs: null })
     public password: string
 
     @column()
     public avatar: string
 
-    @column()
+    @column({ serializeAs: null })
     public email_verified: boolean
 
     @column()

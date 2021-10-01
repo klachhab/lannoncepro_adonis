@@ -21,8 +21,6 @@
 import Route from '@ioc:Adonis/Core/Route'
 import Category from "App/Models/Category";
 import City from "App/Models/City";
-import Department from 'App/Models/Department';
-import DeliveryMode from 'App/Models/Post/DeliveryMode';
 
 // WEB Routes
 Route.get('/', async ({ view }) => {
@@ -66,34 +64,59 @@ Route.get('/', async ({ view }) => {
 
 }).as('home')
 
+// Web
+Route.group( () => {
 
-Route.get('/tests', async ({}) => {
+    // Auth
+    Route.group( () => {
 
-    return { 
-        deps: await Department.query().withCount('cities'),
-        categs: await Category.query()
-        .whereNull('category_id')
-        .withCount('subs', subs => {
-            subs.as('sub_categories')
-        }),
-        delevery_modes: await DeliveryMode.query()
-    }
-})
+        Route.route('/login', ['GET', 'POST'], 'AuthController.login')
+            .as('login')
+
+        Route.post('/logout', 'AuthController.logout')
+            .as('logout')
+            .middleware('auth:web,api')
+
+        Route.get('/register', 'UsersController.create')
+            .as('register')
+
+    }).prefix('auth').as('auth')
+
+    Route.resource('profile', 'UsersController')
+        .except(['create'])
+        .middleware({
+            edit: 'auth:api',
+            show: 'auth:web',
+        })
+
+}).as("web")
+
 
 // API Routes
 Route.group( () => {
 
     Route.resource('cities', 'CitiesController').apiOnly()
     Route.resource('departments', 'DepartmentsController').apiOnly()
-        // .only(['show', 'index'])
+        .only(['show', 'index'])
 
     // Profile -------------------------------------
     Route.group( () => {
-        Route.resource('profile', 'UsersController').apiOnly()
+        Route.resource('profile', 'UsersController')
+            .apiOnly()
+            .middleware({
+                show: 'auth:api',
+                update: 'auth:api',
+                destroy: 'auth:api',
+            })
+
         Route.post('profile/:username/restore', 'UsersController.restore')
             .as('profile.restore')
+            .middleware('auth:api')
+
         Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
             .as('profile.forceDelete')
+            .middleware('auth:api')
+
     }).as("users_actions")
 
     // Posts -------------------------------------
@@ -116,5 +139,5 @@ Route.group( () => {
             .as('posts.addReport')
 
     }).as("posts_actions")
-    
-}).prefix('/api')
+
+}).prefix('/api').as("api")
