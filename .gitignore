@@ -6,4 +6,8 @@ coverage
 .env
 tmp
 .idea
-public/uploads
+#public/uploads
+mix-manifest.json
+hot
+public/js/*
+public/css/*

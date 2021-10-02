@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #d7dceb;
+  background: -webkit-linear-gradient(to right, #d7dceb, #e2e2e2);
+  background: linear-gradient(to right, #d7dceb, #e2e2e2);
+}

@@ -5,7 +5,8 @@
     "@adonisjs/core/commands",
     "@adonisjs/repl/build/commands",
     "@adonisjs/lucid/build/commands",
-    "adonis-lucid-filter/build/commands"
+    "adonis-lucid-filter/build/commands",
+    "adonis-mix-asset/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -29,7 +30,8 @@
     "adonis-lucid-soft-deletes",
     "@adonisjs/validator",
     "adonis-lucid-filter",
-    "@adonisjs/auth"
+    "@adonisjs/auth",
+    "adonis-mix-asset"
   ],
   "metaFiles": [
     ".env",
@@ -41,6 +43,14 @@
     {
       "pattern": "resources/views/**/*.edge",
       "reloadServer": true
+    },
+    {
+      "pattern": "public/**/css/*.css",
+      "reloadServer": false
+    },
+    {
+      "pattern": "public/**/js/*.js",
+      "reloadServer": false
     }
   ],
   "aceProviders": [
