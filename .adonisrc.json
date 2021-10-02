@@ -46,11 +46,11 @@
     },
     {
       "pattern": "public/**/css/*.css",
-      "reloadServer": false
+      "reloadServer": true
     },
     {
       "pattern": "public/**/js/*.js",
-      "reloadServer": false
+      "reloadServer": true
     }
   ],
   "aceProviders": [
