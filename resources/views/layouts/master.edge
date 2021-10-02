@@ -11,11 +11,8 @@
     <body>
 
         <div id="app">
-            <home inline-template>
-                <h1 class="center">
-                    @{{ message }}
-                </h1>
-            </home>
+            @include('layouts/header')
+            <home categories="{{ categories }}"></home>
             @!section('content')
         </div>
     </body>

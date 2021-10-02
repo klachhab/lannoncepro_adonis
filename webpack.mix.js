@@ -25,7 +25,10 @@ mix
             },
         },
     })
-    .sass('resources/scss/app.scss', path.resolve(__dirname, 'public/css'))
+    // .sass('resources/scss/app.scss', 'public/css')
+    .css('resources/css/app.css', 'public/css', [
+        require("tailwindcss"),
+    ])
     .options({
         processCssUrls: false,
     })

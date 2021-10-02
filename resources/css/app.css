@@ -1,9 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 body {
-  background: #d7dceb;
+  background: #fff;
   background: -webkit-linear-gradient(to right, #d7dceb, #e2e2e2);
   background: linear-gradient(to right, #d7dceb, #e2e2e2);
 }

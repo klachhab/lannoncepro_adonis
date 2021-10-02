@@ -1,21 +1,23 @@
-<!--<template>
+<template>
 
     <h1 class="center">
         {{ message }}
     </h1>
 
-</template>-->
+</template>
 
 <script>
 
 export default {
     name: "HomeComponent",
+    props: ['categories'],
+
     components: {
     },
 
     data() {
         return {
-            message: "This is index.edge"
+            message: this.categories
         }
     },
 
