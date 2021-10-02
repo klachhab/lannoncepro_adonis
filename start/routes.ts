@@ -23,52 +23,46 @@ import Category from "App/Models/Category";
 import City from "App/Models/City";
 
 // WEB Routes
-Route.get('/', async ({ view }) => {
-  const sub_categs = await Category.query()
-      .whereHas('parent', () => {})
-      .whereHas('posts', (post) => {
-        post.where('is_valid', true)
-      })
-      .withCount('posts', (post) => {
-        post.as('posts_count')
-      })
-      .limit(10)
-      .orderBy('posts_count', 'desc')
+Route.get('/', async ({view}) => {
+    const categories = await Category.query()
+        .has('parent')
+        .preload('parent', parent => {
+            parent.select('name', 'id')
+        })
+        .withCount('posts', posts => {
+            posts.where('is_valid', 1)
+        })
+        .select('id', 'name', 'slug')
+        .limit(15)
+        // .pojo()
 
-  const top_cities = await City.query()
-      .whereHas('posts', () => {})
-      .withCount('posts', (post) => {
-        post.as('posts_count')
-      })
-      .orderBy('posts_count', 'desc')
-      .limit(14)
+    const cities = await City.query()
+        .withCount('posts', posts => {
+            posts.where('is_valid', 1)
+        })
+        .select('id', 'name', 'code')
+        .limit(14)
+        .pojo()
 
-  const featured_categs = await Category.query()
-      .whereHas('posts', (post) => {
-        post.where('is_valid', true)
-            .andWhere('featured', true)
-      })
-      .limit(10)
+    // return {
+    //     categories,
+    //     // @ts-ignore
+    //     cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
+    // }
 
-  return {
-      categories: sub_categs,
-      cities: top_cities,
-      featured: featured_categs,
-  }
-
-  return view.render('home', {
-      categories: sub_categs,
-      cities: top_cities,
-      featured: featured_categs,
-  })
+    return view.render('home',{
+        categories: categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
+        // @ts-ignore
+        cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
+    })
 
 }).as('home')
 
 // Web
-Route.group( () => {
+Route.group(() => {
 
     // Auth
-    Route.group( () => {
+    Route.group(() => {
 
         Route.route('/login', ['GET', 'POST'], 'AuthController.login')
             .as('login')
@@ -93,14 +87,14 @@ Route.group( () => {
 
 
 // API Routes
-Route.group( () => {
+Route.group(() => {
 
     Route.resource('cities', 'CitiesController').apiOnly()
     Route.resource('departments', 'DepartmentsController').apiOnly()
         .only(['show', 'index'])
 
     // Profile -------------------------------------
-    Route.group( () => {
+    Route.group(() => {
         Route.resource('profile', 'UsersController')
             .apiOnly()
             .middleware({
@@ -120,7 +114,7 @@ Route.group( () => {
     }).as("users_actions")
 
     // Posts -------------------------------------
-    Route.group( () => {
+    Route.group(() => {
         Route.resource('posts', 'Post/PostsController').apiOnly()
 
         Route.post('posts/:slug/restore', 'Post/PostsController.restore')

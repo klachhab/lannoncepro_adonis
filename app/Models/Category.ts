@@ -8,7 +8,7 @@ import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 export default class Category extends compose(BaseModel, SoftDeletes)  {
 
   public serializeExtras = true
-  
+
   @column({ isPrimary: true })
   public id: number
 
@@ -24,7 +24,7 @@ export default class Category extends compose(BaseModel, SoftDeletes)  {
   @column({ serializeAs: null })
   public categoryId: number
 
-  @column.dateTime()
+  @column.dateTime({ serializeAs: null })
   public deletedAt: DateTime
 
 // Relationships -------------------------------------

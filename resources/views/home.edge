@@ -11,16 +11,16 @@
 
   <main>
     <div>
-      <h1 class="title"> It Works! </h1>
+      {{--  <h1 class="title"> It Works! </h1>
       <p class="subtitle">
         Congratulations, you have just created your first AdonisJS app.
-      </p>
+      </p>  --}}
 
       <ul>
-        @each(top_categ in top_categs)
+        @each(category in categories)
           <li>
-            {{ top_categ.name }} ({{ top_categ.$extras.posts_count }})
-            : <b>{{ top_categ.parent.name }}</b>
+            {{ category.name }} ({{ category.$extras.posts_count }} annonces)
+            : <b>{{ category.parent.name }}</b>
           </li>
         @end
       </ul>

@@ -7,6 +7,6 @@ export default class PostSeederSeeder extends BaseSeeder {
     await PostFactory
         // .with('reviews', Math.floor(Math.random() * 10))
         .with('images', randomInt(2, 5))
-        .createMany(randomInt(200, 500))
+        .createMany(randomInt(70000, 100000))
   }
 }
