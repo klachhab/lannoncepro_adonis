@@ -75,7 +75,7 @@ Route.group( () => {
 
         Route.post('/logout', 'AuthController.logout')
             .as('logout')
-            .middleware('auth:web,api')
+            .middleware('auth')
 
         Route.get('/register', 'UsersController.create')
             .as('register')
@@ -85,7 +85,7 @@ Route.group( () => {
     Route.resource('profile', 'UsersController')
         .except(['create'])
         .middleware({
-            edit: 'auth:api',
+            edit: 'auth:web,api',
             show: 'auth:web',
         })
 

@@ -20,8 +20,12 @@ export default class UsersController {
     public async create({}: HttpContextContract) {
     }
 
-    public async edit({}: HttpContextContract) {
-    }
+    public async edit({auth}: HttpContextContract) {
+        return auth.defaultGuard
+        // return await auth.config ? {web_user: auth.user}
+        //     : await auth.use("api").check() ? {api_user: auth.user}
+        //         : "Not logged"
+     }
 
 
     public async store({request}: HttpContextContract) {

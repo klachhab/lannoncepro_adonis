@@ -6,8 +6,7 @@ export default class AuthController {
     public async login({auth, request}: HttpContextContract) {
 
         if (request.method() == "POST") {
-            const log = (request.qs().env && request.qs().env == 'web') ? auth
-                : auth.use('api')
+            const log = auth.use(!request.qs().env || request.qs().env == 'api' ? 'api' : "web")
 
             const email = request.qs().email
             const password = request.qs().password
@@ -15,8 +14,8 @@ export default class AuthController {
             return await log.attempt(email, password)
                 .then(response => {
                     return {
-                        token: (!request.qs().env || request.qs().env == 'api') ? response.token : false,
-                        user: !request.qs().env ? response.user : response
+                        token: auth.defaultGuard == "api" ? response.token : false,
+                        response: auth.defaultGuard == "api" ? response.user : response
                     }
                 })
                 .catch(e => {
@@ -32,10 +31,9 @@ export default class AuthController {
     }
 
 
-    public async logout({auth, request}: HttpContextContract) {
+    public async logout({auth}: HttpContextContract) {
 
-        const log = (request.qs().env && request.qs().env == 'web') ? auth
-            : auth.use('api')
+        const log = auth.defaultGuard ? auth : auth.use('api')
 
         return await log.check()
             .then( async check => {
