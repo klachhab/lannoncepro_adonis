@@ -11,7 +11,7 @@
                         <a class="flex items-center space-x-1.5" href="#">
                             <img class="h-10 w-auto md:h-9" src="/logo_icon.png" alt="">
                             <p class="font-bold base text-gray-800 dark:text-white
-                            hover:text-gray-700 dark:hover:text-gray-300 invisible md:visible"
+                                hover:text-gray-700 dark:hover:text-gray-300 invisible md:visible"
                             >
                                 LannoncePro
                             </p>
