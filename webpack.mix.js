@@ -25,7 +25,6 @@ mix
             },
         },
     })
-    // .sass('resources/scss/app.scss', 'public/css')
     .css('resources/css/app.css', 'public/css', [
         require("tailwindcss"),
     ])

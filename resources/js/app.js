@@ -1,13 +1,19 @@
 import Vue from "vue";
 require('./bootstrap');
-
 window.Vue = require('vue');
 
-import router from "./router"
-import store from "./store"
+// import VueTailwind from 'vue-tailwind'
+//
+// Vue.use(VueTailwind)
 
+import router from "./Vue/router"
+import store from "./Vue/store"
 
-Vue.component('home', require('./components/HomeComponent.vue').default);
+// Layouts
+Vue.component('vue-nav', require('./Vue/Components/Layouts/HeaderComponent').default);
+
+// Content
+Vue.component('home', require('./Vue/Components/HomeComponent.vue').default);
 const app = new Vue({
     router,
     store,
