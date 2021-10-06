@@ -32,4 +32,5 @@ mix
         processCssUrls: false,
     })
     .vue()
+    .sourceMaps()
 // Add your assets here
