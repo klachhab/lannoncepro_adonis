@@ -5,5 +5,58 @@
     <!--  sub_categories="{{ sub_categories }}"
   categories="{{ categories }}"
   top_cities="{{ top_cities }}"-->
-    <home></home>
+    <home inline-template categories="{{ sub_categories }}">
+        <div>
+
+            <!-- Header -->
+            <div class="w-full flex justify-content-center h-72 overflow-hidden">
+
+                <img class="absolute object-cover object-top h-72 w-full z-0" src="/images/bg/home.jpg" alt="">
+
+                <div class=" absolute w-full bg-gradient-to-r from-blue-300 to-blue-900 z-10 h-72 opacity-90"></div>
+
+                <div class="flex justify-content-center mx-auto max-w-sm self-center w-full bg-white z-20
+                h-12 rounded ring-8 ring-blue-800 ring-opacity-20"
+                     :class="maxWidth.search_input"
+                >
+
+                </div>
+            </div>
+            <!-- !Header -->
+
+            <!-- Top categories -->
+            <div class="px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 mt-10 w-full"
+                 :class="maxWidth.carousel_container"
+            >
+                <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
+                    Top 15 catégories
+                </span>
+                </div>
+
+                <swiper class="swiper mt-8 h-44" :options="swiperOption" >
+                    @each(category in sub_categories)
+                        <swiper-slide>
+                            <div class="static w-full h-full">
+                                <div class="absolute w-full h-full bg-gradient-to-r from-black opacity-50 rounded-md"></div>
+
+                                <div class="absolute flex flex-col rounded-md p-3 text-white">
+                                    <span class="text-xl">{{ category.name }}</span>
+                                    <span class="text-sm">({{ category.$extras.posts_count }} annnonces)</span>
+                                </div>
+
+                                <div class="bg-category w-full h-full">
+                                    <img class="object-fill rounded-md h-full" src="https://lannoncepro.test/images/trending/1.jpg" alt="">
+                                </div>
+                            </div>
+
+                        </swiper-slide>
+                    @end
+                </swiper>
+
+            </div>
+            <!-- !Top categories -->
+
+        </div>
+    </home>
 @endsection

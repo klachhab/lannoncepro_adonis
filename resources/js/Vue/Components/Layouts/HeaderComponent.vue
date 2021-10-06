@@ -1,21 +1,18 @@
 <template>
     <nav class="bg-white dark:bg-gray-800 shadow">
 
-        <div class="max-w-7xl mx-auto px-8">
+        <div class="max-w-7xl mx-auto md:px-8 px-4">
 
-            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center md:justify-between h-16">
 
-                <div class=" flex items-center">
-                    <a class="flex items-center space-x-1.5" href="#">
-                        <img class="h-10 w-auto md:h-9" src="/logo_icon.png" alt="">
-                        <p class="font-bold base text-gray-800 dark:text-white
+                <a class="flex items-center space-x-1.5" href="#">
+                    <img class="h-10 w-auto md:h-9" src="/logo_icon.png" alt="">
+                    <p class="font-bold base text-gray-800 dark:text-white
                                 hover:text-gray-700 dark:hover:text-gray-300"
-                        >
-                            LannoncePro
-                        </p>
-                    </a>
-
-                </div>
+                    >
+                        LannoncePro
+                    </p>
+                </a>
 
                 <div class="block">
                     <div class="invisible md:visible flex items-center">
@@ -145,12 +142,11 @@
 
                 </div>
 
-                <div class="-mr-2 flex md:hidden">
-                    <button
-                        class="text-gray-800 dark:text-white hover:text-gray-300 inline-flex items-center justify-center p-2 rounded-md focus:outline-none">
-                        <MenuIcon />
-                    </button>
-                </div>
+                <button
+                    class="text-gray-800 dark:text-white mr-2 md:hidden rounded-md focus:outline-none"
+                >
+                    <MenuIcon />
+                </button>
 
             </div>
         </div>

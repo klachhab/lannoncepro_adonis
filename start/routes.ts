@@ -24,8 +24,8 @@ import City from "App/Models/City";
 
 // WEB Routes
 Route.get('/', async ({view}) => {
-    const categories =  await Category.query()
-        .doesntHave('parent')
+    // const categories =  await Category.query()
+    //     .doesntHave('parent')
 
     const sub_categories = await Category.query()
         .has('parent')
@@ -48,14 +48,15 @@ Route.get('/', async ({view}) => {
         .pojo()
 
     // return {
-    //     categories,
+    //     sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
+    //     // categories,
     //     // @ts-ignore
     //     cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
     // }
 
     return view.render('home',{
         sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
-        categories,
+        // categories,
         // @ts-ignore
         top_cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
     })
