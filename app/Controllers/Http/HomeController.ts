@@ -1,0 +1,39 @@
+import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
+import Category from "App/Models/Category";
+import City from "App/Models/City";
+
+export default class HomeController {
+    public async index ({view}: HttpContextContract) {
+        const sub_categories = await Category.query()
+            .has('parent')
+            .preload('parent', parent => {
+                parent.select('name', 'id')
+            })
+            .withCount('posts', posts => {
+                posts.where('is_valid', 1)
+            })
+            .select('id', 'name', 'slug')
+            .limit(15)
+        // .pojo()
+
+        const cities = await City.query()
+            .withCount('posts', posts => {
+                posts.where('is_valid', 1)
+            })
+            .select('id', 'name', 'code')
+            .limit(14)
+            .pojo()
+
+        // return {
+        //     sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
+        //     // @ts-ignore
+        //     cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
+        // }
+
+        return view.render('home',{
+            sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
+            // @ts-ignore
+            top_cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
+        })
+    }
+}

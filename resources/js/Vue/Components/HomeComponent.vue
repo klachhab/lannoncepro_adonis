@@ -17,7 +17,7 @@ export default {
         return {
             maxWidth: {
                 search_input: "max-w-xs xl:max-w-3xl lg:max-w-xl md:max-w-lg sm:max-w-sm",
-                carousel_container: "max-w-xs xl:max-w-7xl lg:max-w-4xl md:max-w-2xl sm:mas-w-xl",
+                container: "max-w-xs xl:max-w-7xl lg:max-w-4xl md:max-w-2xl sm:mas-w-xl",
             },
 
             slider_data: [
@@ -36,7 +36,7 @@ export default {
                     delay: 2500,
                     disableOnInteraction: false
                 },
-                loop: true,
+                loop: false,
                 breakpoints: {
                     1440: {
                         slidesPerView: 5,
@@ -61,6 +61,7 @@ export default {
                 },
             },
 
+            top_cities:  'Top 15 cities'
         }
     },
 

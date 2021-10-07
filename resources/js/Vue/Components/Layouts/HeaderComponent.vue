@@ -14,131 +14,123 @@
                     </p>
                 </a>
 
-                <div class="block">
-                    <div class="invisible md:visible flex items-center">
+                <div class="invisible md:visible flex items-center">
 
-                        <div class="flex items-center cursor-pointer mr-4"
-                             @mouseover="show_profile_menu = true"
-                             @mouseout="show_profile_menu = false"
-                             v-if="authenticated"
-                        >
+                    <div class="flex items-center cursor-pointer mr-4"
+                         @mouseover="show_profile_menu = true"
+                         @mouseout="show_profile_menu = false"
+                         v-if="authenticated"
+                    >
 
-                            <!-- Profile menu -->
-                            <div class="relative inline-block text-left">
-                                <button
-                                    class=" flex items-center justify-center w-full rounded-md pr-4 py-2 text-normal font-medium text-gray-700 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-500">
-                                            <span class="mr-4 text-gray-800 dark:hover:text-white py-2">
-                                                John Doe
-                                            </span>
-                                    <ChevronDownIcon size="20" />
-                                </button>
+                        <!-- Profile menu -->
+                        <div class="relative inline-block text-left">
+                            <button class=" flex items-center justify-center w-full rounded-md pr-4 py-2 text-normal font-medium text-gray-700 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-500">
+                                <span class="mr-4 text-gray-800 dark:hover:text-white py-2">
+                                    John Doe
+                                </span>
+                                <ChevronDownIcon size="20" />
+                            </button>
 
 
-                                <div class="origin-top-right absolute right-0 w-56 rounded shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50
+                            <div class="origin-top-right absolute right-0 w-56 rounded shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50
                                                 transition duration-300 ease-in-out"
-                                     :class="show_profile_menu ? '' : 'opacity-0 invisible'"
+                                 :class="show_profile_menu ? '' : 'opacity-0 invisible'"
+                            >
+                                <!-- Menu List -->
+                                <div class="py-1" role="menu" aria-orientation="vertical"
+                                     aria-labelledby="options-menu"
                                 >
-                                    <!-- Menu List -->
-                                    <div class="py-1" role="menu" aria-orientation="vertical"
-                                         aria-labelledby="options-menu"
+
+                                    <a href="#"
+                                       class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
+                                       role="menuitem"
                                     >
-
-                                        <a href="#"
-                                           class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
-                                           role="menuitem"
-                                        >
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex">
-                                                    <ChatIcon size="20" class="mr-4"></ChatIcon>
-                                                    <span>
-                                                            Mes message
-                                                        </span>
-                                                </div>
-                                                <div class="text-xs text-white p-1 bg-red-500 rounded-full">{{ messages > 99 ? 99+"+" : messages }}</div>
-                                            </div>
-                                        </a>
-                                        <a href="#"
-                                           class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
-                                           role="menuitem"
-                                        >
-                                            <div class="flex items-center">
-                                                <NewspaperIcon size="20" class="mr-4"></NewspaperIcon>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex">
+                                                <ChatIcon size="20" class="mr-4"></ChatIcon>
                                                 <span>
-                                                        Mes annonces
-                                                    </span>
+                                                    Mes message
+                                                </span>
                                             </div>
-                                        </a>
+                                            <div class="text-xs text-white p-1 bg-red-500 rounded-full">{{ messages > 99 ? 99+"+" : messages }}</div>
+                                        </div>
+                                    </a>
+                                    <a href="#"
+                                       class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
+                                       role="menuitem"
+                                    >
+                                        <div class="flex items-center">
+                                            <NewspaperIcon size="20" class="mr-4"></NewspaperIcon>
+                                            <span>
+                                                Mes annonces
+                                            </span>
+                                        </div>
+                                    </a>
 
-                                        <a href="#"
-                                           class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
-                                           role="menuitem"
-                                        >
-                                            <div class="flex items-center">
-                                                <HeartIcon size="20" class="mr-4"></HeartIcon>
-                                                <span>
-                                                        Mes favoris
-                                                    </span>
-                                            </div>
-                                        </a>
+                                    <a href="#"
+                                       class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
+                                       role="menuitem"
+                                    >
+                                        <div class="flex items-center">
+                                            <HeartIcon size="20" class="mr-4"></HeartIcon>
+                                            <span>
+                                                Mes favoris
+                                            </span>
+                                        </div>
+                                    </a>
 
-                                        <a href="#"
-                                           class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
-                                           role="menuitem"
-                                        >
-                                            <div class="flex items-center">
-                                                <CogIcon size="20" class="mr-4"></CogIcon>
-                                                <span>
-                                                        Paramètres
-                                                    </span>
-                                            </div>
-                                        </a>
+                                    <a href="#"
+                                       class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
+                                       role="menuitem"
+                                    >
+                                        <div class="flex items-center">
+                                            <CogIcon size="20" class="mr-4"></CogIcon>
+                                            <span>
+                                                Paramètres
+                                            </span>
+                                        </div>
+                                    </a>
 
-                                        <hr class="border-0 bg-gray-200 h-px">
-                                        <a href="#"
-                                           class="block block px-3 py-2 text-md text-red-500 hover:bg-gray-100 dark:hover:bg-gray-600"
-                                           role="menuitem"
-                                        >
-                                            <div class="flex items-center">
-                                                <LogoutIcon size="20" class="mr-4"></LogoutIcon>
-                                                <span>
-                                                        Se déconnecter
-                                                    </span>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <!-- !Menu List -->
-
+                                    <hr class="border-0 bg-gray-200 h-px">
+                                    <a href="#"
+                                       class="block block px-3 py-2 text-md text-red-500 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                       role="menuitem"
+                                    >
+                                        <div class="flex items-center">
+                                            <LogoutIcon size="20" class="mr-4"></LogoutIcon>
+                                            <span>
+                                                Se déconnecter
+                                            </span>
+                                        </div>
+                                    </a>
                                 </div>
-                            </div>
-
-                        </div>
-
-                        <div class="flex items-center mr-8" v-else>
-                            <div class="flex items-baseline space-x-4">
-                                        <span
-                                            class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
-                                            Register
-                                        </span>
-
-                                <span
-                                    class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
-                                            Login
-                                        </span>
+                                <!-- !Menu List -->
 
                             </div>
-                        </div>
-
-
-                        <div class="invisible md:visible flex py-2 px-3 cursor-pointer bg-blue-500 text-white rounded-md
-                                transition delay-75 ease-in-out hover:bg-transparent hover:text-blue-500 hover:text-gray-800
-                                border-2 hover:border-blue-500"
-                        >
-                            <PlusSmIcon class="mr-1"/>
-                            <span>Déposer une annonce</span>
                         </div>
 
                     </div>
 
+                    <div class="flex items-center mr-8" v-else>
+                        <div class="flex items-baseline space-x-4">
+                            <span class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
+                                Register
+                            </span>
+
+                            <span class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
+                                Login
+                            </span>
+
+                        </div>
+                    </div>
+
+                    <div class="invisible md:visible flex py-2 px-3 cursor-pointer bg-blue-500 text-white rounded-md
+                                transition delay-75 ease-in-out hover:bg-transparent hover:text-blue-500
+                                border-2 hover:border-blue-500"
+                    >
+                        <PlusSmIcon class="mr-1"/>
+                        <span>Déposer une annonce</span>
+                    </div>
 
                 </div>
 

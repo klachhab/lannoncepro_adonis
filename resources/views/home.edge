@@ -2,10 +2,7 @@
 
 @section('content')
 
-    <!--  sub_categories="{{ sub_categories }}"
-  categories="{{ categories }}"
-  top_cities="{{ top_cities }}"-->
-    <home inline-template categories="{{ sub_categories }}">
+    <home inline-template>
         <div>
 
             <!-- Header -->
@@ -26,13 +23,13 @@
 
             <!-- Top categories -->
             <div class="px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 mt-10 w-full"
-                 :class="maxWidth.carousel_container"
+                 :class="maxWidth.container"
             >
-                <div class="flex items-center justify-between border-b border-gray-200 pb-2">
                 <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
                     Top 15 catégories
                 </span>
-                </div>
+
+                <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
 
                 <swiper class="swiper mt-8 h-44" :options="swiperOption" >
                     @each(category in sub_categories)
@@ -40,10 +37,13 @@
                             <div class="static w-full h-full">
                                 <div class="absolute w-full h-full bg-gradient-to-r from-black opacity-50 rounded-md"></div>
 
-                                <div class="absolute flex flex-col rounded-md p-3 text-white">
-                                    <span class="text-xl">{{ category.name }}</span>
+                                <a href="/api/annnonces?ctg={{ category.slug }}" target="_blank"
+                                   class="hover:underline absolute flex flex-col rounded-md p-3 text-white"
+                                >
+                                    <span
+                                       class="text-xl hover:underline">{{ category.name }}</span>
                                     <span class="text-sm">({{ category.$extras.posts_count }} annnonces)</span>
-                                </div>
+                                </a>
 
                                 <div class="bg-category w-full h-full">
                                     <img class="object-fill rounded-md h-full" src="https://lannoncepro.test/images/trending/1.jpg" alt="">
@@ -56,6 +56,24 @@
 
             </div>
             <!-- !Top categories -->
+
+            <!-- Top cities -->
+            <div class="px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 mt-10 w-full"
+                 :class="maxWidth.container"
+            >
+                <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
+                    @{{ top_cities }}
+                </span>
+
+                <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 h-10">
+                    <div v-for="(numb, i) in 2" :key="i" class="shadow rounded-lg flex justify-center items-center">
+                        @{{ numb }}
+                    </div>
+                </div>
+            </div>
+            <!-- !Top cities -->
 
         </div>
     </home>

@@ -7,6 +7,7 @@ export default class PostFilter extends BaseModelFilter {
   public $query: ModelQueryBuilderContract<typeof Post, Post>
 
   public post = this.$query
+      .where('is_valid', 1)
       .preload('category', categ => {
         categ.select('id', 'name', 'category_id')
             .preload('parent', parent => {
@@ -60,7 +61,7 @@ export default class PostFilter extends BaseModelFilter {
     )
   }
 
-  public condition(condition: string) {
+  public cndt(condition: string) {
     const cond = (condition == 'new') ? 'new' : condition == 'used' ? 'used': ''
     this.post.select('title', 'slug', 'condition', 'price', 'negotiable', 'user_id', 'category_id')
         .where('condition', cond)

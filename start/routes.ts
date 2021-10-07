@@ -19,54 +19,14 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
-import Category from "App/Models/Category";
-import City from "App/Models/City";
 
 // WEB Routes
-Route.get('/', async ({view}) => {
-    // const categories =  await Category.query()
-    //     .doesntHave('parent')
-
-    const sub_categories = await Category.query()
-        .has('parent')
-        .preload('parent', parent => {
-            parent.select('name', 'id')
-        })
-        .withCount('posts', posts => {
-            posts.where('is_valid', 1)
-        })
-        .select('id', 'name', 'slug')
-        .limit(15)
-        // .pojo()
-
-    const cities = await City.query()
-        .withCount('posts', posts => {
-            posts.where('is_valid', 1)
-        })
-        .select('id', 'name', 'code')
-        .limit(14)
-        .pojo()
-
-    // return {
-    //     sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
-    //     // categories,
-    //     // @ts-ignore
-    //     cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
-    // }
-
-    return view.render('home',{
-        sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
-        // categories,
-        // @ts-ignore
-        top_cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
-    })
-
-}).as('home')
+Route.get('/', 'HomeController.index').as('home')
 
 // Web
 Route.group(() => {
 
-    // Auth
+    // Auth -------------------------------------
     Route.group(() => {
 
         Route.route('/login', ['GET', 'POST'], 'AuthController.login')
@@ -81,12 +41,18 @@ Route.group(() => {
 
     }).prefix('auth').as('auth')
 
+    // Profile -------------------------------------
     Route.resource('profile', 'UsersController')
         .except(['create'])
         .middleware({
             edit: 'auth:web,api',
             show: 'auth:web',
         })
+        .as('profile')
+
+    // Posts -------------------------------------
+    // Route.resource('annnonces', 'Post/PostsController')
+    //     .only(['index'])
 
 }).as("web")
 
@@ -120,7 +86,9 @@ Route.group(() => {
 
     // Posts -------------------------------------
     Route.group(() => {
-        Route.resource('posts', 'Post/PostsController').apiOnly()
+        Route.resource('annnonces', 'Post/PostsController')
+            // .except(['index'])
+            .apiOnly()
 
         Route.post('posts/:slug/restore', 'Post/PostsController.restore')
             .as('posts.restore')
