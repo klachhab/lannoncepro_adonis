@@ -1,7 +1,6 @@
 <script>
 
 import {TInput, TModal} from "vue-tailwind/dist/components"
-import { XIcon } from "@vue-hero-icons/outline"
 
 import {Swiper, SwiperSlide} from 'vue-awesome-swiper'
 import 'swiper/css/swiper.css'
@@ -10,12 +9,9 @@ import {France} from "../../france";
 
 export default {
     components: {
-        XIcon,
         TInput, TModal,
         Swiper, SwiperSlide,
     },
-
-    props: [],
 
     data() {
         return {
@@ -71,15 +67,20 @@ export default {
             mapFrance: {
                 ...France
             },
-            selectedDep: '',
+            selectedDep: null,
 
+            isMobile: false,
         }
     },
 
-    mounted() {
+    created() {
+        setInterval( () => {
+            this.isMobile = screen.width < 768
+        }, 100)
     },
 
-    computed: {},
+    computed: {
+    },
 
     methods: {
     //    Top cities

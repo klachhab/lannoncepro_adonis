@@ -58,16 +58,23 @@
             <!-- !Top categories -->
 
             <!-- Top cities -->
-            <div class="flex justify-center grid grid-cols-2  shadow p-10 mx-auto my-10 h-full w-full"
+
+            <div v-if="isMobile" class="px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 mt-10 w-full"
                  :class="maxWidth.container"
             >
+                <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
+                    Top 15 catégories
+                </span>
+            </div>
 
-                <svg class="fill-current text-map"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 613 585"
-                >
-                    <g id="france.departments" fill="#0072bc" strock-fill="#ffffff" stroke-width="1" fill-rule="nonzero">
-
+            <div v-else class="shadow p-10 mx-auto my-10 h-full w-full"
+                 :class="maxWidth.container"
+            >
+                <div class="flex justify-center grid grid-cols-2">
+                    <svg class="fill-current text-map"
+                         xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 613 585"
+                    >
                         <path v-for="dep in mapFrance" :key="dep.id" :data-tip="dep.name"
                               class="hover:text-green-200 cursor-pointer tooltip"
                               @click="getDepName(dep.id, dep.name)"
@@ -76,20 +83,29 @@
                               :d="dep.d"
                         >
                         </path>
-                    </g>
-                </svg>
+                    </svg>
 
-                <div class="">
-                    <div class="flex justify-between">
-                        <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
-                            @{{ selectedDep }}
-                        </span>
-                        <XIcon/>
+
+                    <div v-if="selectedDep != null">
+                        <div class="flex justify-between">
+                            <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
+                                @{{ selectedDep }}
+                            </span>
+                            <div class="text-white p-1 text-red-500 rounded-full cursor-pointer"
+                                 v-if="selectedDep != null"
+                                 @click="selectedDep = null"
+                            >
+                                X
+                            </div>
+                        </div>
+
+                        <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
                     </div>
 
-                    <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
                 </div>
             </div>
+
+
             <!-- !Top cities -->
 
         </div>

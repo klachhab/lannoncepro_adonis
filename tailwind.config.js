@@ -16,7 +16,6 @@ module.exports = {
         extend: {
             textColor: {
                 'map': "#0072bc",
-                'map-hover': "#00a651",
             }
         },
     },
