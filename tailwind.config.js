@@ -14,6 +14,10 @@ module.exports = {
     },
     theme: {
         extend: {
+            textColor: {
+                'map': "#0072bc",
+                'map-hover': "#00a651",
+            }
         },
     },
     variants: {

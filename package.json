@@ -39,6 +39,7 @@
     "@adonisjs/shield": "^7.0.6",
     "@adonisjs/validator": "^12.0.1",
     "@adonisjs/view": "^6.1.1",
+    "@svg-maps/france.departments": "^1.0.1",
     "@vue-hero-icons/outline": "^1.7.2",
     "@vue-hero-icons/solid": "^1.7.2",
     "adonis-lucid-filter": "^4.1.0",

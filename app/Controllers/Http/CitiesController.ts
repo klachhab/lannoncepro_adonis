@@ -2,10 +2,15 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import City from "App/Models/City";
 
 export default class CitiesController {
-  public async index ({}: HttpContextContract) {
-    return {
-      cities: await City.query().preload('department')
-    }
+  public index ({}: HttpContextContract) {
+    return City.query()
+        .withCount('posts', posts => {
+          posts.where('is_valid', 1)
+        })
+        .pojo()
+        .orderBy('posts_count', 'desc')
+        .limit(14)
+        .select('name', 'code');
   }
 
   public async create ({}: HttpContextContract) {

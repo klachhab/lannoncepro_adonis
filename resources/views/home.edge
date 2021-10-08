@@ -46,7 +46,7 @@
                                 </a>
 
                                 <div class="bg-category w-full h-full">
-                                    <img class="object-fill rounded-md h-full" src="https://lannoncepro.test/images/trending/1.jpg" alt="">
+                                    <img class="object-fit rounded-md h-full" src="https://lannoncepro.test/images/trending/1.jpg" alt="">
                                 </div>
                             </div>
 
@@ -58,19 +58,36 @@
             <!-- !Top categories -->
 
             <!-- Top cities -->
-            <div class="px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 mt-10 w-full"
+            <div class="flex justify-center grid grid-cols-2  shadow p-10 mx-auto my-10 h-full w-full"
                  :class="maxWidth.container"
             >
-                <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
-                    @{{ top_cities }}
-                </span>
 
-                <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
+                <svg class="fill-current text-map"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 613 585"
+                >
+                    <g id="france.departments" fill="#0072bc" strock-fill="#ffffff" stroke-width="1" fill-rule="nonzero">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 h-10">
-                    <div v-for="(numb, i) in 2" :key="i" class="shadow rounded-lg flex justify-center items-center">
-                        @{{ numb }}
+                        <path v-for="dep in mapFrance" :key="dep.id" :data-tip="dep.name"
+                              class="hover:text-green-200 cursor-pointer tooltip"
+                              @click="getDepName(dep.id, dep.name)"
+                              :id="dep.id"
+                              :name="dep.name"
+                              :d="dep.d"
+                        >
+                        </path>
+                    </g>
+                </svg>
+
+                <div class="">
+                    <div class="flex justify-between">
+                        <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
+                            @{{ selectedDep }}
+                        </span>
+                        <XIcon/>
                     </div>
+
+                    <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
                 </div>
             </div>
             <!-- !Top cities -->

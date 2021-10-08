@@ -72,6 +72,7 @@ export default class PostFilter extends BaseModelFilter {
   }
 
   public prx(price: string) {
+    // @ts-ignore
     this.post.whereBetween('price', price.split(`,`))
   }
 

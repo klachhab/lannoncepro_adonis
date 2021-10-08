@@ -21,8 +21,9 @@ export default class HomeController {
                 posts.where('is_valid', 1)
             })
             .select('id', 'name', 'code')
-            .limit(14)
             .pojo()
+            .orderBy('posts_count', 'desc')
+            .limit(14)
 
         // return {
         //     sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
@@ -33,7 +34,8 @@ export default class HomeController {
         return view.render('home',{
             sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
             // @ts-ignore
-            top_cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
+            // top_cities: cities.sort( (a,b) => b.posts_count - a.posts_count),
+            cities,
         })
     }
 }

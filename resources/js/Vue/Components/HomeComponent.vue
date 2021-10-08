@@ -1,12 +1,16 @@
 <script>
 
 import {TInput, TModal} from "vue-tailwind/dist/components"
+import { XIcon } from "@vue-hero-icons/outline"
 
 import {Swiper, SwiperSlide} from 'vue-awesome-swiper'
 import 'swiper/css/swiper.css'
 
+import {France} from "../../france";
+
 export default {
     components: {
+        XIcon,
         TInput, TModal,
         Swiper, SwiperSlide,
     },
@@ -15,6 +19,7 @@ export default {
 
     data() {
         return {
+
             maxWidth: {
                 search_input: "max-w-xs xl:max-w-3xl lg:max-w-xl md:max-w-lg sm:max-w-sm",
                 container: "max-w-xs xl:max-w-7xl lg:max-w-4xl md:max-w-2xl sm:mas-w-xl",
@@ -61,7 +66,13 @@ export default {
                 },
             },
 
-            top_cities:  'Top 15 cities'
+            top_cities:  'Top 15 cities',
+
+            mapFrance: {
+                ...France
+            },
+            selectedDep: '',
+
         }
     },
 
@@ -71,12 +82,15 @@ export default {
     computed: {},
 
     methods: {
-        onSwiper(swiper) {
-            console.log(swiper);
-        },
-        onSlideChange() {
-            console.log('slide change');
-        },
+    //    Top cities
+        getDepName(id, depName){
+            axios.get('https://geo.api.gouv.fr/departements', {})
+            .then(respo => {
+                console.log(respo.data)
+            })
+            this.selectedDep = depName
+
+        }
     },
 }
 </script>

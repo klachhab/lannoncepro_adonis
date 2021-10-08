@@ -1390,6 +1390,11 @@
     "slugify" "^1.6.0"
     "truncatise" "0.0.8"
 
+"@svg-maps/france.departments@^1.0.1":
+  "integrity" "sha512-S/K15YVhpRh/vatRaLCfU20JzcbnwdJ1Kz/FrWrTYleElyxV2HXogmiXaoL3FILOvbJvkRXtFSUbh+Ax+A2QdA=="
+  "resolved" "https://registry.npmjs.org/@svg-maps/france.departments/-/france.departments-1.0.1.tgz"
+  "version" "1.0.1"
+
 "@symfony/webpack-encore@^1.5.0":
   "integrity" "sha512-Bfq99dUwDPH9BN777CADY9xJOLbowrNHwHSi3w8TjmhcOSqchgcWjdlT0AqXlbB3wUqXwpw9Tz6anQAMrC6+xA=="
   "resolved" "https://registry.npmjs.org/@symfony/webpack-encore/-/webpack-encore-1.5.0.tgz"
