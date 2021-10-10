@@ -46,7 +46,7 @@ const sessionConfig: SessionConfig = {
   | The name of the cookie that will hold the session id.
   |
   */
-  cookieName: 'adonis-session',
+  cookieName: 'lannoncePro',
 
   /*
   |--------------------------------------------------------------------------
@@ -73,7 +73,8 @@ const sessionConfig: SessionConfig = {
   | Example: `2 days`, `2.5 hrs`, `1y`, `5s` and so on.
   |
   */
-  age: '2h',
+  age: '3 h',
+  // age: '2.5 h',
 
   /*
   |--------------------------------------------------------------------------
@@ -87,7 +88,7 @@ const sessionConfig: SessionConfig = {
   cookie: {
     path: '/',
     httpOnly: true,
-    sameSite: false,
+    sameSite: true,
   },
 
   /*

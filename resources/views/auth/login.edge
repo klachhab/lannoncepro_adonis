@@ -1,0 +1,52 @@
+@layout('layouts/master')
+
+@section('content')
+
+    <login inline-template class="object-cover" style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
+        <div class="flex">
+
+            <div class="flex justify-center px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 my-20 w-full"
+                 :class="container"
+            >
+                <div class="grid grid-cols-1 place-items-center w-full mt-12 md:px-8">
+                    <span class="font-semibold text-3xl text-blue-500 mb-7">Se connecter</span>
+
+                    <div class="relative mb-7 w-full ">
+                        <input type="email"
+                               class="mt-1 block w-full rounded-md"
+                               :class="error_field === 'E_ROW_NOT_FOUND' ? field_class.has_err : field_class.normal"
+                               v-model="form.email"
+                               placeholder="Adresse e-mail"/>
+
+                        <p v-if="error_field === 'E_ROW_NOT_FOUND'" class="absolute text-xs text-red-400 ml-2 mt-1">
+                            L'adresse e-mail n'est pas valide
+                        </p>
+                    </div>
+
+                    <div class="relative mb-7 w-full">
+                        <input type="password" v-model="form.password"
+                               class="mt-1 block w-full rounded-md"
+                               :class="error_field === 'pass_incorrect' ? field_class.has_err : field_class.normal"
+                               placeholder="Mot de passe">
+
+                        <p v-if="error_field === 'pass_incorrect'" class="absolute text-xs text-red-400 ml-2 mt-1">
+                            Mot de passe incorrecte
+                        </p>
+                    </div>
+
+
+                    <div class="flex w-full justify-between mb-7 mt-3">
+                        <a href="#" class="text-right text-gray-400 hover:text-blue-500 transition delay-100 ease-in-out">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+
+                    <div class="flex py-2 px-7 mb-7 cursor-pointer bg-blue-500 text-white rounded-md transition delay-75 ease-in-out hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700">
+                        <span @click="login">Se connecter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </login>
+
+@endsection

@@ -16,7 +16,7 @@ module.exports = {
         extend: {
             textColor: {
                 'map': "#0072bc",
-            }
+            },
         },
     },
     variants: {
@@ -26,7 +26,7 @@ module.exports = {
         },
     },
     plugins: [
-        // require('@tailwindcss/forms'),
+        require('@tailwindcss/forms'),
         require('daisyui')
     ],
 }

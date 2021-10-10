@@ -3,7 +3,10 @@ import Category from "App/Models/Category";
 import City from "App/Models/City";
 
 export default class HomeController {
-    public async index ({view}: HttpContextContract) {
+
+    public async index ({view, auth}: HttpContextContract) {
+        console.log(auth.user)
+
         const sub_categories = await Category.query()
             .has('parent')
             .preload('parent', parent => {

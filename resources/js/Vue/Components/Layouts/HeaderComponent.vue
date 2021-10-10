@@ -26,7 +26,7 @@
                         <div class="relative inline-block text-left">
                             <button class=" flex items-center justify-center w-full rounded-md pr-4 py-2 text-normal font-medium text-gray-700 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-500">
                                 <span class="mr-4 text-gray-800 dark:hover:text-white py-2">
-                                    John Doe
+                                    {{ user }}
                                 </span>
                                 <ChevronDownIcon size="20" />
                             </button>
@@ -98,9 +98,9 @@
                                     >
                                         <div class="flex items-center">
                                             <LogoutIcon size="20" class="mr-4"></LogoutIcon>
-                                            <span>
+                                            <a href="#" @click.prevent="logout">
                                                 Se déconnecter
-                                            </span>
+                                            </a>
                                         </div>
                                     </a>
                                 </div>
@@ -113,13 +113,13 @@
 
                     <div class="flex items-center mr-8" v-else>
                         <div class="flex items-baseline space-x-4">
-                            <span class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
+                            <a href="/auth/register" class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
                                 Register
-                            </span>
+                            </a>
 
-                            <span class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
+                            <a href="/auth/login" class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
                                 Login
-                            </span>
+                            </a>
 
                         </div>
                     </div>
@@ -152,6 +152,7 @@ import {ChevronDownIcon, MenuIcon, ChatIcon, CogIcon, HeartIcon,
 } from "@vue-hero-icons/outline"
 
 export default {
+    props: ['check', 'user'],
     name: "HeaderComponent",
     components: {
         ChevronDownIcon, MenuIcon, ChatIcon,
@@ -162,12 +163,29 @@ export default {
         return {
             transition: "transition duration-200 ease-in-out",
             show_profile_menu: false,
-            authenticated: true,
+            authenticated: this.check === "true",
             messages: 30,
         }
     },
-    methods: {
 
+    mounted() {
+        // console.log(this.user)
+    },
+
+    methods: {
+        async logout() {
+            const logout = await axios.post('/auth/logout')
+            .then(() => {
+                window.location.replace("/");
+            })
+            .catch(e => {
+                return {
+                    error: e.code
+                }
+            })
+
+            console.log(logout)
+        }
     },
 }
 </script>

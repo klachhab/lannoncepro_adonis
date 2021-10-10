@@ -32,12 +32,12 @@ Route.group(() => {
         Route.route('/login', ['GET', 'POST'], 'AuthController.login')
             .as('login')
 
+        Route.get('/register', 'UsersController.create')
+            .as('register')
+
         Route.post('/logout', 'AuthController.logout')
             .as('logout')
             .middleware('auth')
-
-        Route.get('/register', 'UsersController.create')
-            .as('register')
 
     }).prefix('auth').as('auth')
 

@@ -85,12 +85,11 @@ export default {
     methods: {
     //    Top cities
         getDepName(id, depName){
-            axios.get('https://geo.api.gouv.fr/departements', {})
-            .then(respo => {
-                console.log(respo.data)
-            })
+            // axios.get('https://geo.api.gouv.fr/departements', {})
+            // .then(respo => {
+            //     console.log(respo.data)
+            // })
             this.selectedDep = depName
-
         }
     },
 }

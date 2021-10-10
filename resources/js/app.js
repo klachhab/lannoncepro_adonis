@@ -14,6 +14,10 @@ Vue.component('vue-nav', require('./Vue/Components/Layouts/HeaderComponent').def
 
 // Content
 Vue.component('home', require('./Vue/Components/HomeComponent.vue').default);
+
+// Auth
+Vue.component('login', require('./Vue/Components/auth/LoginComponent').default);
+Vue.component('register', require('./Vue/Components/auth/RegisterComponent').default);
 const app = new Vue({
     router,
     store,

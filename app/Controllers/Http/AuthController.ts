@@ -1,61 +1,111 @@
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
-import {AuthenticationException} from "@adonisjs/auth/build/standalone";
+import User from "App/Models/User";
+import Hash from "@ioc:Adonis/Core/Hash";
 
 export default class AuthController {
 
-    public async login({auth, request}: HttpContextContract) {
+    public async check({auth, request}: HttpContextContract) {
+        const log = auth.use(request.qs().env && request.qs().env == 'api' ? 'api' : "web")
+
+        return {
+            loggedIn: log.check()
+        }
+    }
+
+    public async login({auth, request, view, response}: HttpContextContract) {
 
         if (request.method() == "POST") {
-            const log = auth.use(!request.qs().env || request.qs().env == 'api' ? 'api' : "web")
 
-            const email = request.qs().email
-            const password = request.qs().password
+            const email = request.all().email
+            const password = request.all().password
 
-            return await log.attempt(email, password)
-                .then(response => {
+            // Check user -------------
+            return User.query().where('email', email)
+                .firstOrFail()
+                .then(async user => {
+                    return await Hash.verify(user.password, password)
+
+                        .then( async (valid) => {
+
+                            // Check password -------------
+                            if (valid){
+                                const log = auth
+                                    .use(request.all().env && request.all().env == 'api'
+                                        ? 'api' : "web"
+                                    )
+
+                                return await log.attempt(email, password)
+                                    .then(response => {
+
+                                        return {
+                                            user: auth.user,
+                                            success: true,
+                                            token: auth.defaultGuard == "api" ? response.token : false,
+                                        }
+
+                                    })
+                                    .catch(e => {
+                                        return {
+                                            success: false,
+                                            error: e.message
+                                        }
+                                    })
+                            }
+                            else {
+                                return {
+                                    success: false,
+                                    error: "pass_incorrect"
+                                }
+                            }
+
+                        })
+                        .catch( (error) => {
+                            return {
+                                success: false,
+                                error
+                            }
+                        })
+
+                })
+                .catch( (error) => {
                     return {
-                        token: auth.defaultGuard == "api" ? response.token : false,
-                        response: auth.defaultGuard == "api" ? response.user : response
+                        success: false,
+                        error: error.code
                     }
                 })
-                .catch(e => {
-                    return {error: e.message}
-                })
-        } else {
 
-            return {
-                error: "your not logged in"
+
+        }
+
+        else {
+            if (await auth.check()) {
+                return response.redirect('/')
             }
-
+            else {
+                return view.render('auth/login')
+            }
         }
     }
 
 
     public async logout({auth}: HttpContextContract) {
 
-        const log = auth.defaultGuard ? auth : auth.use('api')
+        const log = auth.defaultGuard == "web" ? auth.use('web') : auth.use('api')
 
-        return await log.check()
-            .then( async check => {
+        if (await log.check()) {
+           return await log.logout()
+               .then( () => {
+                   return {
+                       logged_out: true
+                   }
+               })
+               .catch(e => {
+                   return {
+                       logged_out: false,
+                       error: e.code
+                   }
+               })
+        }
 
-                if (check) {
-                    return await log.logout()
-                        .then(() => {
-                            return {
-                                logged_out: true,
-                            }
-                        })
-                        .catch(e => {
-                            return {error: e.message}
-                        })
-                } else {
-                    return {
-                        logged_out: false,
-                    }
-                }
-            })
-            .catch((e: AuthenticationException) => {
-                return { error: e}
-            })
     }
 }
