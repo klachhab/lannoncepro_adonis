@@ -11,7 +11,7 @@ export default {
             container: "max-w-xs lg:max-w-lg md:max-w-lg sm:max-w-xl",
 
             form: {
-                email: "",
+                auth_field: "",
                 password: "",
             },
             error_field: "",
@@ -46,7 +46,3 @@ export default {
     },
 }
 </script>
-
-<style lang="css">
-
-</style>

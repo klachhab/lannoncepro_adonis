@@ -5,6 +5,7 @@ import UserValidator from "App/Validators/UserValidator";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 import {Exception} from "@poppinss/utils";
 import Application from "@ioc:Adonis/Core/Application";
+import Department from "App/Models/Department";
 
 export default class UsersController {
 
@@ -17,14 +18,17 @@ export default class UsersController {
 
     }
 
-    public async create({}: HttpContextContract) {
+
+    public async create({view}: HttpContextContract) {
+        const departments = await Department.query().select('code', 'name')
+        // return departments
+        return view.render('auth/register', {
+            departments
+        })
     }
 
-    public async edit({auth}: HttpContextContract) {
-        return auth.defaultGuard
-        // return await auth.config ? {web_user: auth.user}
-        //     : await auth.use("api").check() ? {api_user: auth.user}
-        //         : "Not logged"
+    public async edit({view}: HttpContextContract) {
+        return view.render('auth/register')
      }
 
 

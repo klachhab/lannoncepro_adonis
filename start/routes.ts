@@ -64,7 +64,7 @@ Route.group(() => {
         .only(['index'])
 
     Route.resource('departments', 'DepartmentsController').apiOnly()
-        // .only(['show', 'index'])
+        .only(['show', 'index'])
 
     // Profile -------------------------------------
     Route.group(() => {

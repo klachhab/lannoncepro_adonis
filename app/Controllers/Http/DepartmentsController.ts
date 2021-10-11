@@ -38,14 +38,16 @@ export default class DepartmentsController {
 
         return await Department.query()
             .preload('cities', cities => {
-                cities.select('id', 'name', 'code').limit(14)
+                cities.select('id', 'name')
+                    // .limit(14)
             })
             .where('code', params.id)
+            .select()
             .firstOrFail()
             .then(department => {
                 return {
                     success: true,
-                    department,
+                    cities: department.cities,
                 }
             })
             .catch(e => {

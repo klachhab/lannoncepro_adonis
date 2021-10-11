@@ -16,11 +16,13 @@ export default class AuthController {
 
         if (request.method() == "POST") {
 
-            const email = request.all().email
+            const auth_field = request.all().auth_field
             const password = request.all().password
 
             // Check user -------------
-            return User.query().where('email', email)
+            return User.query()
+                .where('email', auth_field)
+                .orWhere('username', auth_field)
                 .firstOrFail()
                 .then(async user => {
                     return await Hash.verify(user.password, password)
@@ -34,7 +36,7 @@ export default class AuthController {
                                         ? 'api' : "web"
                                     )
 
-                                return await log.attempt(email, password)
+                                return await log.attempt(user.email, password)
                                     .then(response => {
 
                                         return {

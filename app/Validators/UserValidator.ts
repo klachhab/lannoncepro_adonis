@@ -52,6 +52,7 @@ export default class UserValidator {
 		]),
 
 		city_id: schema.string({}, [
+			rules.required(),
 			rules.exists({table: 'cities', column: 'id'})
 		]),
 
