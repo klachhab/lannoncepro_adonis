@@ -13,6 +13,7 @@ export default class Users extends BaseSchema {
       table.string('avatar').defaultTo('/images/user.png').notNullable();
       table.string('password').notNullable();
       table.boolean('email_verified').defaultTo(false);
+      table.string('verification_code').nullable();
       table.enum('user_type', ['admin', 'user'])
           .notNullable().defaultTo('user');
 

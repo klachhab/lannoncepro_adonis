@@ -2,14 +2,21 @@ import Vue from "vue";
 require('./bootstrap');
 window.Vue = require('vue');
 import Vuelidate from 'vuelidate'
-Vue.use(Vuelidate)
-
-// import VueTailwind from 'vue-tailwind'
-//
-// Vue.use(VueTailwind)
-
 import router from "./Vue/router"
 import store from "./Vue/store"
+import VueSweetalert2 from 'vue-sweetalert2';
+
+import 'sweetalert2/dist/sweetalert2.min.css';
+import 'animate.css';
+
+
+Vue.use(Vuelidate)
+Vue.use(VueSweetalert2, {
+    confirmButtonColor: '#3B82F6',
+    cancelButtonColor: '#EF4444',
+});
+
+
 
 // Layouts
 Vue.component('vue-nav', require('./Vue/Components/Layouts/HeaderComponent').default);

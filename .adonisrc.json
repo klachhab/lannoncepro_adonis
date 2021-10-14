@@ -6,7 +6,8 @@
     "@adonisjs/repl/build/commands",
     "@adonisjs/lucid/build/commands",
     "adonis-lucid-filter/build/commands",
-    "adonis-mix-asset/build/commands"
+    "adonis-mix-asset/build/commands",
+    "@adonisjs/mail/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -31,7 +32,8 @@
     "@adonisjs/validator",
     "adonis-lucid-filter",
     "@adonisjs/auth",
-    "adonis-mix-asset"
+    "adonis-mix-asset",
+    "@adonisjs/mail"
   ],
   "metaFiles": [
     ".env",

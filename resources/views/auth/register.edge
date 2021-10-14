@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <register inline-template id="register"
+    <register inline-template
               style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
         <div class="flex">
 
@@ -10,22 +10,18 @@
                  :class="container"
             >
 
+
                 <div class=" w-full mt-4 md:px-8 grid grid-cols-1 place-items-center">
+                    <pre>Title invalid : @{{ $v.form.title.$invalid }}</pre>
+                    <pre>Name invalid : @{{ $v.form.name.$invalid }}</pre>
+                    <pre>Username invalid : @{{ $v.form.username.$invalid }}</pre>
+                    <pre>Phone invalid : @{{ $v.form.phone.$invalid }}</pre>
+                    <pre>City invalid : @{{ $v.form.city_id.$invalid }}</pre>
+                    <pre>Email invalid : @{{ $v.form.email.$invalid }}</pre>
+                    <pre>Password invalid : @{{ $v.form.password.$invalid }}</pre>
+                    <pre>Password confirmation invalid : @{{ $v.form.password_confirmation.$invalid }}</pre>
+                    <pre>Terms and conditions invalid : @{{ $v.form.conditions.$invalid }}</pre>
 
-                    <div class="w-full">
-                        <pre>title : Invalid = @{{ $v.form.title.$invalid }}</pre>
-                        <pre>name : Invalid = @{{ $v.form.name.$invalid }}</pre>
-                        <pre>username : Invalid = @{{ $v.form.username.$invalid }}</pre>
-                        <pre>email : Invalid = @{{ $v.form.email.$invalid }}</pre>
-                        <pre>phone : Invalid = @{{ $v.form.phone.$invalid }}</pre>
-                        <pre>password : Invalid = @{{ $v.form.password.$invalid }}</pre>
-                        <pre>password_confirmation : Invalid = @{{ $v.form.password_confirmation.$invalid }}</pre>
-                        <pre>city_id : Invalid = @{{ $v.form.city_id.$invalid }}</pre>
-                        <pre>conditions_accepted : Invalid = @{{ $v.form.conditions.$invalid }}</pre>
-
-
-                        <pre class="my-2">Whole Form : Invalid = @{{ $v.form.$invalid }}</pre>
-                    </div>
                     <span class="font-semibold text-3xl text-blue-600 mb-12">Créer un nouveau compte</span>
 
                     <!-- Title -->
@@ -108,7 +104,7 @@
 
                             @each(department in departments)
 
-                            <option value="{{ department.code }}">{{ department.name }}</option>
+                            <option value="{{ department.code }}">{{ department.code }} - {{ department.name }}</option>
 
                             @end
                         </select>
@@ -126,7 +122,7 @@
                                v-model="$v.form.city_id.$model">
 
                             <option value="null" disabled selected>Ville</option>
-                            <option v-for="city in cities" :value="city.code">@{{ city.name }}</option>
+                            <option v-for="city in cities" :value="city.id">@{{ city.name }}</option>
 
                         </select>
 
@@ -141,7 +137,7 @@
                     </div>
 
                     <!-- Email -->
-                    <div class="relative mb-7 w-full ">
+                    <div class="relative mb-7 w-full">
                         <input type="email"
                                class="mt-1 block w-full rounded-md placeholder-gray-400"
                                :class="show_errors && $v.form.email.$invalid? field_class.has_err : field_class.normal"
@@ -199,7 +195,7 @@
                             >
                             <span class="ml-3 text-gray-800">
                                 En vous inscrivant, vous acceptez nos
-                                <a href="#" class="font-semibold text-blue-800">
+                                <a href="#" class="font-semibold text-blue-800" @click.prevent="showAlert">
                                     termes et conditions d'utilisation
                                 </a>
                             </span>
@@ -207,12 +203,13 @@
                     </div>
 
                     <!-- Validation -->
-                    <button :class="$v.form.$invalid ? 'btn-disabled bg-blue-300':'bg-blue-500'"
-                            :disabled="$v.form.$invalid"
+                    <button :class="$v.form.$invalid || saving? 'btn-disabled bg-blue-300':'bg-blue-500'"
+                            :disabled="$v.form.$invalid || saving"
                             @click="newUser()"
                             class="flex items-center py-2 px-7 mb-7 mt-3 text-white rounded-md transition delay-100 ease-in-out hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
                     >
-                        Créer votre compte
+                        <p v-if="saving">En cours ...</p>
+                        <p v-else>Créer votre compte</p>
                     </button>
 
                 </div>

@@ -36,7 +36,9 @@
       "adonis-lucid-soft-deletes",
       "@adonisjs/validator",
       "adonis-lucid-filter",
-      "@adonisjs/auth"
+      "@adonisjs/auth",
+      "vue-sweetalert2",
+      "@adonisjs/mail"
     ]
   }
 }

@@ -1,10 +1,9 @@
 <script>
 
-import TInput from "vue-tailwind/dist/t-input";
 import {
     email, maxLength, minLength, numeric, required, requiredIf, sameAs
 } from "vuelidate/lib/validators";
-import {validationMixin} from "vuelidate";
+
 
 const is_title = value => {
     const titles = ['miss', 'mrs', 'mr']
@@ -16,8 +15,8 @@ const accepted = value => {
 
 export default {
     components: {
-        TInput
     },
+
     data() {
         return {
             container: "max-w-xs lg:max-w-lg md:max-w-lg sm:max-w-xl",
@@ -48,13 +47,11 @@ export default {
             },
 
             show_errors: false,
+            saving: false,
         }
-
     },
 
-    // mixins: [validationMixin],
     validations: {
-
         form: {
 
             title: {
@@ -87,10 +84,12 @@ export default {
                         value
                     })
                         .then( resp => {
+                            console.log(resp.data)
                             return Boolean(resp.data)
                         })
-                        .catch( () => {
-                            return false
+                        .catch( (err) => {
+                            console.log(err)
+                            return err
                         })
                 },
             },
@@ -124,7 +123,6 @@ export default {
                 accepted,
             }
         },
-
     },
 
     computed: {
@@ -135,12 +133,28 @@ export default {
 
     methods: {
 
+        showAlert(){
+            this.$swal({
+                icon: 'success',
+                title: "Votre compte a bien été créé.",
+                html: "<p class='mb-3'>Merci de vérifier votre boite e-mail afin de confirmer votre compte</p>"
+                ,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+
+            });
+        },
+
         async newUser(){
 
             if (this.$v.form.$invalid){
                 this.show_errors = true
                 return
             }
+
+            this.saving = true
 
             const form = new FormData()
 
@@ -155,17 +169,13 @@ export default {
 
 
             await axios.post('/api/profile', form)
-                .then(response => {
+                .then(async response => {
                     const success = response.data.success
                     const data = response.data.response
 
                     if (success) {
-                        console.log(data)
+                        this.showAlert()
                     }
-                    else {
-
-                    }
-
                 })
                 .catch(err => {
                     console.log(err)

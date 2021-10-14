@@ -14,6 +14,7 @@ import City from "App/Models/City";
 import Post from "App/Models/Post/Post";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
+import Encryption from "@ioc:Adonis/Core/Encryption";
 
 export default class User extends compose(BaseModel, SoftDeletes) {
 
@@ -42,6 +43,9 @@ export default class User extends compose(BaseModel, SoftDeletes) {
 
     @column({ serializeAs: null })
     public email_verified: boolean
+
+    @column({ serializeAs: null })
+    public verification_code: string | null
 
     @column()
     public user_type: string
@@ -105,11 +109,13 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     public reports: ManyToMany<typeof Post>
 
 // Hooks -------------------------------------
+
     @beforeCreate()
-    public static async hashPassword(user: User) {
+    public static async beforeCreate(user: User) {
         if (user.$dirty.password) {
             user.password = await Hash.make(user.password);
         }
+        user.verification_code = Encryption.encrypt(user.email)
     }
 
     @afterDelete()

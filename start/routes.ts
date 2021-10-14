@@ -39,7 +39,9 @@ Route.group(() => {
             .as('logout')
             .middleware('auth')
 
-    }).prefix('auth').as('auth')
+    })
+        .prefix('auth')
+        .as('auth')
 
     // Profile -------------------------------------
     Route.resource('profile', 'UsersController')
@@ -49,6 +51,9 @@ Route.group(() => {
             show: 'auth:web',
         })
         .as('profile')
+
+    Route.get('/verify', 'UsersController.verify')
+        .as('verify')
 
     // Posts -------------------------------------
     // Route.resource('annnonces', 'Post/PostsController')
