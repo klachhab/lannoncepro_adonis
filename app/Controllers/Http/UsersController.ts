@@ -66,7 +66,7 @@ export default class UsersController {
         }).catch((err: ValidationException) => {
             return {
                 success: false,
-                response: err.messages
+                response: err.flashToSession
             }
         })
 
@@ -148,7 +148,8 @@ export default class UsersController {
 
 
     public async restore({params}: HttpContextContract) {
-        return await User.onlyTrashed().where('username', params.username)
+        return await User.onlyTrashed()
+            .where('username', params.username)
             .firstOrFail()
             .then(async user => {
                 await user.restore().then(() => {
@@ -186,5 +187,20 @@ export default class UsersController {
                 }
             })
 
+    }
+
+    // For Vue Validator==========================
+
+    public async is_unique({request}: HttpContextContract) {
+        return await User.withTrashed()
+            .where('username', request.all().value)
+            .orWhere("email", request.all().value)
+            .firstOrFail()
+            .then( () => {
+                return false
+            })
+            .catch( () => {
+                return true
+            })
     }
 }

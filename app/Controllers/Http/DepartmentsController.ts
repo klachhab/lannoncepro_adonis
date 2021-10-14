@@ -38,7 +38,7 @@ export default class DepartmentsController {
 
         return await Department.query()
             .preload('cities', cities => {
-                cities.select('id', 'name')
+                cities.select('id', 'name', 'code')
                     // .limit(14)
             })
             .where('code', params.id)

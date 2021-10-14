@@ -62,13 +62,14 @@ Route.group(() => {
 
     Route.resource('cities', 'CitiesController').apiOnly()
         .only(['index'])
+    Route.post('cities/:id', 'CitiesController.show').as('cities.show')
 
     Route.resource('departments', 'DepartmentsController').apiOnly()
         .only(['show', 'index'])
 
     // Profile -------------------------------------
     Route.group(() => {
-        Route.resource('profile', 'UsersController')
+        Route.resource('', 'UsersController')
             .apiOnly()
             .middleware({
                 show: 'auth:api',
@@ -76,15 +77,18 @@ Route.group(() => {
                 destroy: 'auth:api',
             })
 
-        Route.post('profile/:username/restore', 'UsersController.restore')
+        Route.post('/:username/restore', 'UsersController.restore')
             .as('profile.restore')
             .middleware('auth:api')
 
-        Route.delete('profile/:username/force-delete', 'UsersController.forceDelete')
+        Route.delete('/:username/force-delete', 'UsersController.forceDelete')
             .as('profile.forceDelete')
             .middleware('auth:api')
 
-    }).as("users_actions")
+        Route.post('/is_unique', 'UsersController.is_unique')
+            .as('profile.is_unique')
+
+    }).as("users_is_unique").prefix('/profile')
 
     // Posts -------------------------------------
     Route.group(() => {

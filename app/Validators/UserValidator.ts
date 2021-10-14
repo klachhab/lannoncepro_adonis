@@ -89,7 +89,7 @@ export default class UserValidator {
 
 		'password.required' : "Merci de choisir un mot de passe",
 		'password.minLength' : "Le mot de passe doit contenir au minimum {{ options.minLength }} caractères",
-		'password_confirmation.confirmed' : "Les 2 champs du mot de passe ne sont pas identiques",
+		'password_confirmation.confirmed' : "Les mots de passe que vous avez entrés ne sont pas identiques",
 
 		'phone.required' : "Votre numéro de téléphone est obligatoir",
 		'phone.regex' : "Le numéro de téléphone que vous avez saisi n'est pas valide",

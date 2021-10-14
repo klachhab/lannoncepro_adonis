@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <register inline-template id="register" csrf="{{ csrfField() }}"
+    <register inline-template id="register"
               style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
         <div class="flex">
 
@@ -10,176 +10,210 @@
                  :class="container"
             >
 
-                <div class=" w-full mt-10 md:px-8">
-                    <span class="font-semibold text-3xl text-blue-500">Créer un nouveau compte</span>
+                <div class=" w-full mt-4 md:px-8 grid grid-cols-1 place-items-center">
 
-                    <form action="#" @submit.prevent
-                          class="grid grid-cols-1 place-items-center w-full mt-10">
-{{--                        {{ csrfField() }}--}}
+                    <div class="w-full">
+                        <pre>title : Invalid = @{{ $v.form.title.$invalid }}</pre>
+                        <pre>name : Invalid = @{{ $v.form.name.$invalid }}</pre>
+                        <pre>username : Invalid = @{{ $v.form.username.$invalid }}</pre>
+                        <pre>email : Invalid = @{{ $v.form.email.$invalid }}</pre>
+                        <pre>phone : Invalid = @{{ $v.form.phone.$invalid }}</pre>
+                        <pre>password : Invalid = @{{ $v.form.password.$invalid }}</pre>
+                        <pre>password_confirmation : Invalid = @{{ $v.form.password_confirmation.$invalid }}</pre>
+                        <pre>city_id : Invalid = @{{ $v.form.city_id.$invalid }}</pre>
+                        <pre>conditions_accepted : Invalid = @{{ $v.form.conditions.$invalid }}</pre>
 
-                        <!-- Title -->
-                        <div class="relative mb-7 w-full ">
-                            <select
-                                    class="mt-1 block w-full rounded-md"
-                                    :class="field_class.normal"
-                                    v-model="form.title"
-                                    placeholder="Adresse e-mail">
 
-                                <option value="" selected>Civilié...</option>
-                                <option value="mrs">Mme.</option>
-                                <option value="miss">Mlle.</option>
-                                <option value="mr">Mr.</option>
+                        <pre class="my-2">Whole Form : Invalid = @{{ $v.form.$invalid }}</pre>
+                    </div>
+                    <span class="font-semibold text-3xl text-blue-600 mb-12">Créer un nouveau compte</span>
 
-                            </select>
+                    <!-- Title -->
+                    <div class="relative mb-7 w-full ">
+                        <select
+                                class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                :class="field_class.normal"
+                                v-model="$v.form.title.$model"
+                        >
 
-                            <p v-if="errors['title']" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors['title'].message }}
+                            <option value="null" selected disabled>Civilié...</option>
+                            <option value="mrs">Mme.</option>
+                            <option value="miss">Mlle.</option>
+                            <option value="mr">Mr.</option>
+
+                        </select>
+
+                        <p v-if="show_errors && !$v.form.title.is_title" class="absolute text-xs text-red-400 ml-2 mt-1">
+                            Le titre de civilité n'est pas valide
+                        </p>
+                    </div>
+
+                    <!-- Name -->
+                   <div class="relative mb-7 w-full ">
+                        <input type="text"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.name.$invalid ? field_class.has_err : field_class.normal"
+                               v-model="$v.form.name.$model"
+                               placeholder="Nom complet" />
+
+                        <p v-if="show_errors && !$v.form.name.required" class="absolute text-xs text-red-400 ml-2 mt-1">
+                            Merci de saisir votre nom complet
+                        </p>
+                   </div>
+
+                    <!-- Username -->
+                    <div class="relative mb-7 w-full">
+                        <input type="text"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.username.$invalid? field_class.has_err : field_class.normal"
+                               v-model.lazy="$v.form.username.$model"
+                               placeholder="Nom d'utilisateur" />
+
+                        <p v-if="show_errors && !$v.form.username.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            Merci de saisir votre nom complet
+                        </p>
+                        <p v-else-if="show_errors && !$v.form.username.unique" class="absolute text-xs text-red-400 ml-2 mb-1">
+                            Le nom d'utilisateur doit être unique
+                        </p>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="relative mb-7 w-full ">
+                        <input type="text"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.phone.$invalid? field_class.has_err : field_class.normal"
+                               v-model="$v.form.phone.$model"
+                               placeholder="Numéro de téléphone" />
+
+                        <p v-if="show_errors && !$v.form.phone.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            Merci de saisir votre numéro de téléphone
+                        </p>
+                        <p v-else-if="show_errors && !$v.form.phone.numeric" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            Le numéro de téléphone que vous avez saisi n'est pas valide
+                        </p>
+                        <p v-else-if="show_errors && !$v.form.phone.minLength || show_errors && !$v.maxLength" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            Le numéro de téléphone doit contenir 10 chiffres
+                        </p>
+                    </div>
+
+                    <!-- Department -->
+                    <div class="relative mb-7 w-full">
+                        <select
+                                @change="getCities"
+                                class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                :class="field_class.normal"
+                                v-model="selectedDep">
+
+                            <option value="null" disabled selected>Département</option>
+
+                            @each(department in departments)
+
+                            <option value="{{ department.code }}">{{ department.name }}</option>
+
+                            @end
+                        </select>
+
+                        <p v-if="error_field === 'E_ROW_NOT_FOUND'" class="absolute text-xs text-red-400 ml-2 mt-1">
+                            Le choix n'est pas valide
+                        </p>
+                    </div>
+
+                    <!-- City -->
+                    <div class="relative mb-7 w-full" v-if="selectedDep">
+                        <select
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.city_id.$invalid? field_class.has_err : field_class.normal"
+                               v-model="$v.form.city_id.$model">
+
+                            <option value="null" disabled selected>Ville</option>
+                            <option v-for="city in cities" :value="city.code">@{{ city.name }}</option>
+
+                        </select>
+
+                        <div v-if="$v.form.city_id.$dirty">
+                            <p v-if="show_errors && !$v.form.city_id.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                                Merci de selectionner votre ville / commune
+                            </p>
+                            <p v-else-if="show_errors && !$v.form.city_id.isCity" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                                Le ville / commune est introuvable
                             </p>
                         </div>
+                    </div>
 
-                        <!-- Name -->
-                        <div class="relative mb-7 w-full ">
-                            <input type="text"
-                                   class="mt-1 block w-full rounded-md"
-                                   :class="field_class.normal"
-                                   v-model="form.name"
-                                   placeholder="Nom complet" />
+                    <!-- Email -->
+                    <div class="relative mb-7 w-full ">
+                        <input type="email"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.email.$invalid? field_class.has_err : field_class.normal"
+                               v-model.lazy="$v.form.email.$model"
+                               placeholder="Adresse e-mail" />
 
-                            <p class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors['name'] }}
-                            </p>
-                        </div>
+                        <p v-if="show_errors && !$v.form.email.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            L'adresse e-mail est obligatoire
+                        </p>
+                        <p v-else-if="show_errors && !$v.form.email.email" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            L'adresse e-mail n'est pas valide
+                        </p>
+                        <p v-else-if="show_errors && !$v.form.email.unique" class="absolute text-xs text-red-400 ml-2 mb-1">
+                            L'adresse e-mail doit être unique
+                        </p>
+                    </div>
 
-                        <!-- Username -->
-                        <div class="relative mb-7 w-full ">
-                            <input type="text"
-                                   class="mt-1 block w-full rounded-md"
-                                   :class="field_class.normal"
-                                   v-model="form.username"
-                                   placeholder="Nom d'utilisateur" />
+                    <!-- Password -->
+                    <div class="relative mb-7 w-full ">
+                        <input type="password"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.password.$invalid? field_class.has_err : field_class.normal"
+                               v-model.lazy="$v.form.password.$model"
+                               placeholder="Mote de passe" />
 
-                            <p v-if="errors.map(err => err.field).includes('username')" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors.map(err => err.message) }}
-                            </p>
-                        </div>
 
-                        <!-- Phone -->
-                        <div class="relative mb-7 w-full ">
-                            <input type="text"
-                                   class="mt-1 block w-full rounded-md"
-                                   :class="field_class.normal"
-                                   v-model="form.phone"
-                                   placeholder="Numéro de téléphone" />
+                        <p v-if="show_errors && !$v.form.password.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
+                            Merci de saisir un mot de passe
+                        </p>
+                        <p v-else-if="show_errors && !$v.form.password.minLength" class="absolute text-xs text-red-400 ml-2 mb-1">
+                            Le mot de passe doit contenir au moins 8 caractères
+                        </p>
+                    </div>
 
-                            <p v-if="errors.map(err => err.field).includes('phone')" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors.map(err => err.message) }}
-                            </p>
-                        </div>
+                    <!-- Password confirmation -->
+                    <div class="relative mb-7 w-full ">
+                        <input type="password"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="show_errors && $v.form.password_confirmation.$invalid? field_class.has_err : field_class.normal"
+                               v-model="$v.form.password_confirmation.$model"
+                               placeholder="Confirmation du mote de passe" />
 
-                        <!-- Department -->
-                        <div class="relative mb-7 w-full">
-                            <select
-                                    @change="getCities"
-                                    class="mt-1 block w-full rounded-md"
-                                    :class="field_class.normal"
-                                    v-model="selectedDep">
+                        <p v-if="show_errors && !$v.form.password_confirmation.sameAsPassword" class="absolute text-xs text-red-400 ml-2 mb-1">
+                            Les mots de passe que vous avez entrés ne sont pas identiques
+                        </p>
+                    </div>
 
-                                <option value="null" disabled selected>Département</option>
-
-                                @each(department in departments)
-
-                                <option value="{{ department.code }}">{{ department.name }}</option>
-
-                                @end
-                            </select>
-
-                            <p v-if="error_field === 'E_ROW_NOT_FOUND'" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                Le choix n'est pas valide
-                            </p>
-                        </div>
-
-                        <!-- City -->
-                        <div class="relative mb-7 w-full" v-if="selectedDep">
-                            <select
-                                    class="mt-1 block w-full rounded-md"
-                                    :class="field_class.normal"
-                                    v-model="form.city_id">
-
-                                <option value="null" disabled selected>Ville</option>
-                                <option v-for="city in cities" :value="city.id">@{{ city.name }}</option>
-
-                            </select>
-
-                            <p v-if="errors.map(err => err.field).includes('city_id')" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors.map(err => err.message) }}
-                            </p>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="relative mb-7 w-full ">
-                            <input type="email"
-                                   class="mt-1 block w-full rounded-md"
-                                   :class="field_class.normal"
-                                   v-model="form.email"
-                                   placeholder="Adresse e-mail" />
-
-                            <p v-if="errors.map(err => err.field).includes('email')" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors.map(err => err.message) }}
-                            </p>
-                        </div>
-
-                        <!-- Password -->
-                        <div class="relative mb-7 w-full ">
-                            <input type="password"
-                                   class="mt-1 block w-full rounded-md"
-                                   :class="field_class.normal"
-                                   v-model="form.password"
-                                   placeholder="Mote de passe" />
-
-                            <p v-if="errors.map(err => err.field).includes('password')" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors.map(err => err.message) }}
-                            </p>
-                        </div>
-
-                        <!-- Password confirmation -->
-                        <div class="relative mb-7 w-full ">
-                            <input type="password"
-                                   class="mt-1 block w-full rounded-md"
-                                   :class="field_class.normal"
-                                   v-model="form.password_confirmation"
-                                   placeholder="Confirmation du mote de passe" />
-
-                            <p v-if="errors.map(err => err.field).includes('password_confirmation')" class="absolute text-xs text-red-400 ml-2 mt-1">
-                                @{{ errors.map(err => err.message) }}
-                            </p>
-                        </div>
-
-                        <!-- Terms and conditions -->
-                        <div class="relative mb-8 w-full ">
-                            <label class="inline-flex items-top">
-                                <input type="checkbox" class="rounded border-gray-300 text-blue-500 shadow-sm
+                    <!-- Terms and conditions -->
+                    <div class="relative mb-8 w-full ">
+                        <label class="inline-flex items-top">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-500 shadow-sm
                                     focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200
                                     focus:ring-opacity-50 mt-1.5"
-                                       v-model="form.conditions_accepted"
-                                >
-                                <span class="ml-3 text-gray-800">
-                                        En vous inscrivant, vous acceptez nos
-                                        <a href="#" class="font-semibold ">
-                                            termes et conditions d'utilisation
-                                        </a>
-                                    </span>
-                            </label>
-                        </div>
+                                   v-model="$v.form.conditions.$model"
+                            >
+                            <span class="ml-3 text-gray-800">
+                                En vous inscrivant, vous acceptez nos
+                                <a href="#" class="font-semibold text-blue-800">
+                                    termes et conditions d'utilisation
+                                </a>
+                            </span>
+                        </label>
+                    </div>
 
-                        <!-- Validation -->
-                        <button :class="form.conditions_accepted ? 'bg-blue-500 ':'btn-disabled bg-blue-300'"
-                                :disabled="!form.conditions_accepted" @click="newUser()"
-                             class="flex items-center py-2 px-7 mb-7 mt-3 text-white rounded-md transition delay-100 ease-in-out hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
-                        >
-                            Créer votre compte
-                        </button>
-
-                    </form>
+                    <!-- Validation -->
+                    <button :class="$v.form.$invalid ? 'btn-disabled bg-blue-300':'bg-blue-500'"
+                            :disabled="$v.form.$invalid"
+                            @click="newUser()"
+                            class="flex items-center py-2 px-7 mb-7 mt-3 text-white rounded-md transition delay-100 ease-in-out hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
+                    >
+                        Créer votre compte
+                    </button>
 
                 </div>
             </div>

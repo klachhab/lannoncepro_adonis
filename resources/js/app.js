@@ -1,6 +1,8 @@
 import Vue from "vue";
 require('./bootstrap');
 window.Vue = require('vue');
+import Vuelidate from 'vuelidate'
+Vue.use(Vuelidate)
 
 // import VueTailwind from 'vue-tailwind'
 //
