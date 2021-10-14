@@ -84,11 +84,9 @@ export default {
                         value
                     })
                         .then( resp => {
-                            console.log(resp.data)
                             return Boolean(resp.data)
                         })
                         .catch( (err) => {
-                            console.log(err)
                             return err
                         })
                 },
@@ -137,8 +135,7 @@ export default {
             this.$swal({
                 icon: 'success',
                 title: "Votre compte a bien été créé.",
-                html: "<p class='mb-3'>Merci de vérifier votre boite e-mail afin de confirmer votre compte</p>"
-                ,
+                html: "<p class='mb-3'>Merci de vérifier votre boite e-mail afin de confirmer votre compte</p>",
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 allowEnterKey: false,

@@ -9,6 +9,7 @@ import VerifyEmail from "App/Mailers/VerifyEmail";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
+import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 
 export default class UsersController {
 
@@ -178,7 +179,7 @@ export default class UsersController {
     }
 
 
-    public async verify({request}: HttpContextContract) {
+    public async verify({request, auth, response}: HttpContextContract) {
 
         return await User.query()
             .where('verification_code', request.qs().key)
@@ -189,10 +190,27 @@ export default class UsersController {
 
                 return user.save()
                     .then( async () => {
-                        return {
-                            user,
-                            verified: true
-                        }
+                        return auth.use('web').login(user)
+                            .then( async () => {
+                                return await auth.check()
+                                    .then( () => {
+                                        return response.redirect('/')
+                                    })
+                                    .catch( async () => {
+                                        return {
+                                            user: auth.user,
+                                            verified: true,
+                                        }
+                                    })
+
+                            })
+                            .catch( (err: AuthenticationException) => {
+                                return {
+                                    err: err.message,
+                                    verified: false
+                                }
+                            })
+
                     })
                     .catch(err => {
                         return {
