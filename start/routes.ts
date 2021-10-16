@@ -56,8 +56,10 @@ Route.group(() => {
         .as('verify')
 
     // Posts -------------------------------------
-    // Route.resource('annnonces', 'Post/PostsController')
-    //     .only(['index'])
+    Route.resource('annonces', 'Post/PostsController')
+        // .only(['index', 'show','c'])
+    Route.post('/annonces/create/details', 'Post/PostsController.details')
+        .as('post.create.details')
 
 }).as("web")
 
@@ -69,10 +71,18 @@ Route.group(() => {
         .only(['index'])
     Route.post('cities/:id', 'CitiesController.show').as('cities.show')
 
-    Route.resource('departments', 'DepartmentsController').apiOnly()
-        .only(['show', 'index'])
+    // departments ----------------------------------------------------------------
+    Route.group( () => {
 
-    // Profile -------------------------------------
+        Route.get('/', 'DepartmentsController.index')
+            .as('departments.index')
+
+        Route.post('/show/:code', 'DepartmentsController.show')
+            .as('departments.show')
+
+    }).prefix('/departments').as('departments')
+
+    // Profile ---------------------------------------------------------------------
     Route.group(() => {
         Route.resource('', 'UsersController')
             .apiOnly()
@@ -95,10 +105,10 @@ Route.group(() => {
 
     }).as("users_is_unique").prefix('/profile')
 
-    // Posts -------------------------------------
+    // Posts ----------------------------------------------------------------------
     Route.group(() => {
         Route.resource('annnonces', 'Post/PostsController')
-            // .except(['index'])
+            .except(['index', 'show'])
             .apiOnly()
 
         Route.post('posts/:slug/restore', 'Post/PostsController.restore')
@@ -117,5 +127,9 @@ Route.group(() => {
             .as('posts.addReport')
 
     }).as("posts_actions")
+
+    // Category -------------------------------------------------------------------
+    Route.post('/category', 'CategoriesController.show')
+        .as('category.show')
 
 }).prefix('/api').as("api")

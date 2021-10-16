@@ -1,0 +1,120 @@
+@layout('layouts/master')
+
+@section('content')
+
+    <create-post inline-template
+                 style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
+
+        <div class="grid grid-cols-1 max-h-screen">
+
+            <div class="h-full w-full mx-auto mt-14"  :class="container">
+                <span class="text-white"><a href="/">Home</a> / nouvelle annonce</span>
+                <br>
+                <span class="text-white text-3xl font-semibold">Créer une annonce</span>
+            </div>
+
+            <div class="w-full flex justify-center grid md:grid-cols-2 lg:grid-cols-3 py-4 md:gap-x-10 grid-cols-1 gap-y-10 mx-auto mb-20 mt-10"
+                 :class="container"
+            >
+
+                <div class="col-span-2 lg:col-span-1 flex self-start justify-center grid grid-cols-1 p-10 w-full bg-white rounded shadow-md">
+
+                    <span class="text-2xl">Ajouter une annonce</span>
+                    <span class="text-2xl text-blue-400">En 30 seconds</span>
+
+                    <hr class="w-full border-0.5 border-gray-200 mt-2">
+                    <p class="mt-5 text-base ">
+                        Veuillez NE PAS ajouter plusieurs annonces de la même sous-catégorie.
+                        Toutes les annonces en double, spam ou mal classées seront supprimées.
+                    </p>
+                    <p class="mt-5 text-base ">
+                        Votre annonce sera vérifiée par nos équipes avant qu'elle soit publié.
+                    </p>
+
+                </div>
+
+                <div class="pb-5 col-span-2 lg:col-span-1 flex self-start bg-white rounded shadow-md grid grid-cols-1">
+                    <span class="text-xl mx-5 mt-5 mb-2">
+                        Catégorie
+                        <hr class="w-full border-0.5 border-gray-200 mt-2">
+                    </span>
+
+                    <div class="grid grid-cols-1 divide-y divide-gray-200 mx-5">
+
+                        @each(category in categories)
+                            <div class="py-4 flex items-center cursor-pointer transition-all delay-150 ease-in-out"
+                                 :class="category == '{{ category.slug }}' ? 'text-blue-400' : 'hover:text-blue-400'"
+                                 @mouseover="hovered_category = '{{ category.slug }}'"
+                                 @mouseout="hovered_category = null"
+                                 @click="getSubs('{{ category.slug }}')"
+
+                            >
+                                <span class="flex flex-none w-16 items-center justify-center">icon</span>
+                                <span class="flex-grow ml-2">{{ category.name }}</span>
+                                <span class="flex flex-none w-16 items-center justify-end transition-opacity delay-150 ease-in-out"
+                                      :class="hovered_category == '{{ category.slug }}' || category == '{{ category.slug }}'  ? 'opacity-100' : 'opacity-0'"
+
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                         width="1.5em" height="1.5em"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                        @end
+
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 col-span-2 lg:col-span-1 flex self-start bg-white rounded shadow-md">
+                    <span class="text-xl mx-5 mt-5 mb-2">
+                        Sous catégorie
+                        <hr class="w-full border-0.5 border-gray-200 mt-2">
+                    </span>
+
+                    <div class="grid grid-cols-1 divide-y divide-gray-200 mx-5">
+
+                        <div class="py-4 flex items-center cursor-pointer transition-all delay-150 ease-in-out"
+                             :class="sub_category === sub.slug ? 'text-blue-400' : 'hover:text-blue-400'"
+                             v-for="sub in sub_categories"
+
+                             @mouseover="hovered_sub_category = sub.slug"
+                             @mouseout="hovered_sub_category = null"
+                             @click="sub_category = sub.slug"
+                        >
+                            <span class="flex-grow ml-2">@{{ sub.name }}</span>
+                        </div>
+
+                    </div>
+
+                    <div class="flex justify-center my-5 border-t-0.5 border-gray-200">
+                        <button class="flex mr-3 py-1 px-2 text-white rounded border-2 border-blue-500"
+                                v-if="sub_category" @click.prevent="submit"
+                                :class="sub_category?
+                                'hover:bg-transparent hover:text-blue-500 bg-blue-500' :
+                                'bg-gray-300 cursor-default'"
+                        >
+                            <span>Suivant</span>
+                            <form ref="cpt" action="{{ route('Post/PostsController.details') }}" method="post">
+                                {{ csrfField() }}
+                                <input type="hidden" name="sub_category" v-model="sub_category">
+                            </form>
+                        </button>
+
+                        <span class="flex justify-center items-center mr-3" v-if="sub_category" >Ou</span>
+
+                        <a href="/" class="flex py-1 px-2 bg-red-500 text-white rounded
+                            transition delay-100 ease-in-out hover:bg-transparent hover:text-red-500
+                            border-2 border-red-500"
+                        >
+                            <span>Annuler</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </create-post>
+
+@endsection

@@ -8,6 +8,7 @@ import {ValidationException} from "@adonisjs/validator/build/src/ValidationExcep
 import User from "App/Models/User";
 import ReviewValidator from "App/Validators/Post/ReviewValidator";
 import ReportValidator from "App/Validators/Post/ReportValidator";
+import Category from "App/Models/Category";
 
 export default class PostsController {
 
@@ -18,8 +19,21 @@ export default class PostsController {
             .paginate(1, 20)
     }
 
-    public async create({}: HttpContextContract) {
+    public async create({view}: HttpContextContract) {
+        // return await Category.query().doesntHave('parent').select('name', 'slug','id')
+
+        return view.render("posts/create",{
+            categories: await Category.query()
+                .doesntHave('parent')
+                .select('name', 'slug','id')
+        })
     }
+
+    public async details({request}: HttpContextContract) {
+        return request.all()
+    }
+
+
 
     public async store({request}: HttpContextContract) {
 
@@ -29,6 +43,7 @@ export default class PostsController {
                 return await Post.create(response)
                     .then(post => {
                         const images = request.files('images')
+
                         if (images.length) {
 
                             images.forEach(image => {

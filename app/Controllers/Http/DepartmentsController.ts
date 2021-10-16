@@ -3,23 +3,11 @@ import Department from "App/Models/Department";
 
 export default class DepartmentsController {
     public async index({}: HttpContextContract) {
-        const departments = await Department.query()
-            .withCount('cities', builder => {
-                builder.as("total_cities")
-            })
-            .preload('cities', (cities) => {
-                cities
-                    .withCount('posts', posts => {
-                        posts.where('is_valid', 1)
-                    })
-                    // .pojo()
-                    .orderBy('posts_count', 'desc')
-                    // .limit(14)
-                    .select('name', 'code');
-            })
-        return {
-            departments
-        }
+
+        return Department.query()
+            .has('cities')
+            .select('name', 'code');
+
     }
 
     public async create({}: HttpContextContract) {
@@ -41,7 +29,7 @@ export default class DepartmentsController {
                 cities.select('id', 'name', 'code')
                     // .limit(14)
             })
-            .where('code', params.id)
+            .where('code', params.code)
             .select()
             .firstOrFail()
             .then(department => {
