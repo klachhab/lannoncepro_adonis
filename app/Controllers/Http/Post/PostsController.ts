@@ -59,7 +59,7 @@ export default class PostsController {
         // }
 
         return view.render('posts/create_details', {
-            category: category,
+            category,
             delivery_modes,
             departments: await Department.query().select('code', 'name'),
             user_city: auth.user?.cityId
@@ -225,37 +225,36 @@ export default class PostsController {
     }
 
 
-    public async show({params}: HttpContextContract) {
+    public async show({params, response, view, auth}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.id)
-
+            // .andWhere('is_valid', 1)
             .preload('images', image => {
                 image.select('path')
             })
-
             .preload('reviews', reviews => {
                 reviews.select('name', 'avatar')
             })
-
             .preload('user', user => {
                 user.select('name', 'is_pro')
             })
-
             .preload('category', category => {
                 category.select('name')
             })
-
             .firstOrFail()
             .then(async post => {
-                return {
-                    success: true,
-                    post,
-                }
+                // return post
+                return view.render('posts/show', {
+                    post
+                })
+
             })
             .catch(async (e: Exception) => {
+                // return response.status(404)
                 return {
                     success: false,
-                    error: e.code,
+                    error: e.status,
+                    auth: auth.defaultGuard
                 }
                 // return await view.render('errors.not-found')
             })

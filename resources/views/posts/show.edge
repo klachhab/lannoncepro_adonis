@@ -1,0 +1,27 @@
+@layout('layouts/master')
+
+@section('content')
+
+    <show-post inline-template
+                 style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
+
+        <div class="grid grid-cols-1 max-h-screen">
+
+            <div class="h-full w-full mx-auto mt-14"  :class="container">
+                <span class="text-white"><a href="/">Home</a> / nouvelle annonce</span>
+                <br>
+                <span class="text-white text-3xl font-semibold">
+                    <unicon name="car" fill="limegreen"></unicon>
+                    Créer une annonce
+                </span>
+            </div>
+
+            <div class="w-full flex justify-center grid md:grid-cols-2 lg:grid-cols-3 py-4 md:gap-x-10 grid-cols-1 gap-y-10 mx-auto mb-20 mt-10"
+                 :class="container"
+            >
+
+            </div>
+        </div>
+    </show-post>
+
+@endsection

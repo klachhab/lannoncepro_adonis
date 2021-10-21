@@ -9,6 +9,11 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import 'animate.css';
 
+import Unicon from 'vue-unicons/dist/vue-unicons-vue2.umd'
+import { uniCar } from 'vue-unicons/dist/icons'
+
+Unicon.add([uniCar])
+Vue.use(Unicon)
 
 Vue.use(Vuelidate)
 Vue.use(VueSweetalert2, {
@@ -25,6 +30,7 @@ Vue.component('vue-nav', require('./Vue/Components/Layouts/HeaderComponent').def
 Vue.component('home', require('./Vue/Components/HomeComponent.vue').default);
 Vue.component('createPost', require('./Vue/Components/posts/CreateComponent').default);
 Vue.component('createPostDetails', require('./Vue/Components/posts/CreateDetailsComponent').default);
+Vue.component('showPost', require('./Vue/Components/posts/ShowComponent').default);
 
 // Auth
 Vue.component('login', require('./Vue/Components/auth/LoginComponent').default);
