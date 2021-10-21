@@ -9,6 +9,9 @@ import User from "App/Models/User";
 import ReviewValidator from "App/Validators/Post/ReviewValidator";
 import ReportValidator from "App/Validators/Post/ReportValidator";
 import Category from "App/Models/Category";
+import DeliveryMode from "App/Models/Post/DeliveryMode";
+import Department from "App/Models/Department";
+import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 
 export default class PostsController {
 
@@ -22,90 +25,231 @@ export default class PostsController {
     public async create({view}: HttpContextContract) {
         // return await Category.query().doesntHave('parent').select('name', 'slug','id')
 
-        return view.render("posts/create",{
+        return view.render("posts/create", {
             categories: await Category.query()
                 .doesntHave('parent')
-                .select('name', 'slug','id')
+                .select('name', 'slug', 'id')
         })
     }
 
-    public async details({request}: HttpContextContract) {
-        return request.all()
+    public async details({request, view, auth}: HttpContextContract) {
+
+        const category = await Category.query()
+            .where('slug', request.all().sub_category)
+            .preload('parent', parent => {
+                parent.select('name')
+            })
+            .select('id', 'name', 'category_id')
+            .firstOrFail()
+            .then(category => {
+                return category
+            })
+            .catch(err => {
+                return {
+                    error: err.code
+                }
+            })
+
+        const delivery_modes = await DeliveryMode.query()
+            .select('id', 'mode')
+
+        // return {
+        //     category: category.id,
+        //     delivery_modes
+        // }
+
+        return view.render('posts/create_details', {
+            category: category,
+            delivery_modes,
+            departments: await Department.query().select('code', 'name'),
+            user_city: auth.user?.cityId
+        })
     }
 
 
+    public async store({request, auth}: HttpContextContract) {
 
-    public async store({request}: HttpContextContract) {
+        return await auth.check()
+            .then( async checked => {
 
-        return await request.validate(PostValidator)
-            .then(async (response: Object) => {
+                if ( !checked){
+                    return {
+                        success: false,
+                        message: 'not_auth',
+                    }
+                }
 
-                return await Post.create(response)
-                    .then(post => {
-                        const images = request.files('images')
+                else {
 
-                        if (images.length) {
+                    return await request.validate(PostValidator)
+                        .then(async (response: Object) => {
 
-                            images.forEach(image => {
-                                const path = Application.publicPath('uploads/posts/' + post.slug)
-                                image.move(path)
-                                    .then(async () => {
-                                        post.related('images').create({
-                                            path: '/uploads/post/' + post.slug + "/" + image.clientName
-                                        })
-                                    })
-                                    .catch((err: Exception) => {
+                            return await auth.check()
+                                .then( async checked => {
+                                    if (checked) {
+                                        return auth.user?.related('posts')
+                                            .create(response)
+                                            .then( async post => {
+
+                                                const path = Application.publicPath('uploads/posts/' + post.slug)
+
+                                                // Upload Images =========================================
+                                                const images = request.files('images')
+
+                                                if (images.length) {
+                                                    images.forEach(image => {
+                                                        image.move(path)
+                                                            .then(async () => {
+                                                                post.related('images').create({
+                                                                    path: '/uploads/posts/' + post.slug + "/" + image.clientName
+                                                                })
+                                                            })
+                                                            .catch((err: Exception) => {
+                                                                return {
+                                                                    success: false,
+                                                                    message: err.code,
+                                                                }
+                                                            })
+
+                                                    })
+
+                                                }
+                                                // Finished Upload Images =========================================
+
+
+                                                // Upload Video =========================================
+
+                                                if (request.all().video_type != 'null') {
+                                                    post.video_type = request.all().video_type
+
+                                                    if (request.all().video_type === "local") {
+                                                        const video = request.file('video_link')
+                                                        if (video) {
+
+                                                            await video.move(path)
+                                                                .then(() => {
+                                                                    post.video_link = '/uploads/posts/' + post.slug + "/" + video.clientName
+                                                                })
+                                                                .catch(err => {
+                                                                    return {
+                                                                        success: false,
+                                                                        message: `saving_video_error : ${err.code}`,
+                                                                    }
+                                                                })
+
+                                                        } else {
+                                                            return {
+                                                                success: false,
+                                                                message: `saving_video_error : no_video`,
+                                                            }
+                                                        }
+                                                    } else if (request.all().video_type === "iframe") {
+
+                                                        if (request.all().video_link) {
+                                                            post.video_link = request.all().video_link
+                                                        } else {
+                                                            post.video_type = null
+                                                            return {
+                                                                success: false,
+                                                                message: `Add_video_link`,
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // Finish uploading Video ===============================
+
+                                                if (request.all().same_city === 'same'){
+                                                    // @ts-ignore
+                                                    post.cityId = auth.user?.cityId
+                                                    post.save()
+                                                }
+
+                                                else {
+                                                    post.cityId = request.all().city_id
+                                                }
+
+
+                                                return post.save()
+
+                                                    .then( () => {
+                                                        return {
+                                                            success: true,
+                                                            post,
+                                                        }
+                                                    })
+                                                    .catch( err => {
+                                                        return {
+                                                            success: false,
+                                                            message: `saving_city_error : ${ err.code }`,
+                                                        }
+                                                    })
+                                            })
+                                            .catch((err: Exception) => {
+                                                return {
+                                                    success: false,
+                                                    message: err.code,
+                                                }
+                                            })
+                                    }
+                                    else {
                                         return {
                                             success: false,
-                                            message: err.code,
+                                            message: 'not_auth',
                                         }
-                                    })
+                                    }
+                                })
+                                .catch( (err: AuthenticationException) => {
+                                    return {
+                                        success: false,
+                                        message: err.message,
+                                    }
+                                })
 
-                            })
 
-                        }
 
-                        return {
-                            success: true,
-                            message: post,
-                        }
-                    })
-                    .catch((err: Exception) => {
-                        return {
-                            success: false,
-                            message: err.code,
-                        }
-                    })
+                        })
 
-            })
+                        .catch((err: ValidationException) => {
+                            return {
+                                success: false,
+                                message: err.messages.errors,
+                            }
+                        })
 
-            .catch((err: ValidationException) => {
-                return {
-                    success: false,
-                    message: err.messages,
                 }
+
             })
+
+
     }
 
 
     public async show({params}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.id)
+
+            .preload('images', image => {
+                image.select('path')
+            })
+
+            .preload('reviews', reviews => {
+                reviews.select('name', 'avatar')
+            })
+
+            .preload('user', user => {
+                user.select('name', 'is_pro')
+            })
+
+            .preload('category', category => {
+                category.select('name')
+            })
+
             .firstOrFail()
             .then(async post => {
-                await post.load('images', image => {
-                    image.select('path')
-                })
-                await post.load('reviews', user => {
-                    user.select('name', 'picture')
-                })
-                await post.load('user', image => {
-                    image.select('patname', 'is_proh')
-                })
-
                 return {
                     success: true,
-                    post
+                    post,
                 }
             })
             .catch(async (e: Exception) => {
@@ -274,7 +418,7 @@ export default class PostsController {
                             result: "forceDeleted"
                         }
                     })
-                    .catch( e => {
+                    .catch(e => {
                         return {
                             success: false,
                             result: e.code
@@ -301,7 +445,7 @@ export default class PostsController {
             .firstOrFail()
             .then(async post => {
                 return await User.findOrFail(request.qs().user)
-                    .then( async user => {
+                    .then(async user => {
                         // return user
                         const favourites = await post.related('favourites')
 
@@ -309,32 +453,30 @@ export default class PostsController {
 
                             return favourites
                                 .attach([user.id])
-                                .then( () => {
+                                .then(() => {
                                     return {
                                         success: true,
                                         result: 'attached'
                                     }
                                 })
-                                .catch( err => {
+                                .catch(err => {
                                     return {
                                         success: false,
                                         error: err.code,
                                     }
                                 })
 
-                        }
-
-                        else {
+                        } else {
                             return favourites
                                 .detach([user.id])
-                                .then( () => {
+                                .then(() => {
                                     return {
                                         success: true,
                                         result: 'detached'
                                     }
                                 })
 
-                                .catch( err => {
+                                .catch(err => {
                                     return {
                                         success: false,
                                         error: err.code,
@@ -343,7 +485,7 @@ export default class PostsController {
                         }
 
                     })
-                    .catch( () => {
+                    .catch(() => {
                         return {
                             success: false,
                             error: 'user_not_fount',
@@ -351,7 +493,7 @@ export default class PostsController {
                     })
 
             })
-            .catch( () => {
+            .catch(() => {
                 return {
                     success: false,
                     result: 'post_not_fount',
@@ -364,7 +506,7 @@ export default class PostsController {
 
         return await request.validate(ReviewValidator)
 
-            .then( async valid_review => {
+            .then(async valid_review => {
 
                 return await Post.query()
                     .where('slug', params.slug)
@@ -380,10 +522,10 @@ export default class PostsController {
                         'user_id', 'slug', 'title',
                     ])
                     .firstOrFail()
-                    .then( async post => {
+                    .then(async post => {
 
                         return await User.findOrFail(valid_review.user)
-                            .then( async user => {
+                            .then(async user => {
 
                                 if (!post.$extras.reviews_count) {
 
@@ -393,14 +535,14 @@ export default class PostsController {
                                             rating: valid_review.rating,
                                         }
                                     })
-                                        .then( () => {
+                                        .then(() => {
                                             return {
                                                 success: true,
                                                 result: 'attached',
                                             }
                                         })
 
-                                        .catch( (err: Exception) => {
+                                        .catch((err: Exception) => {
                                             return {
                                                 success: false,
                                                 result: err.code,
@@ -408,9 +550,7 @@ export default class PostsController {
                                             }
                                         })
 
-                                }
-
-                                else {
+                                } else {
                                     return {
                                         success: false,
                                         result: 'already_attached'
@@ -419,7 +559,7 @@ export default class PostsController {
 
                             })
 
-                            .catch( () => {
+                            .catch(() => {
                                 return {
                                     success: false,
                                     result: 'user_not_fount',
@@ -427,7 +567,7 @@ export default class PostsController {
                             })
 
                     })
-                    .catch( () => {
+                    .catch(() => {
                         return {
                             success: false,
                             result: 'post_not_fount',
@@ -435,7 +575,7 @@ export default class PostsController {
                     })
 
             })
-            .catch( (e: ValidationException) => {
+            .catch((e: ValidationException) => {
                 return e.messages
             })
 
@@ -446,18 +586,18 @@ export default class PostsController {
 
         return await request.validate(ReportValidator)
 
-            .then( async valid_report => {
+            .then(async valid_report => {
 
                 return await Post.query()
                     .where('slug', params.slug)
                     .select(['id'])
                     .withCount('reports', reports => {
-                        reports .wherePivot('user_id', request.qs().user)
+                        reports.wherePivot('user_id', request.qs().user)
                     })
                     .firstOrFail()
-                    .then( async post => {
+                    .then(async post => {
                         return await User.findOrFail(request.qs().user)
-                            .then( async user => {
+                            .then(async user => {
 
                                 if (!post.$extras.reports_count) {
 
@@ -467,14 +607,14 @@ export default class PostsController {
                                             report_type: valid_report.report_type,
                                         }
                                     })
-                                        .then( () => {
+                                        .then(() => {
                                             return {
                                                 success: true,
                                                 result: 'attached',
                                             }
                                         })
 
-                                        .catch( (err: Exception) => {
+                                        .catch((err: Exception) => {
                                             return {
                                                 success: false,
                                                 result: err.code,
@@ -482,9 +622,7 @@ export default class PostsController {
                                             }
                                         })
 
-                                }
-
-                                else {
+                                } else {
                                     return {
                                         success: false,
                                         result: 'already_attached'
@@ -493,7 +631,7 @@ export default class PostsController {
 
                             })
 
-                            .catch( () => {
+                            .catch(() => {
                                 return {
                                     success: false,
                                     result: 'user_not_fount',
@@ -501,7 +639,7 @@ export default class PostsController {
                             })
                     })
 
-                    .catch( () => {
+                    .catch(() => {
                         return {
                             success: false,
                             result: 'post_not_fount',
@@ -509,7 +647,7 @@ export default class PostsController {
                     })
 
             })
-            .catch( (e: ValidationException) => {
+            .catch((e: ValidationException) => {
                 return e.messages
             })
     }

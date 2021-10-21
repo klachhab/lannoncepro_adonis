@@ -124,9 +124,11 @@
                         </div>
                     </div>
 
-                    <a href="/annonces/create" class="invisible md:visible flex py-2 px-3 cursor-pointer bg-blue-500 text-white rounded-md
-                                transition delay-75 ease-in-out hover:bg-transparent hover:text-blue-500
-                                border-2 hover:border-blue-500"
+                    <a href="/annonces/create" class="invisible md:visible flex py-2 px-3 cursor-pointer bg-blue-500
+                                text-white rounded-md
+                                transition delay-75 ease-in-out
+                                border-transparent hover:bg-transparent hover:text-blue-500
+                                hover:border-2 hover:border-blue-500"
                     >
                         <PlusSmIcon class="mr-1"/>
                         <span>Déposer une annonce</span>

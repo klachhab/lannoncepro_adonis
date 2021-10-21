@@ -62,7 +62,7 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @column()
     public blocked: boolean
 
-    @column({serializeAs: null})
+    @column()
     public cityId: number
 
 

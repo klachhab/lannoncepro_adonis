@@ -27,13 +27,13 @@ export default class PostValidator {
   public schema = schema.create({
 
 	  // Relations ================================================
-	  user_id: schema.string({}, [
-		  rules.exists({table: 'users', column: 'id'})
-	  ]),
+	  // user_id: schema.string({}, [
+		//   rules.exists({table: 'users', column: 'id'})
+	  // ]),
 
-	  city_id: schema.string({}, [
-		  rules.exists({table: 'cities', column: 'id'})
-	  ]),
+	  // city_id: schema.string({}, [
+		//   rules.exists({table: 'cities', column: 'id'})
+	  // ]),
 
 	  category_id: schema.string({}, [
 		  rules.exists({table: 'categories', column: 'id'})
@@ -59,18 +59,8 @@ export default class PostValidator {
 	  negotiable: schema.boolean()
   })
 
-	/**
-	 * Custom messages for validation failures. You can make use of dot notation `(.)`
-	 * for targeting nested fields and array expressions `(*)` for targeting all
-	 * children of an array. For example:
-	 *
-	 * {
-	 *   'profile.username.required': 'Username is required',
-	 *   'scores.*.number': 'Define scores as valid numbers'
-	 * }
-	 *
-	 */
-  public messages = {
+
+	public messages = {
 		'title.required' : "Le titre de l'annonce est obligatoire",
 		'title.unique': "Ce titre est déjà utiliser dans une autre annonce",
 
@@ -82,9 +72,6 @@ export default class PostValidator {
 		'price.required' : "Merci d'indiquer le prix de vente (vous pouvez mettre 0€)",
 		'negotiable.required' : "Merci d'indiquer si le prix de vente est négociable ou non",
 
-
-		'user_id.required' : "Vous devez être connecté pour pouvoir ajouter publier une annonce",
-		'user_id.exists' : "Nom d'utilisateur incorrecte",
 
 		'city_id.required' : "Merci d'indiquer votre ville",
 		'city_id.exists' : "Cette ville/commune n'existe pas dans nos bases de données<sup>*</sup>",

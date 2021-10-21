@@ -58,10 +58,10 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public lon: number
 
     @column()
-    public video_link: string
+    public video_link: string | null
 
     @column()
-    public video_type: string
+    public video_type: string | null
 
     @column()
     public is_valid: boolean

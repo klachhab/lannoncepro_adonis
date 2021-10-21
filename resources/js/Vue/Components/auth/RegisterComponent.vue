@@ -184,7 +184,7 @@ export default {
 
             this.form.city_id = null
 
-            await axios.get(`/api/departments/${ this.selectedDep}`)
+            await axios.post(`/api/departments/${ this.selectedDep}`)
             .then( resp => {
                 if (!resp.data.success){
                     alert('Une erreur est survenu lors de la récupération de la liste des villes')

@@ -57,9 +57,13 @@ Route.group(() => {
 
     // Posts -------------------------------------
     Route.resource('annonces', 'Post/PostsController')
-        // .only(['index', 'show','c'])
+        .only(['index', 'show','create'])
+        .middleware({
+            create: 'auth:web',
+        })
     Route.post('/annonces/create/details', 'Post/PostsController.details')
         .as('post.create.details')
+        .middleware('auth:web')
 
 }).as("web")
 
@@ -77,7 +81,7 @@ Route.group(() => {
         Route.get('/', 'DepartmentsController.index')
             .as('departments.index')
 
-        Route.post('/show/:code', 'DepartmentsController.show')
+        Route.post('/:code', 'DepartmentsController.show')
             .as('departments.show')
 
     }).prefix('/departments').as('departments')
@@ -107,26 +111,30 @@ Route.group(() => {
 
     // Posts ----------------------------------------------------------------------
     Route.group(() => {
-        Route.resource('annnonces', 'Post/PostsController')
+        Route.resource('', 'Post/PostsController')
             .except(['index', 'show'])
             .apiOnly()
+            // .middleware({
+            //     edit: 'auth:web,api',
+            //     show: 'auth:web',
+            // })
 
-        Route.post('posts/:slug/restore', 'Post/PostsController.restore')
-            .as('posts.restore')
+        Route.post(':slug/restore', 'Post/PostsController.restore')
+            .as('annonces.restore')
 
-        Route.delete('posts/:slug/force-delete', 'Post/PostsController.forceDelete')
-            .as('posts.forceDelete')
+        Route.delete(':slug/force-delete', 'Post/PostsController.forceDelete')
+            .as('annonces.forceDelete')
 
-        Route.post('posts/:slug/favourite', 'Post/PostsController.addToFavourite')
-            .as('posts.addToFavourite')
+        Route.post(':slug/favourite', 'Post/PostsController.addToFavourite')
+            .as('annonces.addToFavourite')
 
-        Route.post('posts/:slug/add_review', 'Post/PostsController.addReview')
-            .as('posts.attachReview')
+        Route.post(':slug/add_review', 'Post/PostsController.addReview')
+            .as('annonces.attachReview')
 
-        Route.post('posts/:slug/add_report', 'Post/PostsController.addReport')
-            .as('posts.addReport')
+        Route.post(':slug/add_report', 'Post/PostsController.addReport')
+            .as('annonces.addReport')
 
-    }).as("posts_actions")
+    }).prefix('annonces').as("posts_actions")
 
     // Category -------------------------------------------------------------------
     Route.post('/category', 'CategoriesController.show')

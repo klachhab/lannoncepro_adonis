@@ -1,0 +1,456 @@
+@layout('layouts/master')
+
+@section('content')
+
+    <create-post-details inline-template
+                         category_id="{{ category.id }}"
+                         user_city="{{ user_city }}"
+                         style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
+
+        <div class="grid grid-cols-1">
+
+            <div class="h-full w-full mx-auto mt-14" :class="container">
+                <span class="text-white font-extralight">
+                    <a href="/">Home</a> / nouvelle annonce
+                </span>
+                <br>
+                <span class="text-white text-3xl font-semibold">Créer une annonce</span>
+            </div>
+
+            <div class="w-full flex justify-center grid md:grid-cols-2 lg:grid-cols-3 py-4 md:gap-x-10 grid-cols-1 gap-y-10 mx-auto mb-20 mt-10"
+                 :class="container"
+            >
+
+                <div class="col-span-2 flex self-start justify-center grid grid-cols-1 p-10 w-full bg-white rounded shadow-md">
+
+                    <div class="flex justify-between">
+                        <span class="text-xl">Détails de l'annonce</span>
+                        <span class="text-base text-red-400"> * Champs obligatoire</span>
+                    </div>
+
+                    <hr class="w-full border-0.5 border-gray-200 mt-2">
+
+                    <div class="flex items-center my-6">
+
+                        <span class="flex flex-none w-16 items-center justify-center">icon</span>
+
+                        <div class="flex flex-grow text-md self-start ml-3">
+                            <span class="text-gray-400">{{ category.parent.name }}</span>
+
+                            <svg class="text-blue-500 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor"
+                                 width="1.5em" height="1.5em">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 5l7 7-7 7"></path>
+                            </svg>
+
+                            <span class="text-blue-500 ml-2">{{ category.name }}</span>
+                        </div>
+
+                        <a href="{{ route('Post/PostsController.create') }}"
+                           class="flex flex-none items-center justify-center text-blue-500">
+
+                            <svg viewBox="0 0 3 3" xmlns="http://www.w3.org/2000/svg"
+                                 xmlns:xlink="http://www.w3.org/1999/xlink"
+                                 height=".75em" class="fill-current text-blue-500 mr-2"
+                            >
+                                <g id="pencil" fill-rule="nonzero">
+                                    <path d="M2.91828574,0.823404934 L2.65112067,1.09067455 C2.62388259,1.1179233 2.57983802,1.1179233 2.55259993,1.09067455 L1.90931745,0.447140331 C1.88207937,0.419891585 1.88207937,0.375829782 1.90931745,0.348581036 L2.17648252,0.0813114184 C2.28485533,-0.0271038061 2.4610336,-0.0271038061 2.56998595,0.0813114184 L2.91828574,0.429747514 C3.02723809,0.538162739 3.02723809,0.714409949 2.91828574,0.823404934 Z M1.67063735,0.576279675 L0.126844427,2.12015308 L0.00221224942,2.8344738 C-0.0148364919,2.93089239 0.0692314395,3.01437679 0.165645011,2.99791508 L0.879928484,2.87268848 L2.42372141,1.32881508 C2.45135212,1.30118292 2.45135212,1.25650113 2.42372141,1.22886897 L1.77116613,0.576279675 C1.74294753,0.548647516 1.69826807,0.548647516 1.67063735,0.576279675 Z M0.49883775,2.50116225 L0.777777778,2.50116225 L0.777777778,2.71211065 L0.402952115,2.77777778 L0.222222222,2.59704788 L0.287889354,2.22222222 L0.49883775,2.22222222 L0.49883775,2.50116225 Z"
+                                          id="Shape"></path>
+                                </g>
+                            </svg>
+                            Modifier
+                        </a>
+
+                    </div>
+
+                    <hr class="w-full border-0.5 border-gray-200 mt-2">
+
+
+                    <!---------------------------------- Reason -------------------------------------->
+                    <!-- <div class="flex items-center grid grid-cols-3 my-10">
+
+                        <span>
+                            Type de l'annonce<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex col-span-2 items-center w-full">
+                            <label class="inline-flex items-center mr-5">
+                                <input type="radio" v-model="form.reason" value="sell"
+                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2">Vente</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" v-model="form.reason" value="buy"
+                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2">Achat</span>
+                            </label>
+                        </div>
+
+                    </div>-->
+                    <!---------------------------------- ! Reason ! ---------------------------------->
+
+                    <!---------------------------------- Title -------------------------------------->
+                    <div class="flex items-center grid grid-cols-3 mb-7 mt-10">
+
+                        <span>
+                            Titre<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex col-span-2 items-center w-full">
+                            <input class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                   type="text" placeholder="Ex. iPhone 12, Samsung S12 ..."
+                                   v-model="form.title"
+                            >
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Title ! ---------------------------------->
+
+                    <!---------------------------------- Description -------------------------------------->
+                    <div class="flex grid grid-cols-3 mb-7">
+
+                        <span>
+                            Déscription<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex col-span-2 items-center w-full">
+                            <textarea
+                                    class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                    rows="8" placeholder="Tapez quelques lignes décrivant votre bien"
+                                    v-model="form.description"></textarea>
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Description ! ---------------------------------->
+
+                    <!---------------------------------- Price -------------------------------------->
+                    <div class="flex justify-items-stretch items-center grid grid-cols-3 mb-7">
+
+                        <span>
+                            Prix<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex justify-center items-center w-full grid grid-cols-2 col-span-2">
+
+                            <input class="my-7 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 col-span-2 md:col-span-1"
+                                   type="number" min="0"
+                                   v-model="form.price"
+                            >
+
+                            <label class="justify-self-center items-center w-full ml-12">
+                                <input type="checkbox" v-model="form.negotiable"
+                                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2">Négociable</span>
+                            </label>
+
+                        </div>
+
+
+                    </div>
+                    <!---------------------------------- ! Price ! ---------------------------------->
+
+                    <!---------------------------------- Condition -------------------------------------->
+                    <div class="flex items-center grid grid-cols-3 my-7">
+
+                        <span>
+                            Condition<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex col-span-2 items-center w-full">
+                            <label class="inline-flex items-center mr-5">
+                                <input type="radio" v-model="form.condition" value="new"
+                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                       checked>
+                                <span class="ml-2">Neuf</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" v-model="form.condition" value="used"
+                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2">Utilisé</span>
+                            </label>
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Condition ! ---------------------------------->
+
+                    <!---------------------------------- Delivery Mode -------------------------------------->
+                    <div class="flex items-center grid grid-cols-3 mb-7 mt-10">
+
+                        <span>
+                            Mode de livraison<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex col-span-2 items-center w-full">
+                            <select class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                    v-model="form.delivery_mode"
+                            >
+                                <option disabled value="null">Selectionnez...</option>
+
+                                @each(delivery_mode in delivery_modes)
+
+                                <option value="{{ delivery_mode.id }}">{{ delivery_mode.mode }}</option>
+
+                                @end
+
+                            </select>
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Delivery Mode ! ---------------------------------->
+
+                    <!---------------------------------- Add video -------------------------------------->
+                    <div class="flex grid grid-cols-3 mb-7 mt-10">
+
+                        <span class="flex pt-2">
+                            Ajouter une vidéo
+
+                            <a href="#" class="ml-2 mt-1" v-if="form.video_type"
+                               @click.prevent="form.video_type = null; form.video_link = null">
+
+                                <svg width="1em" height="1.14em" viewBox="0 0 50 57" xmlns="http://www.w3.org/2000/svg"
+                                     xmlns:xlink="http://www.w3.org/1999/xlink"
+                                     class="fill-current text-red-600"
+                                >
+                                    <g id="pencil" fill-rule="nonzero">
+                                        <path d="M30.25,47.0000006 L32.75,47.0000006 C33.4403559,47.0000006 34,46.395585 34,45.6500006 L34,21.3500006 C34,20.6044162 33.4403559,20.0000006 32.75,20.0000006 L30.25,20.0000006 C29.5596441,20.0000006 29,20.6044162 29,21.3500006 L29,45.6500006 C29,46.395585 29.5596441,47.0000006 30.25,47.0000006 Z M48.2142857,8.90625112 L39.0167411,8.90625112 L35.2220982,2.5939465 C34.2534056,0.983867382 32.5085958,-0.000893027945 30.6261161,6.07689458e-07 L19.3738839,6.07689458e-07 C17.4921998,6.07689458e-07 15.7484172,0.984548175 14.7801339,2.5939465 L10.9832589,8.90625112 L1.78571429,8.90625112 C0.799491518,8.90625112 0,9.7037439 0,10.6875011 L0,12.4687511 C0,13.4525083 0.799491518,14.2500011 1.78571429,14.2500011 L3.57142857,14.2500011 L3.57142857,51.6562507 C3.57142857,54.6075223 5.96990313,57.0000006 8.92857143,57.0000006 L41.0714286,57.0000006 C44.0300969,57.0000006 46.4285714,54.6075223 46.4285714,51.6562507 L46.4285714,14.2500011 L48.2142857,14.2500011 C49.2005085,14.2500011 50,13.4525083 50,12.4687511 L50,10.6875011 C50,9.7037439 49.2005085,8.90625112 48.2142857,8.90625112 Z M19.8801178,5.36375331 C19.9973255,5.13741882 20.2084838,4.99926229 20.4360724,5.00000061 L30.5639276,5.00000061 C30.7911324,4.99970235 31.0017944,5.13780179 31.1188048,5.36375331 L33,9.00000061 L18,9.00000061 L19.8801178,5.36375331 Z M41,51.0000006 L9,51.0000006 L9,14.0000006 L41,14.0000006 L41,51.0000006 Z M17.25,47.0000006 L19.75,47.0000006 C20.4403559,47.0000006 21,46.395585 21,45.6500006 L21,21.3500006 C21,20.6044162 20.4403559,20.0000006 19.75,20.0000006 L17.25,20.0000006 C16.5596441,20.0000006 16,20.6044162 16,21.3500006 L16,45.6500006 C16,46.395585 16.5596441,47.0000006 17.25,47.0000006 Z"
+                                              id="Shape"></path>
+                                    </g>
+                                </svg>
+
+                            </a>
+
+                        </span>
+
+                        <div class="flex col-span-2 w-full grid grid-cols-1">
+                            <select class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                    v-model="form.video_type" @change="resetVideo"
+                            >
+                                <option disabled value="null">Selectionnez...</option>
+                                <option value="iframe">Lien Youtube, Dailymotion ou Vimeo</option>
+                                <option value="local">Depuis votre appareil</option>
+
+                            </select>
+
+                            <input class="mt-3 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                   type="text" v-model="form.video_link"
+                                   v-if="form.video_type === 'iframe'"
+                                   placeholder="Ex. https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+                            >
+
+                            <div class="flex justify-center items-center w-full mt-3 py-5 border-gray-400 border-2 rounded"
+                                 :class="form.video_link ? 'h-64' : 'h-12'"
+                                 v-else-if="form.video_type === 'local'"
+                            >
+                                <label class="flex justify-center w-full text-gray-400 cursor-pointer"
+                                >
+                                    <svg width="1em" viewBox="0 0 101 101" xmlns="http://www.w3.org/2000/svg"
+                                         xmlns:xlink="http://www.w3.org/1999/xlink"
+                                         class="fill-current text-gray-400 mr-2"
+                                    >
+                                        <path d="M98.8958333,44.1875 L56.8125,44.1875 L56.8125,2.10416667 C56.8125,0.941614583 55.8708854,0 54.7083333,0 L46.2916667,0 C45.1291146,0 44.1875,0.941614583 44.1875,2.10416667 L44.1875,44.1875 L2.10416667,44.1875 C0.941614583,44.1875 0,45.1291146 0,46.2916667 L0,54.7083333 C0,55.8708854 0.941614583,56.8125 2.10416667,56.8125 L44.1875,56.8125 L44.1875,98.8958333 C44.1875,100.058385 45.1291146,101 46.2916667,101 L54.7083333,101 C55.8708854,101 56.8125,100.058385 56.8125,98.8958333 L56.8125,56.8125 L98.8958333,56.8125 C100.058385,56.8125 101,55.8708854 101,54.7083333 L101,46.2916667 C101,45.1291146 100.058385,44.1875 98.8958333,44.1875 Z" id="Path"></path>
+
+                                    </svg>
+
+                                    <p>Ajouter</p>
+
+                                    <form ref="localVideo" >
+                                        <input type="file" max="5" class="hidden" @change="addVideo" accept="video/mp4">
+                                    </form>
+                                </label>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Add video ! ---------------------------------->
+
+                    <!---------------------------------- Add images -------------------------------------->
+                    <div class="flex grid grid-cols-3 mb-7 mt-10 justify-items-stretch">
+
+                        <div class="grid grid-cols-1 self-start">
+                            Ajoutez des photos
+                            <small class="text-gray-400">Jusqu'à 5 (taille max 2Mo)</small>
+
+                            <label class="flex justify-center items-center mt-3 mr-12 py-2 px-5 bg-green-500
+                                text-white rounded-lg transition delay-100 ease-in-out
+                                hover:bg-transparent hover:bg-green-700 focus:bg-green-700 cursor-pointer"
+                                   v-if="form.photos_urls.length < 5"
+                            >
+                                <svg width="1em" viewBox="0 0 384 384" xmlns="http://www.w3.org/2000/svg"
+                                     xmlns:xlink="http://www.w3.org/1999/xlink"
+                                     class="fill-current text-white mr-2"
+                                >
+                                    <g >
+                                        <path d="M368,160 L224,160 L224,16 C224,7.16 216.84,0 208,0 L176,0 C167.16,0 160,7.16 160,16 L160,160 L16,160 C7.16,160 0,167.16 0,176 L0,208 C0,216.84 7.16,224 16,224 L160,224 L160,368 C160,376.84 167.16,384 176,384 L208,384 C216.84,384 224,376.84 224,368 L224,224 L368,224 C376.84,224 384,216.84 384,208 L384,176 C384,167.16 376.84,160 368,160 Z" id="Path"></path>
+                                    </g>
+                                </svg>
+
+                                <p>Ajouter</p>
+
+                                <form ref="localPics">
+                                    <input type="file" multiple max="5" class="hidden" @change="addPics" accept="image/jpeg, image/png">
+                                </form>
+                            </label>
+                        </div>
+
+                        <div class="flex col-span-2 w-full grid grid-cols-1">
+
+
+
+                            <div class="masonry md:masonry-2 masonry-3 before:box-inherit after:box-inherit mt-3"
+                            >
+
+                                <div v-for="(photo, index) in form.photos"
+                                     class="flex flex-col justify-center self-start w-full
+                                            shadow-sm rounded p-1
+                                            break-inside"
+                                >
+                                    <img :src="form.photos_urls[index]" class="w-full" alt="">
+
+                                    <span class="text-xs mt-2 text-gray-400 truncate"
+                                          v-text="photo.name"
+                                    >
+                                    </span>
+
+                                    <span class="flex text-xs p-1 text-red-600 mt-2 cursor-pointer self-center"
+                                          @click.prevent="removePic(index)">
+                                        <svg width=".75em" viewBox="0 0 11 12" xmlns="http://www.w3.org/2000/svg"
+                                             class="fill-current hover:text-red-600 mr-2"
+                                        >
+                                            <path d="M6.66687705,5.50015638 L10.1924773,1.97455614 L10.9195292,1.24750422 C11.0267823,1.14025117 11.0267823,0.965964964 10.9195292,0.858711915 L10.1416008,0.0807835468 C10.0343478,-0.0264695026 9.86006159,-0.0264695026 9.75280854,0.0807835468 L5.50015638,4.33343571 L1.24750422,0.0804397871 C1.14025117,-0.0268132624 0.965964964,-0.0268132624 0.858711915,0.0804397871 L0.0804397871,0.858368155 C-0.0268132624,0.965621204 -0.0268132624,1.13990741 0.0804397871,1.24716046 L4.33343571,5.50015638 L0.0804397871,9.75280854 C-0.0268132624,9.86006159 -0.0268132624,10.0343478 0.0804397871,10.1416008 L0.858368155,10.9195292 C0.965621204,11.0267823 1.13990741,11.0267823 1.24716046,10.9195292 L5.50015638,6.66687705 L9.02575662,10.1924773 L9.75280854,10.9195292 C9.86006159,11.0267823 10.0343478,11.0267823 10.1416008,10.9195292 L10.9195292,10.1416008 C11.0267823,10.0343478 11.0267823,9.86006159 10.9195292,9.75280854 L6.66687705,5.50015638 Z" id="Path"/>
+                                        </svg>
+                                        Enlever
+                                    </span>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Add images ! ---------------------------------->
+
+
+                    <!---------------------------------- Add city -------------------------------------->
+                    <div class="flex grid grid-cols-3 mb-7 mt-10">
+
+                        <span class="flex pt-2">
+                            Ville<span class="text-red-400">*</span>
+                        </span>
+
+                        <div class="flex col-span-2 w-full grid grid-cols-1">
+
+                            <select class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                    v-model="same_city"
+                                    @change="isSameCity"
+                            >
+                                <option value="same">Même ville</option>
+                                <option value="not_same">Autre ville</option>
+
+                            </select>
+
+                            <select class="mt-4 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                    @change="getCities"
+                                    v-model="selectedDep"
+                                    v-if="same_city === 'not_same'"
+                            >
+                                <option value="null" disabled selected>
+                                    Département...
+                                </option>
+
+                                @each(department in departments)
+
+                                <option value="{{ department.code }}">{{ department.code }} - {{ department.name }}</option>
+
+                                @end
+
+                            </select>
+
+                            <select class="mt-4 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                    v-model="form.city_id"
+                                    v-if="selectedDep && same_city === 'not_same'"
+                            >
+
+                                <option value="null" disabled selected>Ville</option>
+                                <option v-for="city in cities" :value="city.id">@{{ city.name }}</option>
+
+
+
+                            </select>
+
+                        </div>
+
+                    </div>
+                    <!---------------------------------- ! Add video ! ---------------------------------->
+
+
+                    <hr class="w-full mb-7 mt-3 border-0.5 border-gray-300">
+
+
+                    <!------------------------------------ Accept rules and condiitions ------------------------------------>
+                    <div class="grid grid-cols-1 flex self-start justify-center w-full">
+
+                        <label class="flex w-full grid grid-cols-12 ">
+                            <input type="checkbox" v-model="conditions_accepted"
+                                   class="mt-1 justify-self-center
+                                rounded border-gray-300 text-blue-600 shadow-sm
+                                focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200
+                                focus:ring-opacity-50"
+                            >
+
+                            <p class="col-span-11 text-gray-500">
+                                J'ai lu et j'accepte
+                                <a href="#" class="font-semibold text-gray-900">les conditions générales et la politique de
+                                    confidentialité</a>
+                                de
+                                <a href="#" class="font-semibold text-gray-900">LannoncePro.fr</a>
+                            </p>
+                        </label>
+
+                        <button :class="saving || !conditions_accepted? 'btn-disabled bg-blue-300':'bg-blue-500'"
+                                :disabled="!conditions_accepted || saving"
+                                @click="save()"
+                                class="flex items-center justify-center py-2 px-7 my-7
+                                xl:mx-48 lg:mx-40 md:mx-32 mx-8
+                                text-white rounded-md transition delay-100 ease-in-out
+                                hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
+                        >
+                            <p v-if="saving">En cours ...</p>
+                            <p v-else>Valider</p>
+                        </button>
+
+                    </div>
+                    <!---------------------------------- ! Accept rules and condiitions ! ---------------------------------->
+
+
+                </div>
+
+
+                <!------------------------------------ Quick rules ------------------------------------>
+                <div class="col-span-2 lg:col-span-1 flex self-start justify-center grid grid-cols-1 p-10 w-full bg-white rounded shadow-md">
+
+                    <span class="text-2xl">Ajouter une annonce</span>
+                    <span class="text-2xl text-blue-400">En 30 seconds</span>
+
+                    <hr class="w-full border-0.5 border-gray-200 mt-2">
+                    <p class="mt-5 text-base ">
+                        Veuillez NE PAS ajouter plusieurs annonces de la même sous-catégorie.
+                        Toutes les annonces en double, spam ou mal classées seront supprimées.
+                    </p>
+                    <p class="mt-5 text-base ">
+                        Votre annonce sera vérifiée par nos équipes avant qu'elle soit publié.
+                    </p>
+
+                </div>
+                <!---------------------------------- ! Quick rules ! ---------------------------------->
+
+
+            </div>
+
+        </div>
+    </create-post-details>
+
+@endsection

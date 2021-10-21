@@ -2,6 +2,24 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+/* Add the lines below */
+@layer utilities {
+  @variants responsive {
+    .masonry {
+      column-count: 3;
+      column-gap: 1.5em;
+    }
+
+    .break-inside {
+      break-inside: avoid;
+    }
+
+    .smooth-scroll {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
 body {
   background: #fff;
   background: -webkit-linear-gradient(to right, #d7dceb, #e2e2e2);

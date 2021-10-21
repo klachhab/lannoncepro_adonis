@@ -23,6 +23,7 @@ export const PostFactory = Factory
             user_id: faker.datatype.number({min: 1, max: 20}),
 
             title: faker.random.words(Math.floor(Math.random() * 5) + 2),
+            reason: faker.random.arrayElement(['sell', 'buy']),
             description: faker.lorem.paragraph(),
             condition: faker.random.arrayElement(['new', 'used']),
             price: faker.datatype.float(2),

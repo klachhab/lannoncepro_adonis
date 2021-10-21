@@ -11,3 +11,4 @@ mix-manifest.json
 hot
 public/js/*
 public/css/*
+public/uploads
