@@ -42,6 +42,7 @@
     "@adonisjs/shield": "^7.0.6",
     "@adonisjs/validator": "^12.0.1",
     "@adonisjs/view": "^6.1.1",
+    "@fortawesome/vue-fontawesome": "^2.0.6",
     "@svg-maps/france.departments": "^1.0.1",
     "@tailwindcss/forms": "^0.3.4",
     "@vue-hero-icons/outline": "^1.7.2",
@@ -66,7 +67,6 @@
     "vue-router": "^3.5.2",
     "vue-sweetalert2": "^5.0.2",
     "vue-tailwind": "^2.5.0",
-    "vue-unicons": "^3.2.1",
     "vuelidate": "^0.7.6",
     "vueperslides": "^2.15.2",
     "vuex": "^3.6.2"

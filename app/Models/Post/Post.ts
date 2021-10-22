@@ -3,7 +3,7 @@ import {
     BaseModel,
     BelongsTo,
     belongsTo,
-    column,
+    column, computed,
     HasMany,
     hasMany, ManyToMany, manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
@@ -45,7 +45,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     @column()
     public condition: string
 
-    @column()
+    @column({serializeAs: null})
     public price: number
 
     @column()
@@ -83,7 +83,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public deliveryModeId: number
 
 
-    @column.dateTime({autoCreate: true})
+    @column.dateTime({autoCreate: true, serializeAs: null})
     public createdAt: DateTime
 
     @column.dateTime({autoCreate: true, autoUpdate: true})
@@ -91,6 +91,18 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     @column.dateTime({serializeAs: null})
     public deletedAt: DateTime | null
+// Accessors ===================================================
+    @computed()
+    public get creation_date(){
+        return this.createdAt.toFormat("dd/LL/yyyy 'à' HH:mm", {locale: 'fr'})
+    }
+
+    @computed()
+        public get prix(){
+            return this.price.toLocaleString('fr', {
+                minimumFractionDigits: 2,
+            }) + ' €'
+        }
 
 // Relationships -------------------------------------
     @belongsTo(() => Category)

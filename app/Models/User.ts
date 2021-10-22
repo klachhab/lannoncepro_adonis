@@ -5,7 +5,7 @@ import {
     beforeCreate,
     BelongsTo,
     belongsTo,
-    column,
+    column, computed,
     HasMany,
     hasMany, ManyToMany, manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
@@ -75,6 +75,16 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @column.dateTime({serializeAs: null})
     public deletedAt: DateTime
 
+
+    // Accessors ===================================================
+    @computed()
+    public get membre_depuis(){
+        return this.createdAt
+            .toFormat("dd LLL yyyy ", {locale: 'fr'})
+            // .toLocaleString(DateTime.DATE_FULL, {
+            //     locale: 'fr'
+            // })
+    }
 
 // Relationships -------------------------------------
     @belongsTo(() => City)

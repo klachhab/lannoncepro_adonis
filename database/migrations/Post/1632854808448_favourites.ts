@@ -21,7 +21,6 @@ export default class Favourites extends BaseSchema {
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
       table.timestamp('created_at', { useTz: true })
-      table.timestamp('deleted_at', { useTz: true })
     })
   }
 

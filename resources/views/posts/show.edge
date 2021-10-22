@@ -2,23 +2,176 @@
 
 @section('content')
 
-    <show-post inline-template
-                 style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
+    <show-post inline-template favourite="{{ isMyFavourite }}"
+               post_slug="{{ post.slug }}"
+               style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
+    >
 
         <div class="grid grid-cols-1 max-h-screen">
 
             <div class="h-full w-full mx-auto mt-14"  :class="container">
-                <span class="text-white"><a href="/">Home</a> / nouvelle annonce</span>
+                <span class="text-white"><a href="/">Accueil</a> / nouvelle annonce</span>
                 <br>
                 <span class="text-white text-3xl font-semibold">
-                    <unicon name="car" fill="limegreen"></unicon>
                     Créer une annonce
                 </span>
             </div>
 
-            <div class="w-full flex justify-center grid md:grid-cols-2 lg:grid-cols-3 py-4 md:gap-x-10 grid-cols-1 gap-y-10 mx-auto mb-20 mt-10"
+            <div class="w-full flex justify-center p-6 grid
+                        md:grid-cols-5 grid-cols-1
+                        md:gap-x-10 gap-y-10
+                        mx-auto mb-20 mt-10
+                        bg-white rounded"
                  :class="container"
             >
+
+                {{-- Left side --}}
+                <div class="lg:col-span-3 flex self-start justify-center grid grid-cols-1 p-10 w-full bg-white rounded">
+                    <div class="flex justify-center items-center h-80">
+
+                        <p class="lg:text-4xl md:text-3xl text-xl text-gray-500 select-none text-center">
+                            Aucune photo n’est attahée à cette annonce
+                        </p>
+
+                    </div>
+
+                    <hr class="w-full border-0.5 border-gray-200 mt-2">
+
+                    <div class="flex justify-between mt-4">
+
+                        <div class="flex w-full grid grid-cols-1">
+                            <span class="text-xl">{{ post.title }}</span>
+
+                            <div class="flex">
+
+                                <span class="text-sm text-gray-400 font-light mr-3">
+                                    <i class="far fa-clock"></i>
+                                    {{ post.creation_date }}
+                                </span>
+
+                                <span class="text-sm text-gray-400 font-light">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <a href="#"
+                                       class="hover:text-blue-600 hover:underline transition-all duration-200 ease-in-out"
+                                    >
+                                        {{ post.city.department.name }}</a>,
+
+                                    <a href="#"
+                                       class="hover:text-blue-600 hover:underline transition-all duration-200 ease-in-out"
+                                    >
+                                        {{ post.city.name }}
+                                    </a>
+                                </span>
+
+                            </div>
+                        </div>
+
+                        <span class="text-xl text-green-600">{{ post.prix }}
+                            @if(post.negotiable)
+                                <small>(négociable)</small>
+                            @end
+                        </span>
+                    </div>
+                </div>
+                {{-- ! Left side ! --}}
+
+                {{-- Right side --}}
+                <div class="w-full flex self-start grid grid-cols-1
+                            lg:col-span-2 bg-white"
+                >
+                    {{-- User name --}}
+                    <div class="flex self-start w-full ">
+                        <img src="/images/user.png" width="73px" alt="" class="rounded">
+
+                        <div class="flex self-start grid grid-cols-1 ml-5 mt-2">
+                            <a href="" class="text-base font-semibold">
+                                {{ post.user.name }}
+                            </a>
+                            <span class="text-sm text-gray-500">
+
+                                Membre depuis le <b>{{post.user.membre_depuis }}</b>
+
+                            </span>
+                        </div>
+                    </div>
+                    {{-- ! User name ! --}}
+
+                    {{-- Buttons --}}
+                    <div class="flex w-full mt-3">
+                        <button type="button" class="flex items-center py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
+                                    transition duration-300 ease-in-out
+                                    border-transparent border hover:bg-transparent
+                                    hover:text-green-500 hover:border-green-500"
+
+                                @click="show_phone = !show_phone"
+                        >
+                            <i class="fas fa-phone mr-2"></i>
+
+                            <span class="font-light" v-if="show_phone">
+                                0{{post.user.phone }}
+                            </span>
+
+                            <span class="font-light" v-else>
+                                Afficher le numéro
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="flex items-center ml-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-blue-500
+                                    transition duration-300 ease-in-out
+                                    border-transparent border hover:bg-transparent hover:text-blue-500 hover:border-blue-500"
+
+                        >
+                            <i class="fas fa-envelope mr-2"></i>
+
+                            <span class="font-light">
+                                Envoyer un message
+                            </span>
+                        </button>
+
+                    </div>
+                    {{-- ! Buttons ! --}}
+
+                    {{-- Delevery --}}
+                    <div class="flex items-center w-full mt-10 text-gray-500">
+                        <i class="fas fa-shopping-cart mr-3"></i>
+
+                        <span class="font-normal">Mode de livraison :&nbsp;</span>
+                        <span class="font-semibold">{{ post.deliveryMode.mode }}</span>
+                    </div>
+                    {{-- ! Delevery ! --}}
+
+                    @if(!auth.check() || auth.check() && post.user.id != auth.user?.id)
+                        {{-- Favourites --}}
+                        <a href="#" class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500"
+                           @click.prevent="addToFav"
+                        >
+                            <i class=" fa-heart text-red-500 mr-3"
+                               :class="isMyFavourite ? 'fas' : 'far'"
+                            ></i>
+
+                            <span @click.prevent
+                               class="font-normal"
+                            >
+                                Ajouter aux favoris
+                            </span>
+                        </a>
+                        {{-- ! Favourites ! --}}
+
+                        {{-- Favourites --}}
+                        <a href="#" class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500">
+                            <i class="fas fa-exclamation-circle text-yellow-300 mr-3"></i>
+
+                            <span @click.prevent
+                               class="font-normal"
+                            >
+                                Signaler un abus
+                            </span>
+                        </a>
+                        {{-- ! Favourites ! --}}
+                    @end
+                </div>
+                {{-- ! Right side ! --}}
 
             </div>
         </div>

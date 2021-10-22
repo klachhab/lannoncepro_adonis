@@ -48,7 +48,7 @@ Route.group(() => {
         .except(['create'])
         .middleware({
             edit: 'auth:web,api',
-            show: 'auth:web',
+            // show: 'auth:web',
         })
         .as('profile')
 
@@ -90,8 +90,8 @@ Route.group(() => {
     Route.group(() => {
         Route.resource('', 'UsersController')
             .apiOnly()
+            .except(['show'])
             .middleware({
-                show: 'auth:api',
                 update: 'auth:api',
                 destroy: 'auth:api',
             })
@@ -114,10 +114,9 @@ Route.group(() => {
         Route.resource('', 'Post/PostsController')
             .except(['index', 'show'])
             .apiOnly()
-            // .middleware({
-            //     edit: 'auth:web,api',
-            //     show: 'auth:web',
-            // })
+            .middleware({
+                edit: 'auth:web,api',
+            })
 
         Route.post(':slug/restore', 'Post/PostsController.restore')
             .as('annonces.restore')

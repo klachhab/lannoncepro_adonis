@@ -228,7 +228,10 @@ export default class PostsController {
     public async show({params, response, view, auth}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.id)
-            // .andWhere('is_valid', 1)
+            .andWhere('is_valid', 1)
+            .preload('deliveryMode', delivery => {
+                delivery.select('mode')
+            })
             .preload('images', image => {
                 image.select('path')
             })
@@ -236,16 +239,43 @@ export default class PostsController {
                 reviews.select('name', 'avatar')
             })
             .preload('user', user => {
-                user.select('name', 'is_pro')
+                user.select('title', 'name', 'phone', 'is_pro', 'username', 'created_at')
             })
+
+            .preload('city', city => {
+                city.select('name', 'departmentId')
+                    .preload('department', department => {
+                        department.select('name')
+                    })
+            })
+            .preload('favourites')
             .preload('category', category => {
                 category.select('name')
             })
             .firstOrFail()
             .then(async post => {
-                // return post
+                const isMyFavourite = await auth.check()
+                    .then(async checked => {
+                        const favourites = post.favourites.map(fav => fav.id)
+                        const user = auth.user as User
+
+                        return checked && favourites.includes(user.id)
+
+                    })
+
+                    .catch( (err: AuthenticationException) => {
+                        console.log(err.message)
+                        return false
+                    })
+
+                // return {
+                //     post,
+                //     // isMyFavourite,
+                // }
+
                 return view.render('posts/show', {
-                    post
+                    post,
+                    isMyFavourite
                 })
 
             })
@@ -253,7 +283,7 @@ export default class PostsController {
                 // return response.status(404)
                 return {
                     success: false,
-                    error: e.status,
+                    error: e.message,
                     auth: auth.defaultGuard
                 }
                 // return await view.render('errors.not-found')
@@ -434,62 +464,66 @@ export default class PostsController {
             })
     }
 
-    public async addToFavourite({params, request}: HttpContextContract) {
+
+    public async addToFavourite({params, auth}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.slug)
-            .select(['id'])
-            .withCount('favourites', favourites => {
-                favourites.wherePivot('user_id', request.qs().user)
+            .preload('favourites', favourites => {
+                favourites.select('id', 'created_at')
             })
+            // .select(['id'])
             .firstOrFail()
             .then(async post => {
-                return await User.findOrFail(request.qs().user)
-                    .then(async user => {
-                        // return user
-                        const favourites = await post.related('favourites')
 
-                        if (!post.$extras.favourites_count) {
+                return await auth.check()
+                    .then(async checked => {
 
-                            return favourites
-                                .attach([user.id])
-                                .then(() => {
-                                    return {
-                                        success: true,
-                                        result: 'attached'
-                                    }
-                                })
-                                .catch(err => {
-                                    return {
-                                        success: false,
-                                        error: err.code,
-                                    }
-                                })
+                        const user = auth.user as User
+                        const favourites = post.favourites.map(fav => fav.id)
 
-                        } else {
-                            return favourites
+                        const isMyFavourite = checked && favourites.includes(user.id)
+
+
+                        if (isMyFavourite){
+
+                            return post.related('favourites')
                                 .detach([user.id])
                                 .then(() => {
                                     return {
                                         success: true,
-                                        result: 'detached'
+                                        result: false
                                     }
                                 })
-
                                 .catch(err => {
                                     return {
                                         success: false,
-                                        error: err.code,
+                                        result: err.code,
+                                    }
+                                })
+                        }
+                        else {
+                            return post.related('favourites')
+                                .attach([user.id])
+                                .then(() => {
+                                    return {
+                                        success: true,
+                                        result: true
+                                    }
+                                })
+                                .catch(err => {
+                                    return {
+                                        success: false,
+                                        result: err.code,
                                     }
                                 })
                         }
 
                     })
-                    .catch(() => {
-                        return {
-                            success: false,
-                            error: 'user_not_fount',
-                        }
-                    })
+
+                    .catch( (err: AuthenticationException) => {
+                        console.log(err.message)
+                        return false
+                    }) as Boolean
 
             })
             .catch(() => {

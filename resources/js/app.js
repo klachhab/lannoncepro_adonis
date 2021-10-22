@@ -9,11 +9,6 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import 'animate.css';
 
-import Unicon from 'vue-unicons/dist/vue-unicons-vue2.umd'
-import { uniCar } from 'vue-unicons/dist/icons'
-
-Unicon.add([uniCar])
-Vue.use(Unicon)
 
 Vue.use(Vuelidate)
 Vue.use(VueSweetalert2, {

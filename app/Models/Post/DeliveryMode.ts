@@ -6,8 +6,8 @@ import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
 export default class DeliveryMode extends compose(BaseModel, SoftDeletes)  {
 
-  public serializeExtras = true
-  
+  // public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 
