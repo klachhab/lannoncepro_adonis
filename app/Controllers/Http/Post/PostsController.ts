@@ -229,6 +229,7 @@ export default class PostsController {
         return await Post.query()
             .where('slug', params.id)
             .andWhere('is_valid', 1)
+
             .preload('deliveryMode', delivery => {
                 delivery.select('mode')
             })
@@ -236,17 +237,13 @@ export default class PostsController {
                 image.select('path')
             })
             .preload('reviews', reviews => {
-                reviews.select('name', 'avatar')
+                reviews.select('name', 'avatar', 'created_at')
             })
             .preload('user', user => {
                 user.select('title', 'name', 'phone', 'is_pro', 'username', 'created_at')
             })
-
             .preload('city', city => {
                 city.select('name', 'departmentId')
-                    .preload('department', department => {
-                        department.select('name')
-                    })
             })
             .preload('favourites')
             .preload('category', category => {
@@ -254,39 +251,48 @@ export default class PostsController {
             })
             .firstOrFail()
             .then(async post => {
-                const isMyFavourite = await auth.check()
+
+                const authenticated = await auth.check()
                     .then(async checked => {
-                        const favourites = post.favourites.map(fav => fav.id)
-                        const user = auth.user as User
-
-                        return checked && favourites.includes(user.id)
-
+                        return checked;
                     })
-
                     .catch( (err: AuthenticationException) => {
                         console.log(err.message)
                         return false
                     })
 
-                // return {
-                //     post,
-                //     // isMyFavourite,
-                // }
+
+                const favourites = post.favourites.map(fav => fav.id)
+                const reviews = post.reviews.map(rev => rev.id)
+                const user = auth.user as User
+
+                const fav_revs = {
+                    isMyFavourite: authenticated && favourites.includes(user.id),
+                    iHaveRevs: authenticated && reviews.includes(user.id),
+                    reviews_avg: post.reviews_avg
+                }
+
+                if (auth.defaultGuard == "api") {
+                    return {
+                        post: post.id,
+                        user: authenticated ? user.id : "Unauthenticated",
+                        fav_revs
+                    }
+                }
 
                 return view.render('posts/show', {
                     post,
-                    isMyFavourite
+                    isMyFavourite: fav_revs.isMyFavourite,
+                    fav_revs
                 })
 
             })
             .catch(async (e: Exception) => {
-                // return response.status(404)
-                return {
-                    success: false,
-                    error: e.message,
-                    auth: auth.defaultGuard
-                }
-                // return await view.render('errors.not-found')
+                // return {
+                //     success: false,
+                //     error: e.message,
+                // }
+                return await view.render('errors.not-found')
             })
     }
 

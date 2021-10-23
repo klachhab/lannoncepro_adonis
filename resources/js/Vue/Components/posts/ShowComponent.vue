@@ -8,6 +8,8 @@ export default {
             show_phone: false,
 
             isMyFavourite: this.favourite === "true",
+
+            selected_tab: 'desc'
         }
     },
 

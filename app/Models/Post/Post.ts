@@ -98,11 +98,23 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     }
 
     @computed()
-        public get prix(){
-            return this.price.toLocaleString('fr', {
-                minimumFractionDigits: 2,
-            }) + ' €'
-        }
+    public get prix(){
+        return this.price.toLocaleString('fr', {
+            minimumFractionDigits: 2,
+        }) + ' €'
+    }
+
+    @computed()
+    public get reviews_avg(){
+        const revs_rating_avg = this.reviews.length ?
+            this.reviews.map(revs => revs.$extras.pivot_rating)
+                .reduce( (a,b) => a + b) / this.reviews.length : 0
+
+        return revs_rating_avg
+            .toLocaleString('fr', {
+                maximumFractionDigits: 1,
+            })
+    }
 
 // Relationships -------------------------------------
     @belongsTo(() => Category)
@@ -117,9 +129,9 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     @belongsTo(() => DeliveryMode)
     public deliveryMode: BelongsTo<typeof DeliveryMode>
 
-
     @hasMany(() => PostGallery)
     public images: HasMany<typeof PostGallery>
+
 
     @manyToMany(() => User, {
         pivotTable: "favourites",

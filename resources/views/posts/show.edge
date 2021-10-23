@@ -1,15 +1,16 @@
 @layout('layouts/master')
 
 @section('content')
-
-    <show-post inline-template favourite="{{ isMyFavourite }}"
+    @set('authenticated', await auth.check().then(checked => {return checked}))
+    @set('my_post', post.user.id == auth.user?.id)
+    <show-post inline-template favourite="{{ fav_revs.isMyFavourite }}"
                post_slug="{{ post.slug }}"
                style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
     >
 
-        <div class="grid grid-cols-1 max-h-screen">
+        <div class="grid grid-cols-1 max-h-full">
 
-            <div class="h-full w-full mx-auto mt-14"  :class="container">
+            <div class="h-full w-full mx-auto mt-14" :class="container">
                 <span class="text-white"><a href="/">Accueil</a> / nouvelle annonce</span>
                 <br>
                 <span class="text-white text-3xl font-semibold">
@@ -17,16 +18,18 @@
                 </span>
             </div>
 
-            <div class="w-full flex justify-center p-6 grid
-                        md:grid-cols-5 grid-cols-1
-                        md:gap-x-10 gap-y-10
-                        mx-auto mb-20 mt-10
+            {{------------------ Post Data ------------------}}
+            <div class="w-full flex justify-center p-4 grid
+                        lg:grid-cols-5 grid-cols-1
+                        lg:gap-x-10 gap-y-10
+                        mx-auto mt-10
                         bg-white rounded"
                  :class="container"
             >
 
                 {{-- Left side --}}
-                <div class="lg:col-span-3 flex self-start justify-center grid grid-cols-1 p-10 w-full bg-white rounded">
+                <div class="lg:col-span-3 flex self-start justify-center
+                            grid grid-cols-1 lg:p-10 p-2 w-full bg-white">
                     <div class="flex justify-center items-center h-80">
 
                         <p class="lg:text-4xl md:text-3xl text-xl text-gray-500 select-none text-center">
@@ -37,27 +40,23 @@
 
                     <hr class="w-full border-0.5 border-gray-200 mt-2">
 
-                    <div class="flex justify-between mt-4">
+                    <div class="flex justify-between mt-4 grid lg:grid-cols-2 grid-cols-1">
 
                         <div class="flex w-full grid grid-cols-1">
-                            <span class="text-xl">{{ post.title }}</span>
+                            <span class="text-2xl">{{ post.title }}</span>
 
-                            <div class="flex">
+                            <div class="flex items-stretch w-full mt-2">
 
-                                <span class="text-sm text-gray-400 font-light mr-3">
+                                <span class="text-sm text-gray-400 font-light mr-4">
                                     <i class="far fa-clock"></i>
                                     {{ post.creation_date }}
                                 </span>
 
-                                <span class="text-sm text-gray-400 font-light">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <a href="#"
-                                       class="hover:text-blue-600 hover:underline transition-all duration-200 ease-in-out"
-                                    >
-                                        {{ post.city.department.name }}</a>,
+                                <span class="flex items-center text-sm text-gray-400 font-light">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
 
                                     <a href="#"
-                                       class="hover:text-blue-600 hover:underline transition-all duration-200 ease-in-out"
+                                       class="hover:text-blue-600 transition-all duration-200 ease-in-out"
                                     >
                                         {{ post.city.name }}
                                     </a>
@@ -66,7 +65,8 @@
                             </div>
                         </div>
 
-                        <span class="text-xl text-green-600">{{ post.prix }}
+                        <span class="text-2xl text-green-500 lg:text-right lg:mt-0 mt-4">
+                            {{ post.prix }}
                             @if(post.negotiable)
                                 <small>(négociable)</small>
                             @end
@@ -85,7 +85,7 @@
 
                         <div class="flex self-start grid grid-cols-1 ml-5 mt-2">
                             <a href="" class="text-base font-semibold">
-                                {{ post.user.name }}
+                                {{my_post ? 'Moi' : post.user.name}}
                             </a>
                             <span class="text-sm text-gray-500">
 
@@ -141,40 +141,170 @@
                     </div>
                     {{-- ! Delevery ! --}}
 
-                    @if(!auth.check() || auth.check() && post.user.id != auth.user?.id)
+                    @if(await auth.check().then(checked => {return checked}) && !my_post)
                         {{-- Favourites --}}
-                        <a href="#" class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500"
+                        <a href="#"
+                           class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500"
                            @click.prevent="addToFav"
                         >
                             <i class=" fa-heart text-red-500 mr-3"
                                :class="isMyFavourite ? 'fas' : 'far'"
                             ></i>
-
                             <span @click.prevent
-                               class="font-normal"
+                                  class="font-normal"
                             >
                                 Ajouter aux favoris
                             </span>
                         </a>
                         {{-- ! Favourites ! --}}
 
-                        {{-- Favourites --}}
-                        <a href="#" class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500">
+                        {{-- Add report --}}
+                        <a href="#"
+                           class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500">
                             <i class="fas fa-exclamation-circle text-yellow-300 mr-3"></i>
 
                             <span @click.prevent
-                               class="font-normal"
+                                  class="font-normal"
                             >
                                 Signaler un abus
                             </span>
                         </a>
-                        {{-- ! Favourites ! --}}
-                    @end
+                        {{-- ! Add report ! --}}
+                        @end
                 </div>
                 {{-- ! Right side ! --}}
 
             </div>
+            {{------------------ ! Post Data ! ------------------}}
+
+            {{------------------- Post Details -------------------}}
+
+            <div class="w-full flex justify-center p-6 mt-4 grid
+                        grid-cols-1
+                        mx-auto mb-20 mt-10
+                        bg-white rounded"
+                 :class="container"
+            >
+
+                {{-- Tabs --}}
+                <div class="flex justify-between self-start">
+                    <a href="#"
+                       class="w-full text-center transition duration-300 ease-in-out cursor-pointer"
+                       :class="selected_tab == 'desc' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
+                       @click.prevent="selected_tab = 'desc'"
+                    >
+                        Déscription
+                    </a>
+
+                    @if(post.video_link)
+                        <a href="#"
+                           class="w-full text-center transition duration-300 ease-in-out cursor-pointer"
+                           :class="selected_tab == 'video' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
+                           @click.prevent="selected_tab = 'video'"
+                        >
+                            Video
+                        </a>
+                    @end
+
+                    <a href="#"
+                       class="w-full text-center transition duration-300 ease-in-out cursor-pointer"
+                       :class="selected_tab == 'rev' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
+                       @click.prevent="selected_tab = 'rev'"
+                    >
+                        Avis
+                        <small style="margin-left: 5px;">
+                            <i class="fas fa-star text-yellow-300"></i>
+                            {{ post.reviews_avg }} / 5
+                        </small>
+                    </a>
+                </div>
+                {{-- ! Tabs ! --}}
+
+                <hr class="w-full border-0.5 border-gray-200 mt-2">
+
+                {{-- Tabs Bodies --}}
+
+                    {{-- Caractéristiques | Déscription --}}
+                    <div class="flex w-full mt-8 grid grid-cols-1 lg:grid-cols-2 gap-2"
+                         v-if="selected_tab == 'desc'"
+                    >
+
+                        {{-- Caractéristiques --}}
+                        <div class="flex grid grid-cols-1 border-r-0 border-b lg:border-r lg:border-b-0 pb-5 lg:pb-0 lg:pr-5">
+                            <span class="text-gray-800 text-2xl mb-4">
+                                Caractéristiques<br>
+                            </span>
+                            <p>
+
+                            </p>
+                        </div>
+                        {{-- ! Caractéristiques ! --}}
+
+                        {{-- Déscription --}}
+                        <div class="flex grid grid-cols-1 lg:pl-5">
+                            <span class="text-gray-800 text-2xl mb-4">
+                                Déscription<br>
+                            </span>
+                            <p>
+                                {{{ post.description }}}
+                            </p>
+                        </div>
+                        {{-- ! Déscription ! --}}
+                    </div>
+                    {{-- ! Caractéristiques | Déscription ! --}}
+
+
+                    {{-- Vidéo --}}
+                    @if(post.video_link)
+                        <div class="flex justify-center w-full px-5 lg:px-24 xl:px-48 mt-5 shadow rounded"
+                             v-if="selected_tab == 'video'"
+                        >
+                            <span class="text-gray-800 text-2xl mb-4">
+                                Déscription<br>
+                            </span>
+                        </div>
+                    @end
+                    {{-- ! Vidéo ! --}}
+
+                    {{-- Avis --}}
+                    <div v-else-if="selected_tab == 'rev'" class="mt-5">
+                        @if(authenticated && (!my_post && !fav_revs.iHaveRevs))
+                            <span class="text-green-600">
+                                *Vous povez donner votre avis
+                            </span>
+                        @elseif(!authenticated)
+                            <span class="text-red-500">
+                                *Vous devez être connecté pour donner votre avis
+                            </span>
+                        @end
+
+                        <div class="flex justify-center items-center h-20">
+{{--                            @if(await auth.check().then(checked => {return checked}) && (post.user.id != auth.user?.id))--}}
+
+{{--                            @end--}}
+
+                            @if(post.reviews.length)
+                                <p class="font-extralight md:text-3xl text-xl text-gray-500 select-none text-center">
+                                    Has reviews
+                                </p>
+                            @else
+                                <p class="font-extralight md:text-3xl text-xl text-gray-500 select-none text-center">
+                                    Personne n'a laissé son avis
+                                </p>
+                            @end
+
+                        </div>
+
+                    </div>
+                    {{-- ! Avis ! --}}
+
+                {{-- ! Tabs Bodies ! --}}
+
+            </div>
+
+            {{------------------- ! Post Details ! -------------------}}
         </div>
+
     </show-post>
 
 @endsection

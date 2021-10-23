@@ -33,7 +33,7 @@ export default {
                     }
                     else {
                         this.error_field = ""
-                        window.location.replace("/");
+                        window.history.back()
                     }
 
                     console.log(result.data)

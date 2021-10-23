@@ -81,9 +81,6 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     public get membre_depuis(){
         return this.createdAt
             .toFormat("dd LLL yyyy ", {locale: 'fr'})
-            // .toLocaleString(DateTime.DATE_FULL, {
-            //     locale: 'fr'
-            // })
     }
 
 // Relationships -------------------------------------
