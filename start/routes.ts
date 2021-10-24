@@ -120,18 +120,26 @@ Route.group(() => {
 
         Route.post(':slug/restore', 'Post/PostsController.restore')
             .as('annonces.restore')
+            .middleware('auth:web,api')
 
         Route.delete(':slug/force-delete', 'Post/PostsController.forceDelete')
             .as('annonces.forceDelete')
+            .middleware('auth:web,api')
 
         Route.post(':slug/favourite', 'Post/PostsController.addToFavourite')
             .as('annonces.addToFavourite')
+            .middleware('auth:web,api')
 
-        Route.post(':slug/add_review', 'Post/PostsController.addReview')
+        Route.post(':slug/add_review', 'Post/PostsController.getAddReview')
             .as('annonces.attachReview')
+            .middleware('auth:web,api')
+
+        Route.get(':slug/get_reviews', 'Post/PostsController.getAddReview')
+            .as('annonces.getPostReviews')
 
         Route.post(':slug/add_report', 'Post/PostsController.addReport')
             .as('annonces.addReport')
+            .middleware('auth:web,api')
 
     }).prefix('annonces').as("posts_actions")
 

@@ -6,12 +6,12 @@ import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 import User from "App/Models/User";
-import ReviewValidator from "App/Validators/Post/ReviewValidator";
 import ReportValidator from "App/Validators/Post/ReportValidator";
 import Category from "App/Models/Category";
 import DeliveryMode from "App/Models/Post/DeliveryMode";
 import Department from "App/Models/Department";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
+import {DateTime} from "luxon";
 
 export default class PostsController {
 
@@ -282,7 +282,6 @@ export default class PostsController {
 
                 return view.render('posts/show', {
                     post,
-                    isMyFavourite: fav_revs.isMyFavourite,
                     fav_revs
                 })
 
@@ -541,82 +540,126 @@ export default class PostsController {
 
     }
 
-    public async addReview({params, request}: HttpContextContract) {
+    public async getAddReview({params, request, auth}: HttpContextContract) {
 
-        return await request.validate(ReviewValidator)
+        if (request.method() == "GET"){
 
-            .then(async valid_review => {
+            return await Post.query()
+                .where('slug', params.slug)
+                .andWhere('is_valid', 1)
+                .preload('reviews', review => {
+                    review.select('id', 'name', 'avatar', 'created_at')
+                })
+                .firstOrFail()
+                .then(post => {
+                    const sorted = post.reviews
+                        .sort( (a,b) => {
+                            return b.$extras.pivot_created_at - a.$extras.pivot_created_at
+                        })
+                    const reviews = []
 
-                return await Post.query()
-                    .where('slug', params.slug)
-                    .withCount('reviews', user => {
-                        user.wherePivot('user_id', valid_review.user)
-                    })
-                    .preload('reviews', reviews => {
-                        reviews
-                            .wherePivot('user_id', valid_review.user)
-                            .select('name')
-                    })
-                    .select([
-                        'user_id', 'slug', 'title',
-                    ])
-                    .firstOrFail()
-                    .then(async post => {
+                    for (let i = 0; i < sorted.length; i++) {
+                        var review = sorted[i]
+                        const review_created_at = review.$extras.pivot_created_at
+                            .toFormat("cccc dd LLL yyyy 'à' HH:mm", {locale: 'fr'})
 
-                        return await User.findOrFail(valid_review.user)
-                            .then(async user => {
+                        reviews.push({
+                            user: {
+                                name: review.name,
+                                avatar: review.avatar,
+                            },
+                            comment: review.$extras.pivot_comment,
+                            rating: review.$extras.pivot_rating,
+                            created_at: review_created_at
+                        })
+                    }
 
-                                if (!post.$extras.reviews_count) {
+                    return {
+                        success: true,
+                        reviews: reviews,
+                        // sorted
+                    }
+                })
+                .catch(err => {
+                    return {
+                        success: false,
+                        controller: "Post/PostsController",
+                        method: "GetReviews",
+                        error: err.message
+                    }
+                })
 
-                                    return await post.related('reviews').attach({
-                                        [user.id]: {
-                                            comment: valid_review.comment,
-                                            rating: valid_review.rating,
+        }
+
+        else if (request.method() == "POST") {
+            return await auth.check()
+                .then(async authenticated => {
+
+                    if (authenticated) {
+                        const user = auth.user as User
+
+                        return await Post.query()
+                            .where('slug', params.slug)
+                            .andWhere('is_valid', 1)
+                            .firstOrFail()
+                            .then(post => {
+                                return user.related('reviews')
+                                    .attach({
+                                        [post.id]: request.all()
+                                    })
+                                    .then(() => {
+                                        const date = DateTime.now().toFormat("dd/LL/yyyy 'à' HH:mm")
+
+                                        return {
+                                            success: true,
+                                            review: {
+                                                user: {
+                                                    name: user.name,
+                                                    avatar: user.avatar,
+                                                },
+                                                comment: request.all().comment,
+                                                rating: request.all().rating,
+                                                crated_at: date,
+                                            }
                                         }
                                     })
-                                        .then(() => {
-                                            return {
-                                                success: true,
-                                                result: 'attached',
-                                            }
-                                        })
-
-                                        .catch((err: Exception) => {
-                                            return {
-                                                success: false,
-                                                result: err.code,
-                                                model: 'reviews_attach'
-                                            }
-                                        })
-
-                                } else {
-                                    return {
-                                        success: false,
-                                        result: 'already_attached'
-                                    }
-                                }
+                                    .catch(err => {
+                                        return {
+                                            success: false,
+                                            controller: "Post/PostsController",
+                                            method: "attachReview",
+                                            error: err.message
+                                        }
+                                    })
 
                             })
-
-                            .catch(() => {
+                            .catch(err => {
                                 return {
                                     success: false,
-                                    result: 'user_not_fount',
+                                    controller: "Post/PostsController",
+                                    method: "addReview_PostNotFount",
+                                    error: err.message
                                 }
                             })
+                    }
+                    else return {
+                        success: false,
+                        controller: "Post/PostsController",
+                        method: "addReview",
+                        error: "not_authenticated"
+                    }
 
-                    })
-                    .catch(() => {
-                        return {
-                            success: false,
-                            result: 'post_not_fount',
-                        }
-                    })
-
-            })
-            .catch((e: ValidationException) => {
-                return e.messages
-            })
+                })
+                .catch((err: AuthenticationException) => {
+                    return {
+                        success: false,
+                        controller: "Post/PostsController",
+                        method: "addReview",
+                        error: err.message
+                    }
+                })
+        } else {
+        }
 
     }
 

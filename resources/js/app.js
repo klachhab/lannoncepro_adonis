@@ -4,13 +4,20 @@ window.Vue = require('vue');
 import Vuelidate from 'vuelidate'
 import router from "./Vue/router"
 import store from "./Vue/store"
-import VueSweetalert2 from 'vue-sweetalert2';
 
+import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+
 import 'animate.css';
 
+import VueTailwind from 'vue-tailwind'
+import settings from "./Vue/config/tailwind-vue"
 
+
+Vue.use(VueTailwind, settings)
 Vue.use(Vuelidate)
+
+
 Vue.use(VueSweetalert2, {
     confirmButtonColor: '#3B82F6',
     cancelButtonColor: '#EF4444',

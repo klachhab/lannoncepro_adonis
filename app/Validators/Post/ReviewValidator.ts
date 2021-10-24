@@ -26,10 +26,10 @@ export default class ReviewValidator {
      */
 
     public schema = schema.create({
-
-        user: schema.string({}, [
-            rules.exists({table: 'users', column: 'id'})
-        ]),
+        //
+        // post: schema.string({}, [
+        //     rules.exists({table: 'posts', column: 'id'})
+        // ]),
 
         comment: schema.string.optional(),
 
@@ -55,8 +55,7 @@ export default class ReviewValidator {
         'rating.unsigned': "La note d'évaluation ne doit pas être négative",
         'rating.range': "La note d'évaluation doit être entre 1 et 5",
 
-        'user.required': "Vous devez être connecté pour pouvoir ajouter un avis",
-        'user.exists': "Utilisateur inconnu",
+        // 'post.exists': "Annonce introuvable",
 
         // 'post.required': "Assuez-vous que vous évaluer la bonne annonce",
         // 'post.exists': "Assuez-vous que vous évaluer la bonne annonce",

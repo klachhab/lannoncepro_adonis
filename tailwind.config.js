@@ -8,9 +8,9 @@ module.exports = {
     darkMode: false, // or 'media' or 'class'
 
     daisyui: {
-        styled: false,
+        // styled: false,
         themes: false,
-        rtl: false,
+        // rtl: false,
     },
     theme: {
         extend: {

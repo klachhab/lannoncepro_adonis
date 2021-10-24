@@ -3,7 +3,9 @@
 @section('content')
     @set('authenticated', await auth.check().then(checked => {return checked}))
     @set('my_post', post.user.id == auth.user?.id)
-    <show-post inline-template favourite="{{ fav_revs.isMyFavourite }}"
+    <show-post inline-template
+               favourite="{{ fav_revs.isMyFavourite }}"
+               add_review="{{ fav_revs.iHaveRevs }}"
                post_slug="{{ post.slug }}"
                style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
     >
@@ -269,9 +271,69 @@
                     {{-- Avis --}}
                     <div v-else-if="selected_tab == 'rev'" class="mt-5">
                         @if(authenticated && (!my_post && !fav_revs.iHaveRevs))
-                            <span class="text-green-600">
-                                *Vous povez donner votre avis
-                            </span>
+
+                            <div class="flex grid grid-cols-1"
+                                 v-if="can_add_review"
+                            >
+                                <button type="button" class="flex items-center place-self-start py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
+                                        transition duration-300 ease-in-out
+                                        border-transparent border hover:bg-transparent
+                                        hover:text-green-500 hover:border-green-500"
+                                        @click="show_add_review = !show_add_review"
+                                >
+                                    <i class="fas fa-plus mr-2"></i>
+
+                                    <span>
+                                        Ajouter
+                                    </span>
+                                </button>
+
+
+                                {{-- Add review Form --}}
+
+                                <template>
+                                <div class="flex grid grid-cols-1 mt-4" v-if="show_add_review">
+                                    <div class="flex items-center self-start">
+
+                                        <span class="text-gray-700 mr-2">
+                                            Note<span class="text-red-400">*</span>
+                                        </span>
+
+                                        <star-rating v-model="review_form.rate" :rounded-corners="true"
+                                                     :show-rating="false" :star-size="20" :padding="4"
+                                        >
+                                        </star-rating>
+
+                                    </div>
+
+                                    <label class="block mt-4">
+
+                                        <textarea
+                                            class="block w-1/2 rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                            rows="4" placeholder="Commentaire"
+                                            @change="comment2html">
+                                        </textarea>
+
+                                    </label>
+
+                                    <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
+                                        transition duration-300 ease-in-out
+                                        border-transparent border hover:bg-transparent
+                                        hover:text-green-500 hover:border-green-500"
+                                    >
+                                        <span>
+                                            Valider
+                                        </span>
+                                    </button>
+
+
+                                </div>
+                                </template>
+                                {{-- ! Add review Form ! --}}
+
+                                <hr class="w-full border-0.5 border-gray-200 mt-2">
+                            </div>
+
                         @elseif(!authenticated)
                             <span class="text-red-500">
                                 *Vous devez être connecté pour donner votre avis
