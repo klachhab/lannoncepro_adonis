@@ -279,7 +279,7 @@
                                         transition duration-300 ease-in-out
                                         border-transparent border hover:bg-transparent
                                         hover:text-green-500 hover:border-green-500"
-                                        @click="show_add_review = !show_add_review"
+                                        @click="showModal(true)"
                                 >
                                     <i class="fas fa-plus mr-2"></i>
 
@@ -291,8 +291,75 @@
 
                                 {{-- Add review Form --}}
 
-                                <template>
-                                <div class="flex grid grid-cols-1 mt-4" v-if="show_add_review">
+                                <modal-box>
+                                    <template #header>
+                                        <h4 class="text-xl font-normal">
+                                            Ajouter un avis
+                                        </h4>
+                                    </template>
+
+
+                                    <template #body>
+
+                                        <div class="flex items-center self-start">
+
+                                            <span class="text-gray-700 mr-2">
+                                                Note<span class="text-red-400">*</span>
+                                            </span>
+
+                                            <star-rating v-model="review_form.rate"
+                                                         :show-rating="false" :star-size="20" :padding="4"
+                                            >
+                                            </star-rating>
+
+                                        </div>
+
+                                        <label class="block mt-4">
+
+                                            <textarea
+                                                    class="block rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 w-full"
+                                                    rows="4"
+                                                    placeholder="Commentaire"
+                                                    @change="comment2html">
+                                            </textarea>
+
+                                        </label>
+
+                                    </template>
+
+
+                                    <template #footer>
+                                        <div class="flex">
+                                            <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
+                                                    transition duration-300 ease-in-out
+                                                    border-transparent border hover:bg-transparent
+                                                    hover:text-green-500 hover:border-green-500"
+
+                                                    @click="save_review"
+                                            >
+                                                <span>
+                                                    Valider
+                                                </span>
+
+                                            </button>
+
+                                            <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded
+                                                    bg-red-500 transition duration-300 ease-in-out
+                                                    border-transparent border hover:bg-transparent
+                                                    hover:text-red-500 hover:border-red-500 ml-2"
+
+                                                    @click="hideModal"
+                                            >
+                                                <span>
+                                                    Annuler
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                </modal-box>
+
+<!--                                <div class="flex grid grid-cols-1 mt-4" v-if="show_add_review">
                                     <div class="flex items-center self-start">
 
                                         <span class="text-gray-700 mr-2">
@@ -316,20 +383,33 @@
 
                                     </label>
 
-                                    <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
-                                        transition duration-300 ease-in-out
-                                        border-transparent border hover:bg-transparent
-                                        hover:text-green-500 hover:border-green-500"
-                                    >
-                                        <span>
-                                            Valider
-                                        </span>
-                                    </button>
+                                    <div class="flex">
+                                        <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-4 cursor-pointer text-white text-sm rounded bg-green-500
+                                            transition duration-300 ease-in-out
+                                            border-transparent border hover:bg-transparent
+                                            hover:text-green-500 hover:border-green-500"
+                                                @click="save_review"
+                                            >
+                                            <span>
+                                                Valider
+                                            </span>
+                                            </button>
 
+                                        <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-4 cursor-pointer text-white text-sm rounded
+                                            bg-red-500 transition duration-300 ease-in-out
+                                            border-transparent border hover:bg-transparent
+                                            hover:text-red-500 hover:border-red-500 ml-2"
+                                                    @click="show_add_review = false"
+                                            >
+                                            <span>
+                                                Annuler
+                                            </span>
+                                        </button>
+                                    </div>
 
-                                </div>
-                                </template>
+                                </div>-->
                                 {{-- ! Add review Form ! --}}
+
 
                                 <hr class="w-full border-0.5 border-gray-200 mt-2">
                             </div>

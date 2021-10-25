@@ -1,10 +1,13 @@
 <script>
 import StarRating from 'vue-star-rating'
+import ModalBox from '../Layouts/ModalBox'
+import {mapMutations} from "vuex";
 
 export default {
     name: "Create",
     components : {
         StarRating,
+        ModalBox,
     },
     props: ['favourite', 'add_review', 'post_slug'],
     data(){
@@ -22,10 +25,17 @@ export default {
 
             review_form: {
                 rate: 0,
-                comment: null
+                comment: ''
+            },
+
+            report_form: {
+                report_type: 0,
+                comment: ''
             },
 
             reviews: [],
+
+            activeModal: false,
 
         }
     },
@@ -41,6 +51,19 @@ export default {
     },
 
     methods: {
+        ...mapMutations([
+            'showModal'
+        ]),
+
+        hideModal(){
+            this.review_form.rate = 0
+            this.review_form.comment = ""
+            this.report_form.report_type = null
+            this.report_form.comment = ""
+
+            this.showModal(false)
+        },
+
         async addToFav(){
 
             await axios.post(`/api/annonces/${this.post_slug}/favourite`)
@@ -82,13 +105,6 @@ export default {
         },
 
         async save_review(){
-            this.$swal({
-                // icon: "success",
-                // title: "Félicitation",
-                // text: 'Votre avis a été ajouté avec succès'
-                template: "#review_form"
-            })
-            return
 
             const form = new FormData
             form.append('comment', this.review_form.comment)
@@ -103,10 +119,11 @@ export default {
                             title: "Félicitation",
                             text: 'Votre avis a été ajouté avec succès'
                         }).then(status => {
-                            // if (status.isConfirmed) {
-                            //     this.can_add_review = false
-                            // }
+                            if (status.isConfirmed) {
+                                this.can_add_review = false
+                            }
                             this.reviews.unshift(result.data.review) // Add to the beginning of the array
+                            this.hideModal()
                         })
 
                     }

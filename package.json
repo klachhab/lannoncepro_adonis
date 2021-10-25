@@ -43,6 +43,8 @@
     "@adonisjs/validator": "^12.0.1",
     "@adonisjs/view": "^6.1.1",
     "@fortawesome/vue-fontawesome": "^2.0.6",
+    "@headlessui/vue": "^1.4.1",
+    "@heroicons/vue": "^1.0.5",
     "@svg-maps/france.departments": "^1.0.1",
     "@tailwindcss/forms": "^0.3.4",
     "@vue-hero-icons/outline": "^1.7.2",

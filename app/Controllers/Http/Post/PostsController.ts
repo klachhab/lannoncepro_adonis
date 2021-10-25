@@ -287,10 +287,10 @@ export default class PostsController {
 
             })
             .catch(async (e: Exception) => {
-                // return {
-                //     success: false,
-                //     error: e.message,
-                // }
+                return {
+                    success: false,
+                    error: e.message,
+                }
                 return await view.render('errors.not-found')
             })
     }

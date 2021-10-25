@@ -27,6 +27,7 @@ Vue.use(VueSweetalert2, {
 
 // Layouts
 Vue.component('vue-nav', require('./Vue/Components/Layouts/HeaderComponent').default);
+// Vue.component('modal-box', require('./Vue/Components/Layouts/ModalBox').default);
 
 // Content
 Vue.component('home', require('./Vue/Components/HomeComponent.vue').default);
