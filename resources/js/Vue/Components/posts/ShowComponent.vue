@@ -9,11 +9,12 @@ export default {
         StarRating,
         ModalBox,
     },
-    props: ['favourite', 'add_review', 'post_slug'],
+    props: ['favourite', 'add_review', 'post_slug', 'user_name'],
     data(){
         return {
 
             container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
+            grid_cols: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 
             show_phone: false,
 
@@ -34,6 +35,7 @@ export default {
             },
 
             reviews: [],
+            reviews_avg: 0,
 
             activeModal: false,
 
@@ -43,6 +45,12 @@ export default {
     computed: {
         all_reviews(){
             return this.reviews
+        },
+
+        local_reviews_avg(){
+            return this.reviews_avg.toLocaleString('fr', {
+                maximumFractionDigits: 1,
+            })
         },
     },
 
@@ -89,6 +97,8 @@ export default {
             await axios.get(`/api/annonces/${ this.post_slug }/get_reviews`)
             .then(result => {
                 if (result.data.success) {
+                    this.reviews_avg = result.data.reviews_avg
+
                     const reviews = result.data.reviews
 
                     for (let i = 0; i < reviews.length; i++) {
@@ -118,11 +128,13 @@ export default {
                             icon: "success",
                             title: "Félicitation",
                             text: 'Votre avis a été ajouté avec succès'
-                        }).then(status => {
-                            if (status.isConfirmed) {
-                                this.can_add_review = false
-                            }
+                        }).then(() => {
+
+                            this.can_add_review = false
+
                             this.reviews.unshift(result.data.review) // Add to the beginning of the array
+                            this.reviews_avg = result.data.reviews_avg
+
                             this.hideModal()
                         })
 
@@ -132,9 +144,8 @@ export default {
                             icon: "error",
                             title: "Erreur",
                             text: 'Une erreur est survenue lors de l\'ajout de votre avis.\n' +
-                                'Merci de contacter notre support'
-                        }).then(result => {
-
+                                `Merci de contacter notre support.`
+                                // + `${result.data.error}`
                         })
                     }
 
@@ -142,6 +153,31 @@ export default {
                 .catch( err => {
                     console.log(err)
                 })
+        },
+
+        async detach_review(index){
+            await axios.post(`/api/annonces/${ this.post_slug }/detach_review`)
+                .then(response => {
+                    if (response.data.success) {
+                        this.reviews.splice(index, 1)
+                        this.can_add_review = true
+
+                        console.log(response.data)
+                    }
+                    else {
+                        this.$swal({
+                            icon: "error",
+                            title: "Erreur",
+                            text: 'Une erreur est survenue lors de l\'ajout de votre avis.\n' +
+                                `Merci de contacter notre support.`
+                            // + `${result.data.error}`
+                        })
+                    }
+                })
+                .catch( err => {
+                    console.log(err)
+                })
+
         },
 
         comment2html($event){

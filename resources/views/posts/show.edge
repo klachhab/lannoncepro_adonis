@@ -1,12 +1,13 @@
 @layout('layouts/master')
 
 @section('content')
-    @set('authenticated', await auth.check().then(checked => {return checked}))
+    @set('authenticated', await auth.use('web').check().then(checked => {return checked}))
     @set('my_post', post.user.id == auth.user?.id)
     <show-post inline-template
                favourite="{{ fav_revs.isMyFavourite }}"
                add_review="{{ fav_revs.iHaveRevs }}"
                post_slug="{{ post.slug }}"
+               user_name="{{ user_name }}"
                style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
     >
 
@@ -191,7 +192,7 @@
                 {{-- Tabs --}}
                 <div class="flex justify-between self-start">
                     <a href="#"
-                       class="w-full text-center transition duration-300 ease-in-out cursor-pointer"
+                       class="w-full text-center transition duration-300 ease-in-out cursor-pointer text-xs md:text-sm lg:text-md xl:text-lg"
                        :class="selected_tab == 'desc' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
                        @click.prevent="selected_tab = 'desc'"
                     >
@@ -200,7 +201,7 @@
 
                     @if(post.video_link)
                         <a href="#"
-                           class="w-full text-center transition duration-300 ease-in-out cursor-pointer"
+                           class="w-full text-center transition duration-300 ease-in-out cursor-pointer text-xs md:text-sm lg:text-md xl:text-lg"
                            :class="selected_tab == 'video' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
                            @click.prevent="selected_tab = 'video'"
                         >
@@ -209,14 +210,14 @@
                     @end
 
                     <a href="#"
-                       class="w-full text-center transition duration-300 ease-in-out cursor-pointer"
+                       class="w-full text-center transition duration-300 ease-in-out cursor-pointer text-xs md:text-sm lg:text-md xl:text-lg"
                        :class="selected_tab == 'rev' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
                        @click.prevent="selected_tab = 'rev'"
                     >
                         Avis
                         <small style="margin-left: 5px;">
                             <i class="fas fa-star text-yellow-300"></i>
-                            {{ post.reviews_avg }} / 5
+                            @{{ local_reviews_avg }} / 5
                         </small>
                     </a>
                 </div>
@@ -231,17 +232,6 @@
                          v-if="selected_tab == 'desc'"
                     >
 
-                        {{-- Caractéristiques --}}
-                        <div class="flex grid grid-cols-1 border-r-0 border-b lg:border-r lg:border-b-0 pb-5 lg:pb-0 lg:pr-5">
-                            <span class="text-gray-800 text-2xl mb-4">
-                                Caractéristiques<br>
-                            </span>
-                            <p>
-
-                            </p>
-                        </div>
-                        {{-- ! Caractéristiques ! --}}
-
                         {{-- Déscription --}}
                         <div class="flex grid grid-cols-1 lg:pl-5">
                             <span class="text-gray-800 text-2xl mb-4">
@@ -252,6 +242,19 @@
                             </p>
                         </div>
                         {{-- ! Déscription ! --}}
+
+                        {{-- Caractéristiques --}}
+                        <div class="flex grid grid-cols-1 border-l-0 border-b lg:border-l lg:border-b-0 pb-5 lg:pb-0 lg:px-5">
+                            <span class="text-gray-800 text-2xl mb-4">
+                                Caractéristiques<br>
+                            </span>
+                            <p>
+
+                            </p>
+                        </div>
+                        {{-- ! Caractéristiques ! --}}
+
+
                     </div>
                     {{-- ! Caractéristiques | Déscription ! --}}
 
@@ -270,7 +273,7 @@
 
                     {{-- Avis --}}
                     <div v-else-if="selected_tab == 'rev'" class="mt-5">
-                        @if(authenticated && (!my_post && !fav_revs.iHaveRevs))
+                        @if(authenticated && !my_post)
 
                             <div class="flex grid grid-cols-1"
                                  v-if="can_add_review"
@@ -290,7 +293,6 @@
 
 
                                 {{-- Add review Form --}}
-
                                 <modal-box>
                                     <template #header>
                                         <h4 class="text-xl font-normal">
@@ -358,82 +360,63 @@
                                     </template>
 
                                 </modal-box>
-
-<!--                                <div class="flex grid grid-cols-1 mt-4" v-if="show_add_review">
-                                    <div class="flex items-center self-start">
-
-                                        <span class="text-gray-700 mr-2">
-                                            Note<span class="text-red-400">*</span>
-                                        </span>
-
-                                        <star-rating v-model="review_form.rate" :rounded-corners="true"
-                                                     :show-rating="false" :star-size="20" :padding="4"
-                                        >
-                                        </star-rating>
-
-                                    </div>
-
-                                    <label class="block mt-4">
-
-                                        <textarea
-                                            class="block w-1/2 rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                            rows="4" placeholder="Commentaire"
-                                            @change="comment2html">
-                                        </textarea>
-
-                                    </label>
-
-                                    <div class="flex">
-                                        <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-4 cursor-pointer text-white text-sm rounded bg-green-500
-                                            transition duration-300 ease-in-out
-                                            border-transparent border hover:bg-transparent
-                                            hover:text-green-500 hover:border-green-500"
-                                                @click="save_review"
-                                            >
-                                            <span>
-                                                Valider
-                                            </span>
-                                            </button>
-
-                                        <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-4 cursor-pointer text-white text-sm rounded
-                                            bg-red-500 transition duration-300 ease-in-out
-                                            border-transparent border hover:bg-transparent
-                                            hover:text-red-500 hover:border-red-500 ml-2"
-                                                    @click="show_add_review = false"
-                                            >
-                                            <span>
-                                                Annuler
-                                            </span>
-                                        </button>
-                                    </div>
-
-                                </div>-->
                                 {{-- ! Add review Form ! --}}
 
 
-                                <hr class="w-full border-0.5 border-gray-200 mt-2">
+                                <hr class="w-full border-0.5 border-gray-200 mt-4">
                             </div>
 
                         @elseif(!authenticated)
                             <span class="text-red-500">
-                                *Vous devez être connecté pour donner votre avis
+                                *Vous devez être connecté pour pouvoir donner votre avis
                             </span>
                         @end
 
-                        <div class="flex justify-center items-center h-20">
+                        <div class="grid gap-4 mb-10 mt-6 overflow-auto px-2 pb-2" :class="reviews.length ? grid_cols : ''"  :class="reviews.length ? 'h-96': ''">
 {{--                            @if(await auth.check().then(checked => {return checked}) && (post.user.id != auth.user?.id))--}}
 
 {{--                            @end--}}
 
-                            @if(post.reviews.length)
-                                <p class="font-extralight md:text-3xl text-xl text-gray-500 select-none text-center">
-                                    Has reviews
-                                </p>
-                            @else
-                                <p class="font-extralight md:text-3xl text-xl text-gray-500 select-none text-center">
-                                    Personne n'a laissé son avis
-                                </p>
-                            @end
+                            <div class="flex flex-col items-center shadow rounded w-full mt-6 pb-2 px-2"
+                                 :key="index" v-for="(review, index) in reviews"
+                            >
+
+{{--                                <img :src="http://lorempixel.com/500/500/"--}}
+                                <img src="/images/user.png"
+                                     class="rounded-full border-white border-4 h-16 w-16 -mt-6 shadow-lg"
+                                >
+                                <span class="font-normal text-sm text-center text-gray-600 mt-2 mb-px">
+                                    @{{ review.user.name == user_name ? "Moi" : review.user.name }}
+                                </span>
+
+                                <star-rating :rating="review.rating" :show-rating="false" :star-size="20"
+                                             :padding="4" :read-only="true"
+                                >
+                                </star-rating>
+
+                                <span class="text-center text-sm text-gray-500 font-light mt-2">
+                                    @{{ review.created_at }}
+                                </span>
+
+                                <hr class="w-4/5 border-0.5 border-gray-200 mt-2">
+
+                                <p class="text-center text-base text-gray-700 text-sm mx-5 my-3"
+                                   v-html="review.comment"></p>
+
+                                <span class="text-red-500 hove:text-red-700 text-center text-xs font-light cursor-pointer mb-3"
+                                      v-if="review.user.name === user_name"
+                                      @click.prevent="detach_review(index)"
+                                >
+                                    <i class="far fa-trash-alt mr-1"></i>
+                                    Supprimer
+                                </span>
+
+
+                            </div>
+
+                            <p v-if="!reviews.length" class="font-extralight md:text-3xl text-xl text-gray-500 select-none text-center">
+                                Personne n'a laissé son avis
+                            </p>
 
                         </div>
 

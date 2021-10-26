@@ -79,8 +79,9 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     // Accessors ===================================================
     @computed()
     public get membre_depuis(){
-        return this.createdAt
+        return this.createdAt ? this.createdAt
             .toFormat("dd LLL yyyy ", {locale: 'fr'})
+            : null
     }
 
 // Relationships -------------------------------------

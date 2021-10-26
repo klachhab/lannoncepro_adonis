@@ -94,14 +94,16 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 // Accessors ===================================================
     @computed()
     public get creation_date(){
-        return this.createdAt.toFormat("dd/LL/yyyy 'à' HH:mm", {locale: 'fr'})
+        return this.createdAt ? this.createdAt
+            .toFormat("dd/LL/yyyy 'à' HH:mm", {locale: 'fr'})
+            : null
     }
 
     @computed()
     public get prix(){
-        return this.price.toLocaleString('fr', {
+        return this.price ? this.price.toLocaleString('fr', {
             minimumFractionDigits: 2,
-        }) + ' €'
+        }) + ' €' : "Non indiquer"
     }
 
     @computed()

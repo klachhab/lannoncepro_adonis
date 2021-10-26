@@ -137,6 +137,10 @@ Route.group(() => {
         Route.get(':slug/get_reviews', 'Post/PostsController.getAddReview')
             .as('annonces.getPostReviews')
 
+        Route.post(':slug/detach_review', 'Post/PostsController.detachReview')
+            .as('annonces.detachReview')
+            .middleware('auth:web,api')
+
         Route.post(':slug/add_report', 'Post/PostsController.addReport')
             .as('annonces.addReport')
             .middleware('auth:web,api')

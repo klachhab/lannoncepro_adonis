@@ -245,11 +245,14 @@ export default class PostsController {
             .preload('city', city => {
                 city.select('name', 'departmentId')
             })
-            .preload('favourites')
+            .preload('favourites', favourites => {
+                favourites.select('created_at')
+            })
             .preload('category', category => {
                 category.select('name')
             })
             .firstOrFail()
+
             .then(async post => {
 
                 const authenticated = await auth.check()
@@ -257,8 +260,9 @@ export default class PostsController {
                         return checked;
                     })
                     .catch( (err: AuthenticationException) => {
-                        console.log(err.message)
-                        return false
+                        return {
+                            error: err.message
+                        }
                     })
 
 
@@ -269,7 +273,7 @@ export default class PostsController {
                 const fav_revs = {
                     isMyFavourite: authenticated && favourites.includes(user.id),
                     iHaveRevs: authenticated && reviews.includes(user.id),
-                    reviews_avg: post.reviews_avg
+                    reviews_avg: post.reviews_avg,
                 }
 
                 if (auth.defaultGuard == "api") {
@@ -282,10 +286,12 @@ export default class PostsController {
 
                 return view.render('posts/show', {
                     post,
+                    user_name: authenticated ? user.name : null,
                     fav_revs
                 })
 
             })
+
             .catch(async (e: Exception) => {
                 return {
                     success: false,
@@ -440,6 +446,7 @@ export default class PostsController {
             })
     }
 
+
     public async forceDelete({params}: HttpContextContract) {
         return await Post.onlyTrashed()
             .where('slug', params.slug)
@@ -540,6 +547,8 @@ export default class PostsController {
 
     }
 
+
+
     public async getAddReview({params, request, auth}: HttpContextContract) {
 
         if (request.method() == "GET"){
@@ -565,6 +574,7 @@ export default class PostsController {
 
                         reviews.push({
                             user: {
+                                id: review.id,
                                 name: review.name,
                                 avatar: review.avatar,
                             },
@@ -576,6 +586,7 @@ export default class PostsController {
 
                     return {
                         success: true,
+                        reviews_avg: post.reviews_avg,
                         reviews: reviews,
                         // sorted
                     }
@@ -591,6 +602,7 @@ export default class PostsController {
 
         }
 
+
         else if (request.method() == "POST") {
             return await auth.check()
                 .then(async authenticated => {
@@ -601,6 +613,9 @@ export default class PostsController {
                         return await Post.query()
                             .where('slug', params.slug)
                             .andWhere('is_valid', 1)
+                            .preload('reviews', review => {
+                                review.select('id')
+                            })
                             .firstOrFail()
                             .then(post => {
                                 return user.related('reviews')
@@ -609,20 +624,28 @@ export default class PostsController {
                                     })
                                     .then(() => {
                                         const date = DateTime.now().toFormat("dd/LL/yyyy 'à' HH:mm")
+                                        const reviews_ratings = post.reviews.map(revs => revs.$extras.pivot_rating);
+                                        reviews_ratings.push(Number.parseInt(request.all().rating))
+
+                                        const reviews_length = reviews_ratings.length;
+
 
                                         return {
                                             success: true,
                                             review: {
                                                 user: {
+                                                    id: user.id,
                                                     name: user.name,
                                                     avatar: user.avatar,
                                                 },
                                                 comment: request.all().comment,
-                                                rating: request.all().rating,
-                                                crated_at: date,
-                                            }
+                                                rating: Number.parseInt(request.all().rating),
+                                                created_at: date,
+                                            },
+                                            reviews_avg: reviews_ratings.reduce( (a,b) => a + b) / reviews_length,
                                         }
                                     })
+
                                     .catch(err => {
                                         return {
                                             success: false,
@@ -658,11 +681,105 @@ export default class PostsController {
                         error: err.message
                     }
                 })
-        } else {
         }
 
     }
 
+
+    public async detachReview({auth, params}: HttpContextContract){
+
+        return await auth.check()
+            .then(async authenticated => {
+
+                if(authenticated){
+                    const user = auth.user as User
+                    return await Post.query()
+                        .where('slug', params.slug)
+                        .select('id')
+                        .firstOrFail()
+                        .then( post => {
+                            return post.related('reviews')
+                                .detach([user.id])
+                                .then( () => {
+                                    return {
+                                        success: true,
+                                    }
+                                })
+                                .catch(err => {
+                                    return {
+                                        success: false,
+                                        controller: "Post/PostsController",
+                                        method: "detachReview",
+                                        error: err.message
+                                    }
+                                })
+                        })
+                        .catch(err => {
+                            return {
+                                success: false,
+                                controller: "Post/PostsController",
+                                method: "detachReview",
+                                error: err.message
+                            }
+                        })
+
+
+                    return user.related('reviews')
+
+
+                    return await Post.query()
+                        .where('slug', params.slug)
+                        .where('is_valid', 1)
+                        .preload('reviews', review => {
+                            review.select()
+                        })
+                        .firstOrFail()
+                        .then( async post => {
+                            const user = auth.user as User
+                            const reviews_ratings = post.reviews.map(revs => revs.$extras.pivot_rating);
+                            // reviews_ratings.push(Number.parseInt(request.all().rating))
+
+                            const reviews_length = reviews_ratings.length - 1;
+
+                            return post.related('reviews')
+                                .detach([user.id])
+                                .then( () => {
+                                    return {
+                                        success: true,
+                                        reviews_avg: reviews_ratings.reduce( (a,b) => a + b) / reviews_length,
+                                    }
+
+                                })
+                                .catch(err => {
+                                    return {
+                                        success: false,
+                                        controller: "Post/PostsController",
+                                        method: "detachReview",
+                                        error: `find_post : ${err.message}`
+                                    }
+                                })
+
+                        })
+                        .catch(err => {
+                            return {
+                                success: false,
+                                controller: "Post/PostsController",
+                                method: "detachReview",
+                                error: err.message
+                            }
+                        })
+
+                }
+
+                else return {
+                    success: false,
+                    controller: "Post/PostsController",
+                    method: "detachReview",
+                    error: "not_authenticated"
+                }
+            })
+
+    }
 
     public async addReport({params, request}: HttpContextContract) {
 
