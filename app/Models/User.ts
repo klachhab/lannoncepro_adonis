@@ -107,7 +107,7 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     public reviews: ManyToMany<typeof Post>
 
     @manyToMany(() => Post, {
-        pivotColumns: ['comment', 'report_type'],
+        pivotColumns: ['comment'],
         pivotTable: "post_reports",
         pivotTimestamps: {
             createdAt: true,

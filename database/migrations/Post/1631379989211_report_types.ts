@@ -8,6 +8,13 @@ export default class ReportTypes extends BaseSchema {
       table.increments('id')
       table.string('ref')
       table.string('name')
+
+      /**
+       * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
+       */
+      table.timestamp('created_at', { useTz: true })
+      table.timestamp('updated_at', {useTz: true})
+      table.timestamp('deleted_at', { useTz: true })
     })
   }
 

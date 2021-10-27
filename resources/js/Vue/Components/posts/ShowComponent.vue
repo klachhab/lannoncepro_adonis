@@ -9,20 +9,27 @@ export default {
         StarRating,
         ModalBox,
     },
-    props: ['favourite', 'add_review', 'post_slug', 'user_name'],
+    props: ['favourite', 'add_review', 'add_report', 'post_slug', 'user_name'],
     data(){
         return {
 
             container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
             grid_cols: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 
+            field_class: {
+                has_err: "border-red-300 focus:border-red-300 ring-red-200 ring ring-opacity-50 focus:ring-red-200 focus:ring focus:ring-opacity-50",
+                normal: "border-gray-300 focus:border-blue-400 focus:ring-blue-300",
+            },
+
             show_phone: false,
 
             isMyFavourite: this.favourite === "true",
             can_add_review: this.add_review === "false",
+            can_add_report: this.add_report=== "false",
 
             selected_tab: 'desc',
             show_add_review: false,
+            show_add_report: false,
 
             review_form: {
                 rate: 0,
@@ -30,7 +37,7 @@ export default {
             },
 
             report_form: {
-                report_type: 0,
+                report_ref: null,
                 comment: ''
             },
 
@@ -63,13 +70,25 @@ export default {
             'showModal'
         ]),
 
+        modal(report_type){
+            this.showModal({ modal_type: report_type, show: true})
+        },
+
         hideModal(){
             this.review_form.rate = 0
             this.review_form.comment = ""
-            this.report_form.report_type = null
+            this.report_form.report_ref = null
             this.report_form.comment = ""
 
-            this.showModal(false)
+            // console.log(this.report_form)
+            // return
+
+            this.showModal({ modal_type: '', show: false})
+        },
+
+
+        reviewComment2html($event){
+            this.review_form.comment = $event.target.value.replace(/\n/g, '<br/>')
         },
 
         async addToFav(){
@@ -156,33 +175,92 @@ export default {
         },
 
         async detach_review(index){
-            await axios.post(`/api/annonces/${ this.post_slug }/detach_review`)
-                .then(response => {
-                    if (response.data.success) {
-                        this.reviews.splice(index, 1)
-                        this.can_add_review = true
+            this.$swal({
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: "Oui",
+                cancelButtonText: "Annuler",
+                text: 'Vous en êtes sûr ?'
+            })
+            .then(async status => {
+                if(status.isConfirmed) {
+                    await axios.post(`/api/annonces/${ this.post_slug }/detach_review`)
+                        .then(response => {
+                            if (response.data.success) {
+                                this.reviews.splice(index, 1)
+                                this.can_add_review = true
 
-                        console.log(response.data)
+                                console.log(response.data)
+                            }
+                            else {
+                                this.$swal({
+                                    icon: "error",
+                                    title: "Erreur",
+                                    text: 'Une erreur est survenue lors de l\'ajout de votre avis.\n' +
+                                        `Merci de contacter notre support.`
+                                    // + `${result.data.error}`
+                                })
+                            }
+                        })
+                        .catch( err => {
+                            console.log(err)
+                        })
+                }
+            })
+
+            return
+
+
+
+        },
+
+
+        reportComment2html($event){
+            this.report_form.comment = $event.target.value.replace(/\n/g, '<br/>')
+        },
+
+        async save_report(){
+            // console.log(this.report_form)
+            // return
+
+            const form = new FormData
+            form.append('comment', this.report_form.comment)
+            form.append('ref', this.report_form.report_ref)
+
+            await axios.post(`/api/annonces/${ this.post_slug }/add_report`, form)
+                .then(result => {
+
+                    // console.log(result.data)
+                    // return
+
+                    if (result.data.success) {
+                        this.$swal({
+                            icon: "success",
+                            title: "Rapport envoyé",
+                            text: 'Votre rapport a été envoyé avec succès pour étude'
+                        }).then(() => {
+
+                            this.can_add_report   = false
+                            this.hideModal()
+                        })
+
                     }
                     else {
                         this.$swal({
                             icon: "error",
                             title: "Erreur",
-                            text: 'Une erreur est survenue lors de l\'ajout de votre avis.\n' +
+                            text: 'Une erreur est survenue lors de l\'envoi de votre rapport.\n' +
                                 `Merci de contacter notre support.`
-                            // + `${result.data.error}`
+                            // + `${result.data}`
                         })
                     }
+
                 })
                 .catch( err => {
                     console.log(err)
                 })
-
         },
 
-        comment2html($event){
-            this.review_form.comment = $event.target.value.replace(/\n/g, '<br/>')
-        }
     }
 }
 </script>

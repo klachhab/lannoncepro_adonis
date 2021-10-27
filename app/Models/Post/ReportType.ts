@@ -14,7 +14,7 @@ export default class ReportType extends compose(BaseModel, SoftDeletes)  {
   @column()
   public name: string
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })

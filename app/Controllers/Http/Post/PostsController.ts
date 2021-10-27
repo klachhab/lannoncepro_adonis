@@ -12,6 +12,7 @@ import DeliveryMode from "App/Models/Post/DeliveryMode";
 import Department from "App/Models/Department";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import {DateTime} from "luxon";
+import ReportType from "App/Models/Post/ReportType";
 
 export default class PostsController {
 
@@ -248,13 +249,15 @@ export default class PostsController {
             .preload('favourites', favourites => {
                 favourites.select('created_at')
             })
+            .preload('reports', reports => {
+                reports.select()
+            })
             .preload('category', category => {
                 category.select('name')
             })
             .firstOrFail()
 
             .then(async post => {
-
                 const authenticated = await auth.check()
                     .then(async checked => {
                         return checked;
@@ -265,19 +268,30 @@ export default class PostsController {
                         }
                     })
 
+                const user = auth.user as User
+                // return {
+                //     reviews: post.reviews.map(fav => fav.id),
+                //     reports: post.reports.map(fav => fav.id),
+                //     user
+                // }
+
 
                 const favourites = post.favourites.map(fav => fav.id)
                 const reviews = post.reviews.map(rev => rev.id)
-                const user = auth.user as User
+                const reports = post.reports.map(rep => rep.id)
 
                 const fav_revs = {
                     isMyFavourite: authenticated && favourites.includes(user.id),
                     iHaveRevs: authenticated && reviews.includes(user.id),
+                    iHaveReps: authenticated && reports.includes(user.id),
                     reviews_avg: post.reviews_avg,
                 }
 
+                const report_types = await ReportType.query()
+
                 if (auth.defaultGuard == "api") {
                     return {
+                        report_types,
                         post: post.id,
                         user: authenticated ? user.id : "Unauthenticated",
                         fav_revs
@@ -285,6 +299,7 @@ export default class PostsController {
                 }
 
                 return view.render('posts/show', {
+                    report_types,
                     post,
                     user_name: authenticated ? user.name : null,
                     fav_revs
@@ -570,7 +585,7 @@ export default class PostsController {
                     for (let i = 0; i < sorted.length; i++) {
                         var review = sorted[i]
                         const review_created_at = review.$extras.pivot_created_at
-                            .toFormat("cccc dd LLL yyyy 'à' HH:mm", {locale: 'fr'})
+                            .toFormat("ccc dd LLL yyyy 'à' HH:mm", {locale: 'fr'})
 
                         reviews.push({
                             user: {
@@ -778,12 +793,111 @@ export default class PostsController {
                     error: "not_authenticated"
                 }
             })
+            .catch((err: AuthenticationException) => {
+                return {
+                    success: false,
+                    controller: "Post/PostsController",
+                    method: "detachReview",
+                    error: err.message
+                }
+            })
 
     }
 
-    public async addReport({params, request}: HttpContextContract) {
 
-        return await request.validate(ReportValidator)
+
+    public async addReport({auth, params, request}: HttpContextContract) {
+
+        return await auth.check()
+            .then(async authenticated => {
+
+                if(authenticated){
+                    const user = auth.user as User
+                    const report_type = await ReportType.query()
+                        .where('ref', request.all().ref)
+                        .select()
+                        .firstOrFail()
+                        .then( report_type => {
+                            return {
+                                success: true,
+                                report_type_id: report_type.id
+                            }
+                        })
+                        .catch(err => {
+                            return {
+                                success: false,
+                                controller: "Post/PostsController",
+                                method: "addReport",
+                                error: err.message,
+                                report_type_id: null
+                            }
+                        })
+
+
+                    return await Post.query()
+                        .where('slug', params.slug)
+                        .select(['id'])
+                        .firstOrFail()
+                        .then(async post => {
+
+                            if (report_type.success) {
+                                return user.related('reports')
+                                    .attach({
+                                        [post.id]: {
+                                            comment: request.all().comment,
+                                            report_type_id: report_type.report_type_id,
+                                        }
+                                    })
+                                    .then(() => {
+                                        return {
+                                            success: true,
+                                        }
+                                    })
+
+                                    .catch((err: Exception) => {
+                                        return {
+                                            success: false,
+                                            controller: "Post/PostsController",
+                                            method: "addReport",
+                                            error: err.message
+                                        }
+                                    })
+                            }
+                            else {
+                                return report_type
+                            }
+
+
+                        })
+                        .catch(err => {
+                            return {
+                                success: false,
+                                controller: "Post/PostsController",
+                                method: "addReport",
+                                error: err.message
+                            }
+                        })
+
+                }
+
+                else return {
+                    success: false,
+                    controller: "Post/PostsController",
+                    method: "addReport",
+                    error: "not_authenticated"
+                }
+
+            })
+            .catch((err: AuthenticationException) => {
+                return {
+                    success: false,
+                    controller: "Post/PostsController",
+                    method: "addReport",
+                    error: err.message
+                }
+            })
+
+        /*return await request.validate(ReportValidator)
 
             .then(async valid_report => {
 
@@ -848,7 +962,7 @@ export default class PostsController {
             })
             .catch((e: ValidationException) => {
                 return e.messages
-            })
+            })*/
     }
 
 }

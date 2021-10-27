@@ -1,8 +1,8 @@
 <template>
     <div class="flex justify-center items-center bg-black bg-opacity-50 absolute inset-0 w-screen h-screen
             transition-opacity duration-100 ease-in-out"
-         :class="show_modal ? '': 'hidden'"
-         @click.self="showModal(false)"
+         :class="show_modal.modal_type === name? '': 'hidden'"
+         @click.self="showModal({ modal_type: '', show: false})"
     >
         <div class="bg-white py-2 rounded-md shadow-xl xl:w-1/3 lg:w-2/3 md:3/4">
             <div class="flex justify-between items-center border-b-0.5 border-gray-200 mt-2 pb-2 px-8">
@@ -44,14 +44,7 @@ import {mapMutations, mapState} from "vuex";
 
 export default {
     name: "ModalBox",
-
-    mounted() {
-    },
-
-    data(){
-        return {
-        }
-    },
+    props: ['name'],
 
     computed: {
 
@@ -61,15 +54,10 @@ export default {
 
     },
 
-
     methods: {
         ...mapMutations([
             'showModal'
         ]),
-
-        preventScroll(){
-            document.documentElement.style.overflow = 'hidden'
-        },
 
         hideModal(){
             document.documentElement.style.overflow = 'auto'

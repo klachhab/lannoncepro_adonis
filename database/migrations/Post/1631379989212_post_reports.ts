@@ -7,7 +7,6 @@ export default class PostReports extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.text('comment').notNullable()
-      table.text('report_type').notNullable()
 
       table.integer('user_id')
           .unsigned()
@@ -17,6 +16,11 @@ export default class PostReports extends BaseSchema {
       table.integer('post_id')
           .unsigned()
           .references('posts.id')
+          .notNullable()
+
+      table.integer('report_type_id')
+          .unsigned()
+          // .references('report_types.id')
           .notNullable()
 
       /**

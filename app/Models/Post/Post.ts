@@ -108,7 +108,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     @computed()
     public get reviews_avg(){
-        const revs_rating_avg = this.reviews.length ?
+        const revs_rating_avg = this.reviews && this.reviews.length ?
             this.reviews.map(revs => revs.$extras.pivot_rating)
                 .reduce( (a,b) => a + b) / this.reviews.length : 0
 
@@ -155,7 +155,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public reviews: ManyToMany<typeof User>
 
     @manyToMany(() => User, {
-        pivotColumns: ['comment', 'report_type'],
+        pivotColumns: ['comment'],
         pivotTable: "post_reports",
         pivotTimestamps: {
             createdAt: true,
