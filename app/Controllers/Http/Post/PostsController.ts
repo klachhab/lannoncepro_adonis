@@ -258,6 +258,7 @@ export default class PostsController {
             .firstOrFail()
 
             .then(async post => {
+
                 const authenticated = await auth.check()
                     .then(async checked => {
                         return checked;

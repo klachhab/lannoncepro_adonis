@@ -9,6 +9,7 @@
                add_report="{{ fav_revs.iHaveReps }}"
                post_slug="{{ post.slug }}"
                user_name="{{ user_name }}"
+               local_video_src="{{ post.video_type == "local" ? post.video_link : "" }}"
                style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
     >
 
@@ -336,14 +337,27 @@
 
 
                     {{-- Vidéo --}}
-                    @if(post.video_link)
-                        <div class="flex justify-center w-full px-5 lg:px-24 xl:px-48 mt-5 shadow rounded"
+                    @if(post.video_type)
+
+                        <div class="flex justify-center w-full px-5 lg:px-24 xl:px-48 mt-5"
                              v-if="selected_tab == 'video'"
                         >
-                            <span class="text-gray-800 text-2xl mb-4">
-                                Déscription<br>
-                            </span>
+                            <div class="aspect-w-16 aspect-h-9 w-full">
+                            @if(post.video_type == "iframe")
+
+                                <iframe src="https://www.youtube.com/embed/VURZvau80Jo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                            @elseif(post.video_type == "local")
+                                <video-player class="video-player-box w-full" ref="videoPlayer"
+                                              :options="videoOptions"
+                                              :playsinline="true"
+                                >
+                                </video-player>
+                            @end
+                            </div>
+
                         </div>
+
                     @end
                     {{-- ! Vidéo ! --}}
 

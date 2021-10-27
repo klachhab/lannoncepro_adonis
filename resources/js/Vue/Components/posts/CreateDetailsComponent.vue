@@ -61,6 +61,7 @@ export default {
                     this.form.video_link.replace('com/video/', 'com/embed/video/') :
                     this.form.video_link.includes('vimeo') ? this.form.video_link.replace('//vimeo.com/',
                         '//player.vimeo.com/video/') + '?title=0&portrait=0' : null;
+
         },
 
         description(){
@@ -101,6 +102,8 @@ export default {
 
 
         async save(){
+            // console.log(this.form.video_link)
+            // return
 
             this.saving = true
             const form = new FormData
@@ -118,7 +121,7 @@ export default {
             form.append('video_type', this.form.video_type)
 
             if (this.form.video_link){
-                form.append('video_link',this.videoLink)
+                form.append('video_link',this.form.video_type === "iframe" ? this.videoLink : this.form.video_link)
             }
 
             if (this.same_city === 'not_same'){
@@ -139,23 +142,37 @@ export default {
             })
                 .then( response => {
                     this.saving = false
+                    console.log(response.data)
 
                     if (response.data.success){
                         window.location.replace(`/annonces/${response.data.post.slug}`)
                     }
 
                     else  {
-                        alert(
-                            `Une erreur est survenu lors de la création de votre annonce.
-                            ${response.data}
-                            `
-                        )
-                        this.saving = false
+                        this.$swal({
+                            icon: "error",
+                            title: "Erreur",
+                            text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
+                                `Merci de contacter notre support.`
+                            // + `${response.data}`
+                        }).then( () => {
+                            window.location.replace('/')
+                        })
+                        // this.saving = false
                     }
                 })
                 .catch( error => {
-                    this.saving = false
-                    alert(`Une erreur est survenu lors de la création de votre annonce. ${error}`)
+                    // this.saving = false
+
+                    this.$swal({
+                        icon: "error",
+                        title: "Erreur",
+                        text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
+                            `Merci de contacter notre support.`
+                        // + `${error}`
+                    }).then( () => {
+                        window.location.replace('/')
+                    })
                 })
 
         },

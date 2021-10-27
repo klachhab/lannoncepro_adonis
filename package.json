@@ -25,6 +25,7 @@
     "tailwindcss": "^2.2.16",
     "typescript": "~4.2",
     "url-loader": "^4.1.1",
+    "video.js": "^7.15.4",
     "vue-loader": "^15.9.8",
     "vue-template-compiler": "^2.6.14",
     "youch": "^2.2.2",
@@ -46,6 +47,7 @@
     "@headlessui/vue": "^1.4.1",
     "@heroicons/vue": "^1.0.5",
     "@svg-maps/france.departments": "^1.0.1",
+    "@tailwindcss/aspect-ratio": "^0.3.0",
     "@tailwindcss/forms": "^0.3.4",
     "@vue-hero-icons/outline": "^1.7.2",
     "@vue-hero-icons/solid": "^1.7.2",
@@ -70,6 +72,7 @@
     "vue-star-rating": "^1.7.0",
     "vue-sweetalert2": "^5.0.2",
     "vue-tailwind": "^2.5.0",
+    "vue-video-player": "^5.0.2",
     "vuelidate": "^0.7.6",
     "vueperslides": "^2.15.2",
     "vuex": "^3.6.2"

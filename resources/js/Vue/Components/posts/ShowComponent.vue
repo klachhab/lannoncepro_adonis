@@ -2,14 +2,18 @@
 import StarRating from 'vue-star-rating'
 import ModalBox from '../Layouts/ModalBox'
 import {mapMutations} from "vuex";
+import 'video.js/dist/video-js.css'
+
+import { videoPlayer } from 'vue-video-player'
 
 export default {
     name: "Create",
     components : {
         StarRating,
         ModalBox,
+        videoPlayer
     },
-    props: ['favourite', 'add_review', 'add_report', 'post_slug', 'user_name'],
+    props: ['favourite', 'add_review', 'add_report', 'post_slug', 'user_name', 'local_video_src'],
     data(){
         return {
 
@@ -45,6 +49,19 @@ export default {
             reviews_avg: 0,
 
             activeModal: false,
+
+            // --------------------------
+            videoOptions: {
+                autoplay: false,
+                controls: true,
+                language: 'en',
+                fluid: true,
+                sources: [{
+                    type: "video/mp4",
+                    src: this.local_video_src
+                }],
+
+            }
 
         }
     },
