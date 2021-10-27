@@ -1,4 +1,5 @@
 @layout('layouts/master')
+@set('title', post.title)
 
 @section('content')
     @set('authenticated', await auth.use('web').check().then(checked => {return checked}))
@@ -164,8 +165,7 @@
                         {{-- ! Favourites ! --}}
 
                         {{-- Add report --}}
-                        <a href="#" v-if="can_add_report"
-                           class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500">
+                        <a href="#" class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500">
                             <i class="fas fa-exclamation-circle text-yellow-300 mr-3"></i>
 
                             <span @click.prevent="modal('report')"

@@ -87,8 +87,18 @@ export default {
             'showModal'
         ]),
 
-        modal(report_type){
-            this.showModal({ modal_type: report_type, show: true})
+        modal(type){
+            if (type === "report" && !this.can_add_report) {
+
+                this.$swal({
+                    icon: "error",
+                    title: "Vous avez déjà signalé cette annonce.",
+                    // text: 'Vous avez déjà signalé cette annonce.'
+                })
+
+            }
+
+            else this.showModal({ modal_type: type, show: true})
         },
 
         hideModal(){
