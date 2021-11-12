@@ -13,7 +13,8 @@ export default {
         ModalBox,
         videoPlayer
     },
-    props: ['favourite', 'add_review', 'add_report', 'post_slug', 'user_name', 'local_video_src'],
+    props: ['favourite', 'add_review', 'add_report', 'post_slug', 'user_name', 'user_email', 'local_video_src'],
+
     data(){
         return {
 
@@ -22,7 +23,7 @@ export default {
 
             field_class: {
                 has_err: "border-red-300 focus:border-red-300 ring-red-200 ring ring-opacity-50 focus:ring-red-200 focus:ring focus:ring-opacity-50",
-                normal: "border-gray-300 focus:border-blue-400 focus:ring-blue-300",
+                normal: `border-gray-300 focus:border-blue-400 focus:ring-blue-300`,
             },
 
             show_phone: false,
@@ -37,13 +38,21 @@ export default {
 
             review_form: {
                 rate: 0,
-                comment: ''
+                comment: null
             },
 
             report_form: {
                 report_ref: null,
-                comment: ''
+                comment: null
             },
+
+            message_form: {
+                from_name: this.user_name === 'null' ? null : this.user_name,
+                from_email: this.user_email === 'null' ? null : this.user_email,
+                message: null,
+            },
+
+            // --------------------------
 
             reviews: [],
             reviews_avg: 0,
@@ -76,10 +85,23 @@ export default {
                 maximumFractionDigits: 1,
             })
         },
+
     },
 
     mounted() {
         this.get_reviews()
+
+        // console.dir(this.$refs.name_input)
+        if (this.user_name !== 'null') {
+            this.$refs.name_input.classList.add('bg-gray-100', 'text-gray-400')
+            this.$refs.name_input.disabled = true
+        }
+
+        if (this.user_email !== 'null') {
+            this.$refs.email_input.classList.add('bg-gray-100', 'text-gray-400')
+            this.$refs.email_input.disabled = true
+        }
+
     },
 
     methods: {
@@ -88,12 +110,13 @@ export default {
         ]),
 
         modal(type){
+
             if (type === "report" && !this.can_add_report) {
 
                 this.$swal({
                     icon: "error",
-                    title: "Vous avez déjà signalé cette annonce.",
-                    // text: 'Vous avez déjà signalé cette annonce.'
+                    title: "Demande non prise en compte",
+                    text: 'Vous avez déjà signalé cette annonce.'
                 })
 
             }
@@ -102,10 +125,19 @@ export default {
         },
 
         hideModal(){
+
             this.review_form.rate = 0
-            this.review_form.comment = ""
+            this.review_form.comment = null
+
             this.report_form.report_ref = null
-            this.report_form.comment = ""
+            this.report_form.comment = null
+
+            this.message_form.message = null
+            this.message_form.from_email = this.user_email === 'null' ? null : this.message_form.from_email
+            this.message_form.from_name = this.user_name === 'null' ? null : this.message_form.from_name
+
+            const name_input = this.$refs.name_input
+            const email_input = this.$refs.email_input
 
             // console.log(this.report_form)
             // return
@@ -288,6 +320,47 @@ export default {
                 })
         },
 
+
+        messageComment2html($event){
+            this.message_form.message = $event.target.value.replace(/\n/g, '<br/>')
+        },
+
+        async send_message() {
+            const form = new FormData
+            form.append('message', this.message_form.message)
+            form.append('from_name', this.message_form.from_name)
+            form.append('from_email', this.message_form.from_email)
+
+            await axios.post(`/api/annonces/${ this.post_slug }/send_message`, form)
+                .then(result => {
+
+                    console.log(result.data)
+
+                    if (result.data.success) {
+                        this.$swal({
+                            icon: "success",
+                            title: "Message envoyé",
+                            text: 'Votre message a été envoyé avec succès pour étude'
+                        }).then(() => {
+
+                            this.can_add_report   = false
+                            this.hideModal()
+                        })
+
+                    }
+                    else {
+                        this.$swal({
+                            icon: "error",
+                            title: "Erreur",
+                            text: 'Une erreur est survenue lors de l\'envoi de votre message.\n' +
+                                `Merci de contacter notre support.`
+                            // + `${result.data}`
+                        })
+                    }
+
+
+                })
+        },
     }
 }
 </script>

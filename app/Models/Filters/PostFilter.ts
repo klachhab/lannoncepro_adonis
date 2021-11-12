@@ -26,7 +26,7 @@ export default class PostFilter extends BaseModelFilter {
     this.post.where('title', 'Like', `%${title}%`)
   }
 
-  public ct(city: string) {
+  public cty(city: string) {
     this.post.whereHas('city', cty => {
       cty.where('code', city)
     })

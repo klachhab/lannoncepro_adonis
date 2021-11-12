@@ -10,6 +10,7 @@
                add_report="{{ fav_revs.iHaveReps }}"
                post_slug="{{ post.slug }}"
                user_name="{{ user_name }}"
+               user_email="{{ user_email }}"
                local_video_src="{{ post.video_type == "local" ? post.video_link : "" }}"
                style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
     >
@@ -27,7 +28,7 @@
             {{------------------ Post Data ------------------}}
             <div class="w-full flex justify-center p-4 grid
                         lg:grid-cols-5 grid-cols-1
-                        lg:gap-x-10 gap-y-10
+                        lg:gap-x-10 lg:gap-y-10 gap-y-5
                         mx-auto mt-10
                         bg-white rounded"
                  :class="container"
@@ -58,10 +59,10 @@
                                     {{ post.creation_date }}
                                 </span>
 
-                                <span class="flex items-center text-sm text-gray-400 font-light">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                <span class="flex text-sm text-gray-400 font-light">
+                                    <i class="fas fa-map-marker-alt mr-2 mt-1"></i>
 
-                                    <a href="#"
+                                    <a href="/annonces/?cty={{ post.city.code }}"
                                        class="hover:text-blue-600 transition-all duration-200 ease-in-out"
                                     >
                                         {{ post.city.name }}
@@ -82,17 +83,21 @@
                 {{-- ! Left side ! --}}
 
                 {{-- Right side --}}
-                <div class="w-full flex self-start grid grid-cols-1
+                <div class="w-full flex self-start grid grid-cols-1 mt-0 lg:mt-5 lg:ml-0 ml-2
                             lg:col-span-2 bg-white"
                 >
                     {{-- User name --}}
                     <div class="flex self-start w-full ">
                         <img src="/images/user.png" width="73px" alt="" class="rounded">
 
-                        <div class="flex self-start grid grid-cols-1 ml-5 mt-2">
-                            <a href="" class="text-base font-semibold">
-                                {{my_post ? 'Moi' : post.user.name}}
-                            </a>
+                        <div class="flex flex-col ml-5">
+
+                            <div class="place-self-start tooltip mb-1" data-tip="Voir le profil">
+                                <a href="" class="text-left text-base font-semibold hover:text-blue-600">
+                                    {{my_post ? 'Moi' : post.user.name}}
+                                </a>
+                            </div>
+
                             <span class="text-sm text-gray-500">
 
                                 Membre depuis le <b>{{post.user.membre_depuis }}</b>
@@ -104,7 +109,8 @@
 
                     {{-- Buttons --}}
                     <div class="flex w-full mt-3">
-                        <button type="button" class="flex items-center py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
+                        <button type="button"
+                                class="flex md:flex-row flex-col items-center py-1.5 lg:px-2 px-1.5 cursor-pointer text-white text-sm rounded bg-green-500
                                     transition duration-300 ease-in-out
                                     border-transparent border hover:bg-transparent
                                     hover:text-green-500 hover:border-green-500"
@@ -122,24 +128,104 @@
                             </span>
                         </button>
 
-                        <button type="button"
-                                class="flex items-center ml-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-blue-500
-                                    transition duration-300 ease-in-out
-                                    border-transparent border hover:bg-transparent hover:text-blue-500 hover:border-blue-500"
+                        @if(!authenticated || !my_post)
+                            <button type="button"
+                                    class="flex md:flex-row flex-col items-center ml-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-blue-500
+                                        transition duration-300 ease-in-out
+                                        border-transparent border hover:bg-transparent hover:text-blue-500 hover:border-blue-500"
+                                    @click.prevent="modal('message')"
 
-                        >
-                            <i class="fas fa-envelope mr-2"></i>
+                            >
+                                <i class="fas fa-envelope mr-2"></i>
 
-                            <span class="font-light">
-                                Envoyer un message
-                            </span>
-                        </button>
+                                <span class="font-light">
+                                    Envoyer un message
+                                </span>
+                            </button>
+                            {{-- Add report Form --}}
+                            <modal-box name="message">
+                                <template #header>
+                                    <h4 class="text-xl font-normal">
+                                        Envoyer un message
+                                    </h4>
+                                </template>
+
+
+                                <template #body>
+
+                                    <div class="flex items-center self-start">
+
+                                        <input ref="name_input" type="text" class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                               :class="field_class.normal"
+                                               placeholder="Nom"
+                                               v-model="message_form.from_name"
+                                        />
+
+                                    </div>
+
+                                    <div class="flex items-center self-start mt-4">
+
+                                        <input ref="email_input" type="email" class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                               :class="field_class.normal"
+                                               placeholder="E-mail"
+                                               v-model="message_form.from_email"
+                                        />
+
+                                    </div>
+
+
+                                    <label class="block mt-4">
+
+                                        <textarea
+                                                class="block rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 w-full"
+                                                rows="4"
+                                                v-model="message_form.message"
+                                                placeholder="Commentaire"
+                                                @change="reportComment2html">
+                                        </textarea>
+
+                                    </label>
+
+                                </template>
+
+
+                                <template #footer>
+                                    <div class="flex">
+                                        <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded bg-green-500
+                                                    transition duration-300 ease-in-out
+                                                    border-transparent border hover:bg-transparent
+                                                    hover:text-green-500 hover:border-green-500"
+
+                                                @click="send_message"
+                                        >
+                                                <span>
+                                                    Envoyer
+                                                </span>
+
+                                        </button>
+
+                                        <button type="button" class="flex items-center place-self-start mt-2 py-1.5 px-2 cursor-pointer text-white text-sm rounded
+                                                            bg-red-500 transition duration-300 ease-in-out
+                                                            border-transparent border hover:bg-transparent
+                                                            hover:text-red-500 hover:border-red-500 ml-2"
+                                                @click="hideModal"
+                                        >
+                                                <span>
+                                                    Annuler
+                                                </span>
+                                        </button>
+                                    </div>
+                                </template>
+
+                            </modal-box>
+                            {{-- ! Add report Form ! --}}
+                        @end
 
                     </div>
                     {{-- ! Buttons ! --}}
 
                     {{-- Delevery --}}
-                    <div class="flex items-center w-full mt-10 text-gray-500">
+                    <div class="flex items-center w-full mt-6 text-gray-500">
                         <i class="fas fa-shopping-cart mr-3"></i>
 
                         <span class="font-normal">Mode de livraison :&nbsp;</span>
@@ -147,13 +233,13 @@
                     </div>
                     {{-- ! Delevery ! --}}
 
-                    @if(await auth.check().then(checked => {return checked}) && !my_post)
+                    @if(authenticated && !my_post)
                         {{-- Favourites --}}
-                        <a href="#"
-                           class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500"
+                    <div class="flex items-center w-full mt-6 text-gray-500">
+                        <a href="#" class="transition duration-300 ease-in-out hover:text-blue-500"
                            @click.prevent="addToFav"
                         >
-                            <i class=" fa-heart text-red-500 mr-3"
+                            <i class=" fa-heart text-red-500 mr-2"
                                :class="isMyFavourite ? 'fas' : 'far'"
                             ></i>
                             <span @click.prevent
@@ -162,19 +248,23 @@
                                 Ajouter aux favoris
                             </span>
                         </a>
+                    </div>
                         {{-- ! Favourites ! --}}
 
                         {{-- Add report --}}
-                        <a href="#" class="flex items-center w-full mt-4 text-gray-500 transition duration-300 ease-in-out hover:text-blue-500">
-                            <i class="fas fa-exclamation-circle text-yellow-300 mr-3"></i>
-
-                            <span @click.prevent="modal('report')"
-                                  class="font-normal"
+                        <div class="flex items-center w-full mt-6 text-gray-500">
+                            <a href="#" class="transition duration-300 ease-in-out hover:text-blue-500"
+                               @click.prevent="modal('report')"
                             >
-                                Signaler un abus
-                                <br>
-                            </span>
-                        </a>
+                                <i class="fas fa-exclamation-circle text-yellow-300 mr-2"></i>
+
+                                <span class="font-normal"
+                                >
+                                    Signaler un abus
+                                    <br>
+                                </span>
+                            </a>
+                        </div>
 
                             {{-- Add report Form --}}
                             <modal-box name="report">
@@ -249,6 +339,7 @@
 
                             </modal-box>
                             {{-- ! Add report Form ! --}}
+
                         {{-- ! Add report ! --}}
                         @end
                 </div>

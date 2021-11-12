@@ -7,7 +7,7 @@ import {
     belongsTo,
     column, computed,
     HasMany,
-    hasMany, ManyToMany, manyToMany
+    hasMany, HasManyThrough, hasManyThrough, ManyToMany, manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
 import Hash from "@ioc:Adonis/Core/Hash";
 import City from "App/Models/City";
@@ -15,6 +15,7 @@ import Post from "App/Models/Post/Post";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import Encryption from "@ioc:Adonis/Core/Encryption";
+import Message from "App/Models/Message";
 
 export default class User extends compose(BaseModel, SoftDeletes) {
 
@@ -116,6 +117,15 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     })
     public reports: ManyToMany<typeof Post>
 
+    @hasMany(() => Message, {})
+    public sent_messages: HasMany<typeof Message>
+
+    @hasManyThrough([
+        () => Message,
+        () => Post
+    ])
+    public received_messages: HasManyThrough<typeof Message>
+
 // Hooks -------------------------------------
 
     @beforeCreate()
@@ -129,11 +139,6 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @afterDelete()
     public static async deleteRelated(user: User) {
         const posts = await user.related('posts').query()
-
-        // await user.related('favourites').detach()
-        // await user.related('reports').detach()
-        // await user.related('reviews').detach()
-
         posts.forEach( (post: Post) => {
             post.delete()
         })

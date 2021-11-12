@@ -17,6 +17,7 @@ import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import {Filterable} from '@ioc:Adonis/Addons/LucidFilter';
 import PostFilter from "App/Models/Filters/PostFilter";
+import Message from "App/Models/Message";
 
 export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
@@ -82,7 +83,6 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     @column({serializeAs: null})
     public deliveryModeId: number
 
-
     @column.dateTime({autoCreate: true, serializeAs: null})
     public createdAt: DateTime
 
@@ -103,7 +103,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public get prix(){
         return this.price ? this.price.toLocaleString('fr', {
             minimumFractionDigits: 2,
-        }) + ' €' : "Non indiquer"
+        }) + ' €' : null
     }
 
     @computed()
@@ -133,6 +133,9 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     @hasMany(() => PostGallery)
     public images: HasMany<typeof PostGallery>
+
+    @hasMany(() => Message)
+    public messages: HasMany<typeof Message>
 
 
     @manyToMany(() => User, {

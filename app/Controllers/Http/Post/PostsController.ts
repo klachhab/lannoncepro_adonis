@@ -6,7 +6,6 @@ import PostValidator from "App/Validators/Post/PostValidator";
 import {Exception} from "@poppinss/utils";
 import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
 import User from "App/Models/User";
-import ReportValidator from "App/Validators/Post/ReportValidator";
 import Category from "App/Models/Category";
 import DeliveryMode from "App/Models/Post/DeliveryMode";
 import Department from "App/Models/Department";
@@ -20,7 +19,7 @@ export default class PostsController {
 
     public async index({request}: HttpContextContract) {
         return await Post.filter(request.qs())
-            .paginate(1, 20)
+            .paginate(request.qs().p, 20)
     }
 
     public async create({view}: HttpContextContract) {
@@ -243,9 +242,7 @@ export default class PostsController {
             .preload('user', user => {
                 user.select('title', 'name', 'phone', 'is_pro', 'username', 'created_at')
             })
-            .preload('city', city => {
-                city.select('name', 'departmentId')
-            })
+            .preload('city')
             .preload('favourites', favourites => {
                 favourites.select('created_at')
             })
@@ -258,7 +255,6 @@ export default class PostsController {
             .firstOrFail()
 
             .then(async post => {
-
                 const authenticated = await auth.check()
                     .then(async checked => {
                         return checked;
@@ -270,12 +266,12 @@ export default class PostsController {
                     })
 
                 const user = auth.user as User
+
                 // return {
                 //     reviews: post.reviews.map(fav => fav.id),
                 //     reports: post.reports.map(fav => fav.id),
                 //     user
                 // }
-
 
                 const favourites = post.favourites.map(fav => fav.id)
                 const reviews = post.reviews.map(rev => rev.id)
@@ -299,10 +295,18 @@ export default class PostsController {
                     }
                 }
 
+                // return {
+                //     report_types,
+                //     post,
+                //     user_name: authenticated ? user.name : null,
+                //     fav_revs
+                // }
+
                 return view.render('posts/show', {
                     report_types,
                     post,
                     user_name: authenticated ? user.name : null,
+                    user_email: authenticated ? user.email : null,
                     fav_revs
                 })
 
@@ -702,7 +706,7 @@ export default class PostsController {
     }
 
 
-    public async detachReview({auth, params}: HttpContextContract){
+    /*public async detachReview({auth, params}: HttpContextContract){
 
         return await auth.check()
             .then(async authenticated => {
@@ -804,8 +808,7 @@ export default class PostsController {
             })
 
     }
-
-
+*/
 
     public async addReport({auth, params, request}: HttpContextContract) {
 
@@ -964,6 +967,49 @@ export default class PostsController {
             .catch((e: ValidationException) => {
                 return e.messages
             })*/
+    }
+
+
+    public async sendMessage({params, request}: HttpContextContract){
+
+        return await Post.query()
+            .where('slug', params.slug)
+            .preload('user', user => {
+                user.preload('received_messages')
+                    .select('email')
+            })
+            .select('id', 'user_id')
+            .firstOrFail()
+            .then( async post => {
+                // return post
+                return await post.related('messages').create({
+                    message: request.all().message,
+                    from_name: request.all().from_name,
+                    from_email: request.all().from_email,
+                    direction: "from_user",
+                })
+                    .then( () => {
+                        return {
+                            success: true,
+                        }
+                    })
+                    .catch(err => {
+                        return {
+                            success: false,
+                            controller: "Post/PostsController",
+                            method: "sendMessage",
+                            error: err.message
+                        }
+                    })
+            })
+            .catch((err: Exception) => {
+                return {
+                    success: false,
+                    controller: "Post/PostsController",
+                    method: "sendMessage",
+                    error: err.message
+                }
+            })
     }
 
 }

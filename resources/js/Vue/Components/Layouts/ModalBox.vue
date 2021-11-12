@@ -4,12 +4,14 @@
          :class="show_modal.modal_type === name? '': 'hidden'"
          @click.self="showModal({ modal_type: '', show: false})"
     >
-        <div class="bg-white py-2 rounded-md shadow-xl xl:w-1/3 lg:w-2/3 md:3/4">
+        <div class="bg-white py-2 rounded-md shadow-xl xl:w-1/3 md:w-2/3">
             <div class="flex justify-between items-center border-b-0.5 border-gray-200 mt-2 pb-2 px-8">
 
                 <slot name="header">Header</slot>
 
-                <svg class="h-6 w-6 cursor-pointer p-1 hover:bg-gray-300 rounded-full transition-all duration-100 ease-in-out" viewBox="0 0 20 20">
+                <svg class="h-6 w-6 cursor-pointer p-1 hover:bg-gray-300 rounded-full transition-all duration-100 ease-in-out" viewBox="0 0 20 20"
+                     @click.prevent="showModal({ modal_type: '', show: false})"
+                >
                     <path fill-rule="evenodd"
                           d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                           clip-rule="evenodd"></path>
