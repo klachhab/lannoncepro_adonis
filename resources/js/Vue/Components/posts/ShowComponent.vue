@@ -91,15 +91,12 @@ export default {
     mounted() {
         this.get_reviews()
 
-        // console.dir(this.$refs.name_input)
         if (this.user_name !== 'null') {
-            this.$refs.name_input.classList.add('bg-gray-100', 'text-gray-400')
-            this.$refs.name_input.disabled = true
+            this.disableInput(this.$refs.name_input)
         }
 
         if (this.user_email !== 'null') {
-            this.$refs.email_input.classList.add('bg-gray-100', 'text-gray-400')
-            this.$refs.email_input.disabled = true
+            this.disableInput(this.$refs.email_input)
         }
 
     },
@@ -131,16 +128,6 @@ export default {
 
             this.report_form.report_ref = null
             this.report_form.comment = null
-
-            this.message_form.message = null
-            this.message_form.from_email = this.user_email === 'null' ? null : this.message_form.from_email
-            this.message_form.from_name = this.user_name === 'null' ? null : this.message_form.from_name
-
-            const name_input = this.$refs.name_input
-            const email_input = this.$refs.email_input
-
-            // console.log(this.report_form)
-            // return
 
             this.showModal({ modal_type: '', show: false})
         },
@@ -325,29 +312,43 @@ export default {
             this.message_form.message = $event.target.value.replace(/\n/g, '<br/>')
         },
 
+
+        disableInput(...inputs) {
+            inputs.forEach(input => {
+                input.classList.add('bg-gray-100', 'text-gray-400')
+                input.disabled = true
+            })
+        },
+
         async send_message() {
+
             const form = new FormData
             form.append('message', this.message_form.message)
             form.append('from_name', this.message_form.from_name)
             form.append('from_email', this.message_form.from_email)
 
+
             await axios.post(`/api/annonces/${ this.post_slug }/send_message`, form)
                 .then(result => {
 
-                    console.log(result.data)
-
                     if (result.data.success) {
+
                         this.$swal({
                             icon: "success",
                             title: "Message envoyé",
                             text: 'Votre message a été envoyé avec succès pour étude'
                         }).then(() => {
+                            const conversation = result.data.conversation
 
-                            this.can_add_report   = false
+                            this.message_form.message = null
+                            this.message_form.from_name = conversation.from_name
+                            this.message_form.from_email = conversation.from_email
+
                             this.hideModal()
                         })
 
                     }
+
                     else {
                         this.$swal({
                             icon: "error",

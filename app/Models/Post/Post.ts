@@ -17,7 +17,7 @@ import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import {Filterable} from '@ioc:Adonis/Addons/LucidFilter';
 import PostFilter from "App/Models/Filters/PostFilter";
-import Message from "App/Models/Message";
+import Conversation from "App/Models/Conversation";
 
 export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
@@ -131,12 +131,15 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     @belongsTo(() => DeliveryMode)
     public deliveryMode: BelongsTo<typeof DeliveryMode>
 
+    // -----------------------------------------------
+
     @hasMany(() => PostGallery)
     public images: HasMany<typeof PostGallery>
 
-    @hasMany(() => Message)
-    public messages: HasMany<typeof Message>
+    @hasMany(() => Conversation)
+    public conversations: HasMany<typeof Conversation>
 
+    // -----------------------------------------------
 
     @manyToMany(() => User, {
         pivotTable: "favourites",

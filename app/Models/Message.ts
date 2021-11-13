@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import {BaseModel, BelongsTo, belongsTo, column, computed} from '@ioc:Adonis/Lucid/Orm'
-import Post from "App/Models/Post/Post";
+import Conversation from "App/Models/Conversation";
 
 export default class Message extends BaseModel {
   @column({ isPrimary: true })
@@ -10,16 +10,10 @@ export default class Message extends BaseModel {
   public message: string
 
   @column()
-  public from_name: string
-
-  @column()
-  public from_email: string
-
-  @column()
   public direction: string
 
   @column({serializeAs: null})
-  public postId: number
+  public conversationId: number
 
   @column.dateTime({ autoCreate: true, serializeAs: null })
   public createdAt: DateTime
@@ -33,8 +27,8 @@ export default class Message extends BaseModel {
   }
   // Relationships -------------------------------------
 
-  @belongsTo(() => Post)
-  public via_post: BelongsTo<typeof Post>
+  @belongsTo(() => Conversation)
+  public conversation: BelongsTo<typeof Conversation>
 
   // @hasManyThrough([
   //   () => User,

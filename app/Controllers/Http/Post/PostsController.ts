@@ -12,6 +12,7 @@ import Department from "App/Models/Department";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import {DateTime} from "luxon";
 import ReportType from "App/Models/Post/ReportType";
+import Conversation from "App/Models/Conversation";
 
 export default class PostsController {
 
@@ -706,110 +707,6 @@ export default class PostsController {
     }
 
 
-    /*public async detachReview({auth, params}: HttpContextContract){
-
-        return await auth.check()
-            .then(async authenticated => {
-
-                if(authenticated){
-                    const user = auth.user as User
-                    return await Post.query()
-                        .where('slug', params.slug)
-                        .select('id')
-                        .firstOrFail()
-                        .then( post => {
-                            return post.related('reviews')
-                                .detach([user.id])
-                                .then( () => {
-                                    return {
-                                        success: true,
-                                    }
-                                })
-                                .catch(err => {
-                                    return {
-                                        success: false,
-                                        controller: "Post/PostsController",
-                                        method: "detachReview",
-                                        error: err.message
-                                    }
-                                })
-                        })
-                        .catch(err => {
-                            return {
-                                success: false,
-                                controller: "Post/PostsController",
-                                method: "detachReview",
-                                error: err.message
-                            }
-                        })
-
-
-                    return user.related('reviews')
-
-
-                    return await Post.query()
-                        .where('slug', params.slug)
-                        .where('is_valid', 1)
-                        .preload('reviews', review => {
-                            review.select()
-                        })
-                        .firstOrFail()
-                        .then( async post => {
-                            const user = auth.user as User
-                            const reviews_ratings = post.reviews.map(revs => revs.$extras.pivot_rating);
-                            // reviews_ratings.push(Number.parseInt(request.all().rating))
-
-                            const reviews_length = reviews_ratings.length - 1;
-
-                            return post.related('reviews')
-                                .detach([user.id])
-                                .then( () => {
-                                    return {
-                                        success: true,
-                                        reviews_avg: reviews_ratings.reduce( (a,b) => a + b) / reviews_length,
-                                    }
-
-                                })
-                                .catch(err => {
-                                    return {
-                                        success: false,
-                                        controller: "Post/PostsController",
-                                        method: "detachReview",
-                                        error: `find_post : ${err.message}`
-                                    }
-                                })
-
-                        })
-                        .catch(err => {
-                            return {
-                                success: false,
-                                controller: "Post/PostsController",
-                                method: "detachReview",
-                                error: err.message
-                            }
-                        })
-
-                }
-
-                else return {
-                    success: false,
-                    controller: "Post/PostsController",
-                    method: "detachReview",
-                    error: "not_authenticated"
-                }
-            })
-            .catch((err: AuthenticationException) => {
-                return {
-                    success: false,
-                    controller: "Post/PostsController",
-                    method: "detachReview",
-                    error: err.message
-                }
-            })
-
-    }
-*/
-
     public async addReport({auth, params, request}: HttpContextContract) {
 
         return await auth.check()
@@ -971,36 +868,85 @@ export default class PostsController {
 
 
     public async sendMessage({params, request}: HttpContextContract){
+        // return request.all().conversation_key ? "exists" : "doesn't exist"
 
         return await Post.query()
             .where('slug', params.slug)
-            .preload('user', user => {
-                user.preload('received_messages')
-                    .select('email')
-            })
             .select('id', 'user_id')
             .firstOrFail()
             .then( async post => {
                 // return post
-                return await post.related('messages').create({
-                    message: request.all().message,
-                    from_name: request.all().from_name,
-                    from_email: request.all().from_email,
-                    direction: "from_user",
-                })
-                    .then( () => {
-                        return {
-                            success: true,
-                        }
+                const post_conversation: string | Conversation = await post.related('conversations')
+                    .query()
+                    .where('from_email', request.all().from_email)
+                    .preload('messages')
+                    .firstOrFail()
+                    .then( conversation => {
+                        return conversation
                     })
-                    .catch(err => {
-                        return {
-                            success: false,
-                            controller: "Post/PostsController",
-                            method: "sendMessage",
-                            error: err.message
-                        }
+                    .catch( (err: Exception) => {
+                        return err.message
                     })
+
+                // return post_conversations
+
+                if(post_conversation instanceof Conversation) {
+                    return await post_conversation.related('messages')
+                        .create({
+                            message: request.all().message,
+                        })
+                        .then(() => {
+                            return {
+                                success: true,
+                                conversation: post_conversation,
+                            }
+                        })
+                        .catch(err => {
+                            return {
+                                success: false,
+                                controller: "Post/PostsController",
+                                method: "sendMessage_conversation",
+                                error: err.message
+                            }
+                        })
+
+                }
+                else {
+                    return await post.related('conversations')
+                        .create({
+                            from_name: request.all().from_name,
+                            from_email: request.all().from_email,
+                        })
+                        .then( async conversation => {
+
+                            return conversation.related('messages')
+                                .create({
+                                    message: request.all().message,
+                                })
+                                .then( () => {
+                                    return {
+                                        success: true,
+                                        conversation,
+                                    }
+                                })
+                                .catch(err => {
+                                    return {
+                                        success: false,
+                                        controller: "Post/PostsController",
+                                        method: "sendMessage_conversation",
+                                        error: err.message
+                                    }
+                                })
+                        })
+                        .catch(err => {
+                            return {
+                                success: false,
+                                controller: "Post/PostsController",
+                                method: "sendMessage_conversation",
+                                error: err.message
+                            }
+                        })
+                }
             })
             .catch((err: Exception) => {
                 return {

@@ -15,7 +15,7 @@ import Post from "App/Models/Post/Post";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import Encryption from "@ioc:Adonis/Core/Encryption";
-import Message from "App/Models/Message";
+import Conversation from "App/Models/Conversation";
 
 export default class User extends compose(BaseModel, SoftDeletes) {
 
@@ -117,14 +117,11 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     })
     public reports: ManyToMany<typeof Post>
 
-    @hasMany(() => Message, {})
-    public sent_messages: HasMany<typeof Message>
-
     @hasManyThrough([
-        () => Message,
+        () => Conversation,
         () => Post
     ])
-    public received_messages: HasManyThrough<typeof Message>
+    public conversations: HasManyThrough<typeof Conversation>
 
 // Hooks -------------------------------------
 

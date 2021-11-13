@@ -2,7 +2,7 @@
 @set('title', post.title)
 
 @section('content')
-    @set('authenticated', await auth.use('web').check().then(checked => {return checked}))
+    @set('authenticated', await auth.check().then(checked => {return checked}))
     @set('my_post', post.user.id == auth.user?.id)
     <show-post inline-template
                favourite="{{ fav_revs.isMyFavourite }}"
@@ -18,11 +18,7 @@
         <div class="grid grid-cols-1 max-h-full">
 
             <div class="h-full w-full mx-auto mt-14" :class="container">
-                <span class="text-white"><a href="/">Accueil</a> / nouvelle annonce</span>
-                <br>
-                <span class="text-white text-3xl font-semibold">
-                    Créer une annonce
-                </span>
+                <span class="text-white"><a href="/">Accueil</a> / {{ post.title }}</span>
             </div>
 
             {{------------------ Post Data ------------------}}

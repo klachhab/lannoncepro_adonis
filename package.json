@@ -63,6 +63,7 @@
     "phc-bcrypt": "^1.0.7",
     "popper.js": "^1.16.1",
     "proxy-addr": "^2.0.7",
+    "randomstring": "^1.2.1",
     "reflect-metadata": "^0.1.13",
     "source-map-support": "^0.5.19",
     "swiper": "^5.4.5",
