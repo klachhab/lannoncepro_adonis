@@ -308,7 +308,7 @@ export default {
         },
 
 
-        messageComment2html($event){
+        message2html($event){
             this.message_form.message = $event.target.value.replace(/\n/g, '<br/>')
         },
 
