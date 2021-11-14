@@ -129,6 +129,9 @@ export default {
             this.report_form.report_ref = null
             this.report_form.comment = null
 
+            this.message_form.message = null
+            this.$refs.text_message.value = null
+
             this.showModal({ modal_type: '', show: false})
         },
 

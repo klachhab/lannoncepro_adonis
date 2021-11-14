@@ -226,7 +226,7 @@ export default class PostsController {
     }
 
 
-    public async show({params, response, view, auth}: HttpContextContract) {
+    public async show({params, view, auth}: HttpContextContract) {
         return await Post.query()
             .where('slug', params.id)
             .andWhere('is_valid', 1)
@@ -896,6 +896,7 @@ export default class PostsController {
                             message: request.all().message,
                         })
                         .then(() => {
+
                             return {
                                 success: true,
                                 conversation: post_conversation,

@@ -65,6 +65,11 @@ Route.group(() => {
         .as('post.create.details')
         .middleware('auth:web')
 
+    // Conversations -------------------------------------
+    Route.get('chatroom', 'ConversationsController.show')
+        .as('chatroom')
+        .middleware('guest')
+
 }).as("web")
 
 
@@ -107,7 +112,11 @@ Route.group(() => {
         Route.post('/is_unique', 'UsersController.is_unique')
             .as('profile.is_unique')
 
-    }).as("users_is_unique").prefix('/profile')
+        Route.get('/chatroom', 'UsersController.conversation')
+            .as('profile_conversation')
+            .middleware('auth:web,api')
+
+    }).as("profile").prefix('/profile')
 
     // Posts ----------------------------------------------------------------------
     Route.group(() => {
@@ -155,4 +164,6 @@ Route.group(() => {
     Route.post('/category', 'CategoriesController.show')
         .as('category.show')
 
-}).prefix('/api').as("api")
+})
+    .prefix('/api')
+    .as("api")

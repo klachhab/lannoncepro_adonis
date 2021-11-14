@@ -9,6 +9,7 @@ export default class Conversations extends BaseSchema {
             table.string('from_name').notNullable()
             table.string('from_email').notNullable()
             table.string('conversation_key').notNullable()
+            table.boolean('read').defaultTo(false)
 
             table.integer('post_id')
                 .unsigned()

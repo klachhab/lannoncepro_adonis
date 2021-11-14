@@ -10,6 +10,7 @@ import {ValidationException} from "@adonisjs/validator/build/src/ValidationExcep
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
+import auth from "Config/auth";
 
 export default class UsersController {
 
@@ -342,6 +343,29 @@ export default class UsersController {
                 }
             })
 
+    }
+
+
+    public async conversation({auth}: HttpContextContract) {
+        const user = auth.user as User
+
+        return user.related('posts')
+            .query()
+            .has('conversations')
+            .preload('conversations', conversations => {
+                conversations.preload('messages')
+            })
+            .preload('images', images => {
+                images.select('path')
+                    .firstOrFail()
+                    .then( image => {
+                        return image
+                    })
+            })
+            .select('slug', 'title', 'user_id', 'id')
+            .then( posts => {
+                return posts
+            })
     }
 
     // For Vue Validator==========================

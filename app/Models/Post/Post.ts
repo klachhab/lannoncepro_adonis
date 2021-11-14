@@ -118,6 +118,12 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
             })
     }
 
+    @computed()
+    public get has_unread_message(){
+        const read_conversations = this.conversations.map(conversation => conversation.read)
+        return read_conversations.includes(0)
+    }
+
 // Relationships -------------------------------------
     @belongsTo(() => Category)
     public category: BelongsTo<typeof Category>

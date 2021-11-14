@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import {BaseModel, beforeCreate, column, computed, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, computed, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import randomstring from "randomstring"
 import Message from "App/Models/Message";
+import Post from "App/Models/Post/Post";
 
 
 export default class Conversation extends BaseModel {
@@ -17,6 +18,9 @@ export default class Conversation extends BaseModel {
   @column()
   public conversationKey: string
 
+  @column()
+  public read: number
+
   @column({serializeAs: null})
   public postId: number
 
@@ -31,8 +35,11 @@ export default class Conversation extends BaseModel {
 
 // Relationships ===============================================
 
-  @hasMany(() => Message, {serializeAs: null})
+  @hasMany(() => Message, )
   public messages: HasMany<typeof Message>
+
+  @belongsTo(() => Post, )
+  public post: BelongsTo<typeof Post>
 
 // Accessors ===================================================
   @computed()
