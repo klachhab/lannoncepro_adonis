@@ -1,0 +1,152 @@
+@layout('layouts/master')
+@set('title', 'Chatroom')
+
+@section('content')
+    @set('conversation', chatroom.conversation)
+    @set('messages', chatroom.conversation.messages)
+    <chatroom inline-template
+              post_slug="{{ conversation.post.slug }}"
+              from_email="{{ conversation.from_email }}" from_name="{{ conversation.from_name }}"
+              conversation_key="{{ chatroom.conversation.conversationKey }}"
+              style="background-image: url('/images/bg/login_bg.png'); background-size: cover;" >
+
+        <div class="grid grid-cols-1 max-h-full">
+            <div class="h-full w-full mx-auto mt-14" :class="container">
+                <span class="text-white"><a href="/">Accueil</a> / Chatroom</span>
+            </div>
+
+            <div class="w-full flex justify-center p-4 grid
+                        lg:grid-cols-5 grid-cols-1
+                        lg:gap-x-10 lg:gap-y-10 gap-y-5
+                        mx-auto mt-10 mb-20"
+                 :class="container"
+            >
+                {{-- Chat --}}
+                <div class="lg:col-span-3 flex self-start justify-center bg-white rounded
+                            grid grid-cols-1 p-2 w-full bg-white">
+
+                    <div class="flex justify-between my-4 ml-4">
+                        <div class="flex w-full place-self-end">
+                            <img src="{{ conversation.post.primary_image }}" alt="" class="rounded h-16 w-16">
+
+                            <div class="flex flex-col ml-5 place-self-start">
+                                <div class="flex items-center">
+
+                                    <a href="/annonces/{{ conversation.post.slug }}" class="mb-1 font-semibold">
+                                        <span>
+                                            {{ conversation.post.title }}
+                                        </span>
+                                    </a>
+
+                                </div>
+
+
+                                <span class="text-sm text-gray-500">
+                                Créée le <b>{{conversation.post.creation_date }}</b>
+                            </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {{-- ChatBox --}}
+                    <div ref="chatbox" class="flex flex-col items-center h-128 bg-blue-50 rounded shadow-inner pt-4 px-4 overflow-auto">
+
+                        <div v-for="(message, index) in messages" :key="index"
+                             :class="message.direction === 'from_seller' ? 'place-self-start mr-4 bg-gray-500 rounded-br-lg ' : 'place-self-end ml-4 bg-blue-500 rounded-bl-lg '"
+                             class="flex flex-col w-3/6 mb-4 rounded-t-lg p-3"
+                        >
+                            <p class="text-white text-sm" v-html="message.message" ></p>
+
+                            <hr class="w-full border-white border-opacity-25 mb-1 mt-4" v-if="message.creation_date"/>
+
+                            <span class="text-opacity-60 text-white text-xs mt-1" v-if="message.creation_date">
+                                @{{ message.creation_date }}
+                            </span>
+
+                        </div>
+
+                        {{-- Show if typinng --}}
+                        <div v-if="typing" class="flex flex-col place-self-start w-3/6 p-3">
+
+                            <span class="text-gray-500 text-sm">
+                                Le vendeur est en train d'écrire ...
+                            </span>
+
+                        </div>
+                        {{-- ! Show if typinng ! --}}
+
+                    </div>
+                    {{-- ! ChatBox ! --}}
+
+                    <div class="flex mt-2 mx-2">
+                        <textarea ref="msg_input" rows="2" placeholder="Tapez quelques lignes décrivant votre bien" style="resize: none"
+                                  class="mr-2 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                  @input="is_typing"
+                        >
+
+                        </textarea>
+
+                        <a href="#" :class="!typing ? 'btn-disabled bg-blue-300':'bg-blue-500'"
+                                class="flex items-center place-self-start py-2 px-7
+                                text-white rounded-md transition delay-100 ease-in-out
+                                hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
+                                disabled="!typing"
+                                @click.prevent="send_message"
+                        >
+                            <span>
+                                Envoyer
+                            </span>
+                        </a>
+                    </div>
+
+                    <div class="flex ">
+
+
+
+                    </div>
+
+                </div>
+                {{-- ! Chat ! --}}
+
+
+                {{-- User name --}}
+                <div class="lg:col-span-2 flex self-start justify-center bg-white rounded
+                            grid grid-cols-1 lg:px-5 p-2 w-full bg-white">
+
+                    <div class="flex self-start w-full my-4">
+                        <img src="/images/user.png" width="73px" class="rounded-full h-16 w-16">
+
+                        <div class="flex flex-col ml-5 place-self-start">
+                            <div class="flex items-center">
+                                <span class="mb-1 font-semibold">
+                                {{ conversation.post.user.name }}
+                                </span>
+
+                                <span class="text-xs text-white bg-green-500 rounded-full py-1 px-2 ml-1">
+                                    En ligne
+                                </span>
+
+                                <span class="text-xs text-white bg-red-500 rounded-full py-1 px-2 ml-1">
+                                    Hors ligne
+                                </span>
+                            </div>
+
+
+                            <span class="text-sm text-gray-500">
+                                Membre depuis le <b>{{conversation.post.user.membre_depuis }}</b>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+                {{-- ! User name ! --}}
+
+            </div>
+
+        </div>
+
+
+    </chatroom>
+
+@endsection

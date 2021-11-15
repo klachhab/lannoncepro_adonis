@@ -11,13 +11,28 @@ export default class ConversationsController {
     public async store({}: HttpContextContract) {
     }
 
-    public async show({request}: HttpContextContract) {
+    public async show({request, view}: HttpContextContract) {
 
-        return await Conversation.query()
+        const chatroom = await Conversation.query()
             .where('conversation_key', request.qs().room_id)
             .preload('messages')
             .preload('post', post => {
-                post.select('slug', 'title')
+                post
+                    .preload('images', images => {
+                        images
+                            .select('path')
+                            .firstOrFail()
+                            .then( image => {
+                                return image
+                            })
+                            .catch( () => {
+                                return null
+                            })
+                    })
+                    .preload('user', user => {
+                    user.select('name', 'title', 'createdAt')
+                })
+                    .select('slug', 'title', 'userId', 'createdAt')
             })
             .firstOrFail()
 
@@ -34,6 +49,17 @@ export default class ConversationsController {
                 }
             })
 
+        if (request.qs().api){
+            return {
+                chatroom,
+                messages: chatroom
+                    .conversation.messages
+            }
+        }
+
+        return view.render('chatroom', {
+            chatroom
+        })
     }
 
     public async destroy({}: HttpContextContract) {

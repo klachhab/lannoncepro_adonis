@@ -81,7 +81,7 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @computed()
     public get membre_depuis(){
         return this.createdAt ? this.createdAt
-            .toFormat("dd LLL yyyy ", {locale: 'fr'})
+            .toFormat("dd LLL yyyy", {locale: 'fr'})
             : null
     }
 

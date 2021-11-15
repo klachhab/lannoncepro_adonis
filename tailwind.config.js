@@ -17,6 +17,11 @@ module.exports = {
             textColor: {
                 'map': "#0072bc",
             },
+
+            height: {
+                '112': '28rem',
+                '128': '32rem',
+            }
         },
     },
     variants: {

@@ -876,7 +876,7 @@ export default class PostsController {
             .firstOrFail()
             .then( async post => {
                 // return post
-                const post_conversation: string | Conversation = await post.related('conversations')
+                const post_conversation: boolean | Conversation = await post.related('conversations')
                     .query()
                     .where('from_email', request.all().from_email)
                     .preload('messages')
@@ -884,8 +884,8 @@ export default class PostsController {
                     .then( conversation => {
                         return conversation
                     })
-                    .catch( (err: Exception) => {
-                        return err.message
+                    .catch( () => {
+                        return false
                     })
 
                 // return post_conversations
@@ -894,12 +894,13 @@ export default class PostsController {
                     return await post_conversation.related('messages')
                         .create({
                             message: request.all().message,
+                            direction: request.all().direction,
                         })
-                        .then(() => {
+                        .then(message => {
 
                             return {
                                 success: true,
-                                conversation: post_conversation,
+                                message,
                             }
                         })
                         .catch(err => {

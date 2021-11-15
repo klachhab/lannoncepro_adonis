@@ -35,6 +35,8 @@ Vue.component('createPost', require('./Vue/Components/posts/CreateComponent').de
 Vue.component('createPostDetails', require('./Vue/Components/posts/CreateDetailsComponent').default);
 Vue.component('showPost', require('./Vue/Components/posts/ShowComponent').default);
 
+Vue.component('chatroom', require('./Vue/Components/ChatroomComponent').default);
+
 // Auth
 Vue.component('login', require('./Vue/Components/auth/LoginComponent').default);
 Vue.component('register', require('./Vue/Components/auth/RegisterComponent').default);

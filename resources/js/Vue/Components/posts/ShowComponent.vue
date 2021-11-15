@@ -3,6 +3,7 @@ import StarRating from 'vue-star-rating'
 import ModalBox from '../Layouts/ModalBox'
 import {mapMutations} from "vuex";
 import 'video.js/dist/video-js.css'
+import {mapState} from "vuex";
 
 import { videoPlayer } from 'vue-video-player'
 
@@ -18,7 +19,7 @@ export default {
     data(){
         return {
 
-            container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
+            // container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
             grid_cols: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 
             field_class: {
@@ -76,6 +77,10 @@ export default {
     },
 
     computed: {
+        ...mapState([
+            'container'
+        ]),
+
         all_reviews(){
             return this.reviews
         },
@@ -327,6 +332,7 @@ export default {
 
             const form = new FormData
             form.append('message', this.message_form.message)
+            form.append('direction', 'from_user')
             form.append('from_name', this.message_form.from_name)
             form.append('from_email', this.message_form.from_email)
 
