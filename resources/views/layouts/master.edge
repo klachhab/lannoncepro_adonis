@@ -18,7 +18,8 @@
 
         <div id="app" class="bg-gray-50">
 
-            <vue-nav check="{{ await auth.check() }}" user="{{ auth.user?.name }}">
+            <vue-nav check="{{ await auth.check().then( logged_in => {return logged_in} ) }}" user="{{ auth.user?.name }}"
+                     unread_messages_count="{{ unread_messages_count }}">
 <!--                <nav class="bg-white dark:bg-gray-800 shadow">
 
                     <div class="max-w-7xl mx-auto md:px-8 px-4">

@@ -17,7 +17,12 @@ export default class PostFilter extends BaseModelFilter {
       .preload('user', user => {
         user.select('id', 'name', 'is_pro')
       })
-      .select('title', 'slug', 'condition',
+      .preload('images', images => {
+        images
+            .select('path')
+            .first()
+      })
+      .select('id','title', 'slug', 'condition',
           'price', 'negotiable', 'user_id', 'category_id'
       )
 

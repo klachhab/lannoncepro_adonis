@@ -3,11 +3,13 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
     name: "Create",
     data(){
         return {
-            container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
+            // container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
             category: null,
             hovered_category: null,
 
@@ -15,6 +17,13 @@ export default {
             sub_category: null,
             hovered_sub_category: null,
         }
+    },
+
+    computed: {
+        ...mapState([
+            'container'
+        ]),
+
     },
 
     methods: {

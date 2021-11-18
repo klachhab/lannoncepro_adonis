@@ -48,9 +48,14 @@ Route.group(() => {
         .except(['create'])
         .middleware({
             edit: 'auth:web,api',
-            // show: 'auth:web',
         })
         .as('profile')
+
+
+    Route.get('/mon-profil/:any?', 'UsersController.show')
+        .middleware('auth:web,api')
+        .where('any', '.*')
+        .as('my_profile')
 
     Route.get('/verify', 'UsersController.verify')
         .as('verify')
@@ -112,8 +117,13 @@ Route.group(() => {
         Route.post('/is_unique', 'UsersController.is_unique')
             .as('profile.is_unique')
 
-        Route.get('/chatroom', 'UsersController.conversation')
+        Route.get('/chatroom', 'ConversationsController.index')
             .as('profile_conversation')
+            .middleware('auth:web,api')
+
+
+        Route.get('/chatroom_messages', 'ConversationsController.show')
+            .as('profile_conversation_messages')
             .middleware('auth:web,api')
 
     }).as("profile").prefix('/profile')

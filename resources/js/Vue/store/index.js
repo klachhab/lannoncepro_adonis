@@ -9,14 +9,19 @@ const store = new Vuex.Store({
         show_modal: {
             modal_type: '',
             show: false
-        }
+        },
+        messages_count: 0
     },
 
     mutations: {
-        showModal(state, value){
+        showModal: (state, value) => {
             state.show_modal = value
             document.documentElement.style.overflow = state.show_modal.show ? 'hidden' : 'auto'
         },
+
+        update_message_count: (state, value) => {
+            state.messages_count = value
+        }
     },
     getters: {
         getModalState(state){

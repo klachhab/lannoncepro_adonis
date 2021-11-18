@@ -1,0 +1,115 @@
+@layout('layouts/master')
+@set('title', 'Profil - ' + user.name)
+
+@section('content')
+    @set('authenticated', await auth.check().then(checked => {return checked}))
+
+    <user-profile inline-template id="container"
+                  unread_messages_count="{{ unread_messages_count }}"
+    >
+
+        <div class="grid grid-cols-1 max-h-full pb-20">
+
+            <div class="h-full w-full mx-auto mt-14" :class="container">
+                <span class="text-white font-light">
+                    <a href="/">Accueil</a> / Profil
+                </span>
+            </div>
+
+
+            {{-- Mobile menu --}}
+<!--            <div class="lg:hidden bg-white lg:hidden flex w-full px-5 pt-5 rounded-t border-t border-gray-200 mx-auto max-w-xs md:max-w-lg sm:max-w-xl mt-10 ">
+                <svg class="fill-current transition-colors duration-200 ease-in-out hover:text-blue-700" width="23px" height="16px" viewBox="0 0 23 16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <path d="M1.6,3.2 L20.8,3.2 C21.6832,3.2 22.4,2.4832 22.4,1.6 C22.4,0.7168 21.6832,0 20.8,0 L1.6,0 C0.7168,0 0,0.7168 0,1.6 C0,2.4832 0.7168,3.2 1.6,3.2 Z M20.8,6.4 L1.6,6.4 C0.7168,6.4 0,7.1168 0,8 C0,8.8832 0.7168,9.6 1.6,9.6 L20.8,9.6 C21.6832,9.6 22.4,8.8832 22.4,8 C22.4,7.1168 21.6832,6.4 20.8,6.4 Z M20.8,12.8 L1.6,12.8 C0.7168,12.8 0,13.5168 0,14.4 C0,15.2832 0.7168,16 1.6,16 L20.8,16 C21.6832,16 22.4,15.2832 22.4,14.4 C22.4,13.5168 21.6832,12.8 20.8,12.8 Z" id="Shape">
+                    </path>
+                </svg>
+
+            </div>-->
+            {{-- ! Mobile menu ! --}}
+
+            <div class="flex flex-col md:flex-row justify-between w-full mx-auto bg-white rounded lg:rounded-b-none mt-10 " :class="container">
+
+                {{-- User name --}}
+                <div class="flex flex-col lg:flex-row items-center lg:items-start md:ml-10 py-6 w-full">
+
+                    <img src="/images/user.png" width="73px" class="rounded-full h-16 w-16">
+
+                    <div class="flex flex-col lg:flex-row-none items-center lg:items-start mt-3 lg:mt-0 lg:ml-3">
+                        <div class="flex items-center flex-col md:flex-row mb-2 md:mb-0">
+                            <span class="mb-1 font-semibold">
+                                {{ user.name }}
+                            </span>
+
+                            <span class="text-xs text-white bg-green-500 rounded-full py-1 px-2 ml-1">
+                                En ligne
+                            </span>
+
+                        </div>
+
+
+                        <span class="lg:text-left text-center text-sm text-gray-500">
+                                Membre depuis le <b>{{user.membre_depuis }}</b>
+                            </span>
+                    </div>
+
+                </div>
+                {{-- ! User name ! --}}
+
+                <hr class="md:h-full border-gray-200 mx-4"/>
+
+                {{-- Stats --}}
+                <div class="flex md:mr-10 lg:my-0 md:mb-0 mx-10 md:mx-0 py-3 divider-y">
+                    <div class="flex flex-col justify-center items-center w-full md:py-0 md:px-4 px-0 py-2 ">
+                        <span class="text-green-500 font-semibold text-4xl">{{ user.$extras.posts_count }}</span>
+                        <span class="text-gray-400 font-semibold">Annonces</span>
+                    </div>
+
+                    <div class="flex flex-col justify-center items-center w-full md:py-0 md:px-4 px-0 py-2 ">
+                        <span class="text-green-500 font-semibold text-4xl">{{ user.$extras.favourites_count }}</span>
+                        <span class="text-gray-400 font-semibold">Favoris</span>
+                    </div>
+                </div>
+                {{-- ! Stats ! --}}
+
+            </div>
+
+
+            <div class="hidden lg:flex flex-wrap mx-auto space-x-4 divide-x divide-gray-200 px-4 w-full bg-white rounded-b border-t border-gray-200"
+                 :class="container"
+            >
+
+                <a :href="element.link" class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out"
+                   v-for="element in side_menu"
+                   :class="element.color"
+                >
+                    @{{ element.label }}
+                    <span class="badge border-0 bg-red-500 text-white"
+                          v-if="element.route_name === 'messages' && messages_count"
+                    >
+                        @{{ messages_count > 99 ? 99+"+" : messages_count }}
+                    </span>
+                </a>
+
+            </div>
+
+            <div class="lg:flex-none lg:grid lg:grid-cols-12 lg:gap-x-4 mx-auto w-full mt-5"
+                 :class="container"
+            >
+
+                <div class="flex justify-center w-full h-24 rounded bg-white col-span-8">8</div>
+
+
+                <div class="flex justify-center w-full h-24 rounded bg-white col-span-4">4</div>
+
+
+            </div>
+
+
+
+
+        </div>
+
+    </user-profile>
+
+
+@endsection

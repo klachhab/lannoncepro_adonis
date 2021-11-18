@@ -229,24 +229,63 @@ export default class UsersController {
     }
 
 
-    public async show({params}: HttpContextContract) {
+    public async show({params, auth, request, view}: HttpContextContract) {
 
-        return await User.query().where('username', params.id)
-            .preload('posts', posts => {
-                posts.withTrashed()
+        const username = await auth.check()
+        // return await auth.check()
+            .then( logged => {
+                const user = auth.user as User
+                if (!logged && params.id) {
+                    return params.id
+                }
+                else return user.username
             })
-            .withCount('posts')
-            .firstOrFail()
-            .then(async user => {
+            .catch( (err: AuthenticationException) => {
                 return {
-                    success: true,
-                    user
+                    error: err.message
                 }
             })
+
+
+
+        return await User.query().where('username', username)
+            .withCount('posts', posts => {
+                posts.where('is_valid', 1)
+            })
+            .withCount('favourites')
+            .firstOrFail()
+            .then(async user => {
+                const posts = await user.related('posts')
+                    .query()
+                    .has('conversations')
+                    .preload('conversations', conversation => {
+                        conversation.select('id', 'postId', 'read')
+                    })
+
+                if (request.qs().api) {
+                    return {
+                        success: true,
+                        user,
+                        unread_messages_count: posts
+                            .filter(post => post.has_unread_message == true)
+                            .length,
+                    }
+                }
+
+                return view.render('user/profile', {
+                    user,
+                    unread_messages_count: posts
+                        .filter(post => post.has_unread_message == true)
+                        .length,
+                })
+
+            })
             .catch((error: Exception) => {
-                return {
-                    success: false,
-                    error: error.code
+                if (request.qs().api) {
+                    return {
+                        success: false,
+                        error: error.code
+                    }
                 }
             })
 
@@ -282,7 +321,6 @@ export default class UsersController {
                 }
             })
     }
-
 
     public async destroy({params}: HttpContextContract) {
         return await User.query()
@@ -345,28 +383,6 @@ export default class UsersController {
 
     }
 
-
-    public async conversation({auth}: HttpContextContract) {
-        const user = auth.user as User
-
-        return user.related('posts')
-            .query()
-            .has('conversations')
-            .preload('conversations', conversations => {
-                conversations.preload('messages')
-            })
-            .preload('images', images => {
-                images.select('path')
-                    .firstOrFail()
-                    .then( image => {
-                        return image
-                    })
-            })
-            .select('slug', 'title', 'user_id', 'id')
-            .then( posts => {
-                return posts
-            })
-    }
 
     // For Vue Validator==========================
 

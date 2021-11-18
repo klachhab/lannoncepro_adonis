@@ -1,8 +1,36 @@
 import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 import Conversation from "App/Models/Conversation";
+import User from "App/Models/User";
+
 
 export default class ConversationsController {
-    public async index({}: HttpContextContract) {
+    public async index({auth}: HttpContextContract) {
+        const user = auth.user as User
+
+        const messages = user.related('posts')
+            .query()
+            .has('conversations')
+            .preload('conversations', conversations => {
+                conversations.preload('messages')
+            })
+            .preload('images', images => {
+                images.select('path')
+                    .firstOrFail()
+                    .then( image => {
+                        return image
+                    })
+            })
+            .select('slug', 'title', 'user_id', 'id')
+            .then( posts => {
+                const unread_message_filter = posts.filter(post => post.has_unread_message == true)
+                return {
+                    conversations: posts,
+                    unread_message: unread_message_filter.length,
+                    has_unread_message: unread_message_filter.length !== 0,
+                }
+            })
+
+        return messages
     }
 
     public async create({}: HttpContextContract) {

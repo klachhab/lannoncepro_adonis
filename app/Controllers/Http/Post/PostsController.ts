@@ -20,7 +20,7 @@ export default class PostsController {
 
     public async index({request}: HttpContextContract) {
         return await Post.filter(request.qs())
-            .paginate(request.qs().p, 20)
+            .paginate(request.qs().page, 20)
     }
 
     public async create({view}: HttpContextContract) {

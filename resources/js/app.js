@@ -41,6 +41,9 @@ Vue.component('chatroom', require('./Vue/Components/ChatroomComponent').default)
 Vue.component('login', require('./Vue/Components/auth/LoginComponent').default);
 Vue.component('register', require('./Vue/Components/auth/RegisterComponent').default);
 
+// Profile
+Vue.component('userProfile', require('./Vue/Components/profile/MainComponent').default)
+
 const app = new Vue({
     router,
     store,

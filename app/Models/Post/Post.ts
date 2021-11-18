@@ -59,13 +59,13 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public lon: number
 
     @column()
-    public video_link: string | null
+    public videoLink: string | null
 
     @column()
-    public video_type: string | null
+    public videoType: string | null
 
     @column()
-    public is_valid: boolean
+    public isValid: boolean
 
     @column()
     public featured: boolean
@@ -90,7 +90,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public updatedAt: DateTime
 
     @column.dateTime({serializeAs: null})
-    public deletedAt: DateTime | null
+    public deletedAt: DateTime
 // Accessors ===================================================
     @computed()
     public get creation_date(){
@@ -120,7 +120,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     @computed()
     public get primary_image(){
-        return this.images.length ? this.images[0].path : null
+        return this.images?.length ? this.images[0].path : null
     }
 
     @computed()

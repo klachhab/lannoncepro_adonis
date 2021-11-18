@@ -52,7 +52,9 @@
                                                     Mes message
                                                 </span>
                                             </div>
-                                            <div class="text-xs text-white p-1 bg-red-500 rounded-full">{{ messages > 99 ? 99+"+" : messages }}</div>
+                                            <span class="badge border-0 bg-red-500 text-white" v-if="messages_count">
+                                                {{ messages_count > 99 ? 99 + "+" : messages_count }}
+                                            </span>
                                         </div>
                                     </a>
                                     <a href="#"
@@ -139,7 +141,10 @@
                 <button
                     class="text-gray-800 dark:text-white mr-2 md:hidden rounded-md focus:outline-none"
                 >
-                    <MenuIcon />
+                    <svg class="fill-current transition-colors duration-200 ease-in-out hover:text-blue-700" width="23px" height="16px" viewBox="0 0 23 16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <path d="M1.6,3.2 L20.8,3.2 C21.6832,3.2 22.4,2.4832 22.4,1.6 C22.4,0.7168 21.6832,0 20.8,0 L1.6,0 C0.7168,0 0,0.7168 0,1.6 C0,2.4832 0.7168,3.2 1.6,3.2 Z M20.8,6.4 L1.6,6.4 C0.7168,6.4 0,7.1168 0,8 C0,8.8832 0.7168,9.6 1.6,9.6 L20.8,9.6 C21.6832,9.6 22.4,8.8832 22.4,8 C22.4,7.1168 21.6832,6.4 20.8,6.4 Z M20.8,12.8 L1.6,12.8 C0.7168,12.8 0,13.5168 0,14.4 C0,15.2832 0.7168,16 1.6,16 L20.8,16 C21.6832,16 22.4,15.2832 22.4,14.4 C22.4,13.5168 21.6832,12.8 20.8,12.8 Z" id="Shape">
+                        </path>
+                    </svg>
                 </button>
 
             </div>
@@ -152,9 +157,10 @@
 import {ChevronDownIcon, MenuIcon, ChatIcon, CogIcon, HeartIcon,
     LogoutIcon, NewspaperIcon, PlusSmIcon
 } from "@vue-hero-icons/outline"
+import {mapState} from "vuex";
 
 export default {
-    props: ['check', 'user'],
+    props: ['check', 'user', 'unread_messages_count'],
     name: "HeaderComponent",
     components: {
         ChevronDownIcon, MenuIcon, ChatIcon,
@@ -171,7 +177,15 @@ export default {
     },
 
     mounted() {
-        // console.log(this.user)
+        this.$store.commit('update_message_count', Number.parseInt(this.unread_messages_count))
+    },
+
+    computed: {
+        ...mapState([
+            'messages_count'
+        ]),
+
+
     },
 
     methods: {
