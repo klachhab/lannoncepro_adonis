@@ -14,14 +14,12 @@ export default {
                     label: "Mes annonces",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
-                    link: "#",
                     route_name: 'ads'
                 },
                 {
                     label: "Mes messages",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
-                    link: "#",
                     route_name: 'messages',
                     count: 0
                 },
@@ -29,30 +27,26 @@ export default {
                     label: "Mes favoris",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
-                    link: "#",
                     route_name: 'favourites'
                 },
                 {
                     label: "En cours de validation",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
-                    link: "#",
                     route_name: 'pending_ads'
                 },
                 {
                     label: "Mes infos",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
-                    link: "#",
                     route_name: 'profile_infos'
                 },
-                {
-                    label: "Supprimer mon compte",
-                    color: "hover:text-red-700",
-                    mobile_color: "hover:bg-red-500",
-                    link: "#",
-                    route_name: 'delete_acccount'
-                },
+                // {
+                //     label: "Supprimer mon compte",
+                //     color: "hover:text-red-700",
+                //     mobile_color: "hover:bg-red-500",
+                //     route_name: 'delete_acccount'
+                // },
             ],
         }
     },
@@ -79,6 +73,13 @@ export default {
 #container {
     background-image: url('/images/bg/login_bg.png');
     background-size: cover;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .25s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
 }
 
 </style>

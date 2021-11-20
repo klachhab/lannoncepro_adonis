@@ -117,7 +117,7 @@ Route.group(() => {
                 destroy: 'auth:api',
             })
 
-        Route.post('/:username', 'UsersController.show')
+        Route.post('/:username?', 'UsersController.show')
             .as('profile.show.api')
             // .middleware('auth:web,api')
 

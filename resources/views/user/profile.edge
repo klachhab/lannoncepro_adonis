@@ -78,10 +78,10 @@
                  :class="container"
             >
 
-                <a :href="element.link" @click.prevent
-                   class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out"
-                   v-for="element in side_menu"
-                   :class="element.color"
+                <router-link :to="{name: element.route_name}"
+                             class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out"
+                             :class="element.color"
+                             v-for="(element, index) in side_menu" :key="index"
                 >
                     @{{ element.label }}
                     <span class="badge border-0 bg-red-500 text-white"
@@ -89,6 +89,12 @@
                     >
                         @{{ messages_count > 99 ? 99+"+" : messages_count }}
                     </span>
+                </router-link>
+
+                <a href="#" @click.prevent
+                   class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out hover:text-red-700"
+                >
+                    Supprimer mon compte
                 </a>
 
             </div>
@@ -97,9 +103,13 @@
                  :class="container"
             >
 
-                <profile-infos user_username="{{ auth.user.username }}"
+                <transition name="fade">
+                    <router-view>
+                    </router-view>
+                </transition>
+<!--                <profile-infos user_username="{{ auth.user.username }}"
                                user_email="{{ auth.user.email }}"
-                ></profile-infos>
+                ></profile-infos>-->
 
 
                 <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>

@@ -6,17 +6,22 @@ Vue.use(VueRouter);
 
 const routes = [
     {
-        path: '/mes-infos',
+        path: 'infos',
         name: 'profile_infos',
         component: ProfileComponent
-    }
+    },
+    {
+        path: '',
+        name: '',
+        component: ProfileComponent
+    },
 
 ];
 
 const router = new VueRouter({
-    mode: "history",
-    linkActiveClass: "active",
-    linkExactActiveClass: "exact-active",
+    mode: "hash",
+    linkActiveClass: "text-blue-700",
+    linkExactActiveClass: "text-blue-700",
     routes
 })
 

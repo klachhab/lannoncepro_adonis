@@ -34,18 +34,18 @@
             </div>
 
             <div :class="input_class.container">
-            <span :class="input_class.label">
-                Nom d'utilisateur
-            </span>
+                <span :class="input_class.label">
+                    Nom d'utilisateur
+                </span>
 
-                <input type="text" disabled :class="input_class.input" :value="user_username" />
+                <input type="text" disabled :class="input_class.input" :value="profile_form.username" />
             </div>
 
             <div :class="input_class.container">
                 <span :class="input_class.label">
                     Adresse e-mail
                 </span>
-                <input disabled type="email" :class="input_class.input" :value="user_email" />
+                <input disabled type="email" :class="input_class.input" :value="profile_form.email" />
 
             </div>
 
@@ -217,6 +217,8 @@ export default {
                 title: null,
                 name: null,
                 phone: null,
+                username: null,
+                email: null,
                 city_id: null,
 
                 can_receive_news: false,
@@ -268,6 +270,8 @@ export default {
                         title: user.title,
                         name: user.name,
                         phone: "0" + user.phone,
+                        username: user.username,
+                        email: user.email,
                         city_id: city.id,
                     }
                 }

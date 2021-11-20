@@ -262,13 +262,14 @@ export default class UsersController {
                 if (params.username) {
                     return {
                         success: true,
-                        user: user
-                            .serialize({
-                                fields: [
-                                    'id', 'title', 'name', 'phone', 'is_pro',
-                                    'blocked', 'membre_depuis'
-                                ],
-                            }),
+                        user,
+                        // user: user
+                        //     .serialize({
+                        //         fields: [
+                        //             'id', 'title', 'name', 'phone', 'is_pro',
+                        //             'blocked', 'membre_depuis'
+                        //         ],
+                        //     }),
 
                     }
                 }
