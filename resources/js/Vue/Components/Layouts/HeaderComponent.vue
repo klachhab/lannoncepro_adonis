@@ -25,9 +25,9 @@
                         <!-- Profile menu -->
                         <div class="relative inline-block text-left">
                             <button class=" flex items-center justify-center w-full rounded-md pr-4 py-2 text-normal font-medium text-gray-700 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-500">
-                                <span class="mr-4 text-gray-800 dark:hover:text-white py-2">
+                                <a href="/mon-profil" class="mr-4 text-gray-800 dark:hover:text-white py-2">
                                     {{ user }}
-                                </span>
+                                </a>
                                 <ChevronDownIcon size="20" />
                             </button>
 

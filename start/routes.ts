@@ -44,15 +44,11 @@ Route.group(() => {
         .as('auth')
 
     // Profile -------------------------------------
-    Route.resource('profile', 'UsersController')
-        .except(['create'])
-        .middleware({
-            edit: 'auth:web,api',
-        })
+    Route.resource('profil', 'UsersController')
+        .except(['create', 'edit'])
         .as('profile')
 
-
-    Route.get('/mon-profil/:any?', 'UsersController.show')
+    Route.get('mon-profil/:any?', 'UsersController.show')
         .middleware('auth:web,api')
         .where('any', '.*')
         .as('my_profile')
@@ -81,18 +77,33 @@ Route.group(() => {
 // API Routes
 Route.group(() => {
 
-    Route.resource('cities', 'CitiesController').apiOnly()
-        .only(['index'])
-    Route.post('cities/:id', 'CitiesController.show').as('cities.show')
+    // cities ----------------------------------------------------------------
+    // Route.resource('cities', 'CitiesController').apiOnly()
+    //     .only(['index'])
+
+    Route.post('cities/:dep_code', 'CitiesController.index')
+        .as('cities.index')
+
+    // Route.get('cities/:code', 'CitiesController.show')
+    //     .as('cities.show')
+        // .middleware('auth:web,api')
 
     // departments ----------------------------------------------------------------
     Route.group( () => {
 
-        Route.get('/', 'DepartmentsController.index')
+        Route.post('/', 'DepartmentsController.index')
             .as('departments.index')
+            // .middleware('auth:web,api')
 
         Route.post('/:code', 'DepartmentsController.show')
             .as('departments.show')
+            // .middleware('auth:web,api')
+
+        // Route.get('/', 'DepartmentsController.index')
+        //     .as('departments.index')
+
+        // Route.get('/:code', 'DepartmentsController.show')
+        //     .as('departments.show')
 
     }).prefix('/departments').as('departments')
 
@@ -105,6 +116,14 @@ Route.group(() => {
                 update: 'auth:api',
                 destroy: 'auth:api',
             })
+
+        Route.post('/:username', 'UsersController.show')
+            .as('profile.show.api')
+            // .middleware('auth:web,api')
+
+        Route.post('/:username/posts', 'UsersController.user_posts')
+            .as('profile.posts')
+            .middleware('auth:api')
 
         Route.post('/:username/restore', 'UsersController.restore')
             .as('profile.restore')

@@ -2,10 +2,11 @@ import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 import Department from "App/Models/Department";
 
 export default class DepartmentsController {
-    public async index({}: HttpContextContract) {
+    public async index({request}: HttpContextContract) {
 
         return Department.query()
             .has('cities')
+            .where('name', "like", `${ request.all().name }%`)
             .select('name', 'code');
 
     }
@@ -27,15 +28,22 @@ export default class DepartmentsController {
         return await Department.query()
             .preload('cities', cities => {
                 cities.select('id', 'name', 'code')
-                    // .limit(14)
+                // .limit(14)
             })
             .where('code', params.code)
             .select()
             .firstOrFail()
-            .then(department => {
+            .then(async department => {
+                // const cities = await department.related('cities')
+                //     .query()
+                //     .preload('department', dep => {
+                //         dep.select('name', 'code')
+                //     })
+                //     .where('name', "like", `${ request.qs().city_name }%`)
+
                 return {
                     success: true,
-                    cities: department.cities,
+                    department,
                 }
             })
             .catch(e => {

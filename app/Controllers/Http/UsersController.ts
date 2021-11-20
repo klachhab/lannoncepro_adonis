@@ -32,10 +32,6 @@ export default class UsersController {
         })
     }
 
-    public async edit({view}: HttpContextContract) {
-        return view.render('auth/register')
-     }
-
 
     public async store({request}: HttpContextContract) {
 
@@ -229,14 +225,13 @@ export default class UsersController {
     }
 
 
-    public async show({params, auth, request, view}: HttpContextContract) {
+    public async show({params, auth, view}: HttpContextContract) {
 
         const username = await auth.check()
-        // return await auth.check()
             .then( logged => {
                 const user = auth.user as User
-                if (!logged && params.id) {
-                    return params.id
+                if (!logged && (params.id || params.username)) {
+                    return params.id || params.username
                 }
                 else return user.username
             })
@@ -246,48 +241,59 @@ export default class UsersController {
                 }
             })
 
-
-
         return await User.query().where('username', username)
             .withCount('posts', posts => {
                 posts.where('is_valid', 1)
             })
             .withCount('favourites')
+            .preload('city', city => {
+                city
+                    .preload('department')
+            })
+            .select('id', 'name')
             .firstOrFail()
             .then(async user => {
-                const posts = await user.related('posts')
-                    .query()
-                    .has('conversations')
-                    .preload('conversations', conversation => {
-                        conversation.select('id', 'postId', 'read')
-                    })
 
-                if (request.qs().api) {
+                const conversations = await user
+                    .related('conversations')
+                    .query()
+                    .select('read')
+
+                if (params.username) {
                     return {
                         success: true,
-                        user,
-                        unread_messages_count: posts
-                            .filter(post => post.has_unread_message == true)
-                            .length,
+                        user: user
+                            .serialize({
+                                fields: [
+                                    'id', 'title', 'name', 'phone', 'is_pro',
+                                    'blocked', 'membre_depuis'
+                                ],
+                            }),
+
                     }
                 }
 
-                return view.render('user/profile', {
-                    user,
-                    unread_messages_count: posts
-                        .filter(post => post.has_unread_message == true)
-                        .length,
-                })
+                else {
+                    return view.render('user/profile', {
+                        user: user.serialize({
+                            fields: ['id', 'name', 'avatar', 'email', 'is_pro',
+                                'blocked', 'membre_depuis', 'username'
+                            ],
+                        }),
+                        unread_messages_count: conversations
+                            .filter(conversation => conversation.read)
+                            .length,
+                    })
+                }
 
             })
             .catch((error: Exception) => {
-                if (request.qs().api) {
-                    return {
-                        success: false,
-                        error: error.code
-                    }
+                return {
+                    success: false,
+                    error: error.message
                 }
             })
+
 
     }
 
@@ -384,8 +390,63 @@ export default class UsersController {
     }
 
 
-    // For Vue Validator==========================
+    // For API ==========================
+    public async user_posts({auth, params}: HttpContextContract){
 
+        const username = await auth.check()
+            .then( logged => {
+                const user = auth.user as User
+                if (!logged && (params.id || params.username)) {
+                    return params.id || params.username
+                }
+                else return user.username
+            })
+            .catch( (err: AuthenticationException) => {
+                return {
+                    error: err.message
+                }
+            })
+
+        return await User.query().where('username', username)
+            .withCount('posts', posts => {
+                posts.where('is_valid', 1)
+            })
+            .withCount('favourites')
+            .select('id', 'name')
+            .firstOrFail()
+            .then(async user => {
+
+                const posts = await user.related('posts')
+                    .query()
+                    .has('conversations')
+                    .preload('conversations', conversation => {
+                        conversation.select('id', 'postId', 'read')
+                    })
+                    .preload('images', images => {
+                        images
+                            .select('path')
+                            .firstOrFail()
+                    })
+                    .select('id', 'title', 'slug', 'price')
+
+
+
+                return {
+                    success: true,
+                    posts
+                }
+
+            })
+            .catch((error: Exception) => {
+                return {
+                    success: false,
+                    error: error.message
+                }
+            })
+
+    }
+
+    // Validator
     public async is_unique({request}: HttpContextContract) {
         return await User.query()
             .where('username', request.all().value)

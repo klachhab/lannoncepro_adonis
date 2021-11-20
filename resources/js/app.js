@@ -43,6 +43,7 @@ Vue.component('register', require('./Vue/Components/auth/RegisterComponent').def
 
 // Profile
 Vue.component('userProfile', require('./Vue/Components/profile/MainComponent').default)
+Vue.component('profileInfos', require('./Vue/Components/profile/SubComponents/ProfileComponent').default)
 
 const app = new Vue({
     router,

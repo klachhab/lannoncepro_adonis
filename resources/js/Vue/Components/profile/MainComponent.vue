@@ -11,13 +11,6 @@ export default {
         return {
             side_menu: [
                 {
-                    label: "Mon profil",
-                    color: "hover:text-blue-700",
-                    mobile_color: "hover:bg-blue-500",
-                    link: "#",
-                    route_name: 'profile'
-                },
-                {
                     label: "Mes annonces",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
@@ -45,6 +38,13 @@ export default {
                     mobile_color: "hover:bg-blue-500",
                     link: "#",
                     route_name: 'pending_ads'
+                },
+                {
+                    label: "Mes infos",
+                    color: "hover:text-blue-700",
+                    mobile_color: "hover:bg-blue-500",
+                    link: "#",
+                    route_name: 'profile_infos'
                 },
                 {
                     label: "Supprimer mon compte",
