@@ -48,7 +48,7 @@ Route.group(() => {
         .except(['create', 'edit'])
         .as('profile')
 
-    Route.get('mon-profil/:any?', 'UsersController.show')
+    Route.get('mon-profil/:any?/', 'UsersController.show')
         .middleware('auth:web,api')
         .where('any', '.*')
         .as('my_profile')
@@ -84,6 +84,9 @@ Route.group(() => {
     Route.post('cities/:dep_code', 'CitiesController.index')
         .as('cities.index')
 
+    // Route.get('cities/:dep_code', 'CitiesController.index')
+    //     .as('cities.index')
+
     // Route.get('cities/:code', 'CitiesController.show')
     //     .as('cities.show')
         // .middleware('auth:web,api')
@@ -117,21 +120,20 @@ Route.group(() => {
                 destroy: 'auth:api',
             })
 
-        Route.post('/:username?', 'UsersController.show')
+        Route.post('/:username', 'UsersController.show')
             .as('profile.show.api')
             // .middleware('auth:web,api')
 
         Route.post('/:username/posts', 'UsersController.user_posts')
             .as('profile.posts')
-            .middleware('auth:api')
 
         Route.post('/:username/restore', 'UsersController.restore')
             .as('profile.restore')
-            .middleware('auth:api')
+            .middleware('auth:web,api')
 
         Route.delete('/:username/force-delete', 'UsersController.forceDelete')
             .as('profile.forceDelete')
-            .middleware('auth:api')
+            .middleware('auth:web,api')
 
         Route.post('/is_unique', 'UsersController.is_unique')
             .as('profile.is_unique')

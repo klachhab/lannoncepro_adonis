@@ -1,20 +1,24 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import ProfileComponent from "../Components/profile/SubComponents/ProfileComponent"
+import PostsComponent from "../Components/profile/SubComponents/PostsComponent"
 
 Vue.use(VueRouter);
 
 const routes = [
+
     {
-        path: 'infos',
+        path: '/',
+        name: 'ads',
+        component: PostsComponent
+    },
+
+    {
+        path: '/infos',
         name: 'profile_infos',
         component: ProfileComponent
     },
-    {
-        path: '',
-        name: '',
-        component: ProfileComponent
-    },
+
 
 ];
 

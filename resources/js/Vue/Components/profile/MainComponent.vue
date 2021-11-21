@@ -5,7 +5,7 @@ import {mapState} from "vuex";
 export default {
     name: "MainComponent",
 
-    props: ['unread_messages_count'],
+    props: ['unread_messages_count', 'username'],
 
     data() {
         return {
@@ -51,15 +51,15 @@ export default {
         }
     },
 
-    mounted() {
+    created() {
         this.$store.commit('update_message_count', Number.parseInt(this.unread_messages_count))
+        this.$store.commit('setUserName', this.username)
     },
 
     computed: {
         ...mapState([
             'container', 'messages_count'
         ]),
-
 
     },
 
@@ -76,7 +76,7 @@ export default {
 }
 
 .fade-enter-active, .fade-leave-active {
-    transition: opacity .25s;
+    transition: opacity .1s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;

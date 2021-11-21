@@ -10,7 +10,9 @@ const store = new Vuex.Store({
             modal_type: '',
             show: false
         },
-        messages_count: 0
+        messages_count: 0,
+
+        username: "",
     },
 
     mutations: {
@@ -21,6 +23,10 @@ const store = new Vuex.Store({
 
         update_message_count: (state, value) => {
             state.messages_count = value
+        },
+
+        setUserName: (state, value) => {
+            state.username = value
         }
     },
     getters: {

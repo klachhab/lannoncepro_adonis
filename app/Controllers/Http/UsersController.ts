@@ -392,7 +392,7 @@ export default class UsersController {
 
 
     // For API ==========================
-    public async user_posts({auth, params}: HttpContextContract){
+    public async user_posts({auth, params, request}: HttpContextContract){
 
         const username = await auth.check()
             .then( logged => {
@@ -419,23 +419,17 @@ export default class UsersController {
 
                 const posts = await user.related('posts')
                     .query()
-                    .has('conversations')
-                    .preload('conversations', conversation => {
-                        conversation.select('id', 'postId', 'read')
-                    })
+                    .preload('city')
                     .preload('images', images => {
                         images
                             .select('path')
                             .firstOrFail()
                     })
-                    .select('id', 'title', 'slug', 'price')
+                    .select('id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId')
+                    .paginate(request.qs().page, 5)
 
 
-
-                return {
-                    success: true,
-                    posts
-                }
+                return posts
 
             })
             .catch((error: Exception) => {

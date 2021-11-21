@@ -25,7 +25,7 @@
                         <!-- Profile menu -->
                         <div class="relative inline-block text-left">
                             <button class=" flex items-center justify-center w-full rounded-md pr-4 py-2 text-normal font-medium text-gray-700 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-500">
-                                <a href="/mon-profil" class="mr-4 text-gray-800 dark:hover:text-white py-2">
+                                <a href="#" class="mr-4 text-gray-800 dark:hover:text-white py-2">
                                     {{ user }}
                                 </a>
                                 <ChevronDownIcon size="20" />
@@ -41,6 +41,17 @@
                                      aria-labelledby="options-menu"
                                 >
 
+                                    <a href="/mon-profil"
+                                       class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
+                                       role="menuitem"
+                                    >
+                                        <div class="flex items-center">
+                                            <NewspaperIcon size="20" class="mr-4"></NewspaperIcon>
+                                            <span>
+                                                Mes annonces
+                                            </span>
+                                        </div>
+                                    </a>
                                     <a href="#"
                                        class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
                                        role="menuitem"
@@ -54,17 +65,6 @@
                                             </div>
                                             <span class="badge border-0 bg-red-500 text-white" v-if="messages_count">
                                                 {{ messages_count > 99 ? 99 + "+" : messages_count }}
-                                            </span>
-                                        </div>
-                                    </a>
-                                    <a href="#"
-                                       class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
-                                       role="menuitem"
-                                    >
-                                        <div class="flex items-center">
-                                            <NewspaperIcon size="20" class="mr-4"></NewspaperIcon>
-                                            <span>
-                                                Mes annonces
                                             </span>
                                         </div>
                                     </a>

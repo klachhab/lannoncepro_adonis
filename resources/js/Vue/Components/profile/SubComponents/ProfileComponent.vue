@@ -65,14 +65,14 @@
                     <input type="text" :class="select_class.input"
                            v-model="department.name"
                            @focus="selected_input = 'dep'"
-                           @blur="selected_input = null"
+                           @blur="blur_element('departments')"
                            @input="getDepartments"
                     />
 
-                    <div v-if="departments.length"
+                    <div v-if="departments.length" @blur="departments = []" tabindex="0"
                          class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
 
-                        <div class="w-full flex flex-col overflow-auto" :class=" departments.length < 4 ? `h-${ arr_length }`:'h-32'">
+                        <div class="w-full flex flex-col overflow-auto" :class=" departments.length < 4 ? `h-${ departments.length * 8 }`:'h-32'">
                         <span class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
                               v-for="(department,index) in departments" :key="index"
                               @click="getDepartment(department)"
@@ -86,28 +86,28 @@
             </div>
 
             <div :class="input_class.container">
-            <span :class="input_class.label">
-                Ville
-            </span>
+                <span :class="input_class.label">
+                    Ville
+                </span>
                 <div :class="focus_city_class">
 
                     <input type="text" :class="select_class.input"
                            v-model="city_name"
                            @focus="selected_input = 'city'"
-                           @blur="selected_input = null"
+                           @blur="blur_element('cities')"
                            @input="getCities"
                     />
 
-                    <div v-if="cities.length"
+                    <div v-if="cities.length" @blur="cities = []" tabindex="1"
                          class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
 
-                        <div class="w-full flex flex-col overflow-auto" :class=" cities.length < 4 ? `h-${ arr_length }`:'h-32'">
-                        <span class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
-                              v-for="(city,index) in cities" :key="index"
-                              @click="getCity(city)"
-                        >
-                            {{ city.name }}
-                        </span>
+                        <div class="w-full flex flex-col overflow-auto" :class="cities.length < 4 ? `h-${ cities.length * 8 }`:'h-32'">
+                            <span class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
+                                  v-for="(city,index) in cities" :key="index"
+                                  @click="getCity(city)"
+                            >
+                                {{ city.name }}
+                            </span>
                         </div>
                     </div>
 
@@ -184,9 +184,10 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
     name: "ProfileComponent",
-    props: ['user_username', 'user_email'],
 
     data() {
         return {
@@ -235,9 +236,9 @@ export default {
     },
 
     computed: {
-        arr_length() {
-            return this.departments.length * 8
-        },
+        ...mapState([
+            'username'
+        ]),
 
         focus_dep_class(){
 
@@ -252,8 +253,19 @@ export default {
     },
 
     methods: {
+
+        blur_element(element){
+            // if (element === 'departments') {
+            //     this.departments = []
+            // }
+            // else if (element === 'cities') {
+            //     this.cities = []
+            // }
+            this.selected_input = null
+        },
+
         async getUserInfos(){
-            await axios.post(`/api/profile/${ this.user_username }`)
+            await axios.post(`/api/profile/${ this.username }`)
             .then(response => {
 
                 if (response.data.success) {
@@ -303,6 +315,8 @@ export default {
         async getDepartment(department){
             this.department.name = department.name
             this.department.code = department.code
+            this.profile_form.city_id = null
+
             this.departments = []
             this.cities = []
             this.city_name = null

@@ -20,15 +20,6 @@ export default class CitiesController {
                     .related('cities')
                     .query()
                     .where('name', "like", `${ request.all().name }%`)
-                    .then(cities => {
-                        return cities
-                    })
-                    .catch(err => {
-                        return {
-                            error: err.message,
-                            target: "cities"
-                        }
-                    })
 
             })
 

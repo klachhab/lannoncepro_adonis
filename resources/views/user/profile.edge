@@ -6,6 +6,7 @@
 
     <user-profile inline-template id="container"
                   unread_messages_count="{{ unread_messages_count }}"
+                  username="{{ user.username }}"
     >
 
         <div class="grid grid-cols-1 max-h-full pb-20">
@@ -103,13 +104,10 @@
                  :class="container"
             >
 
-                <transition name="fade">
+                <transition name="fade" mode="out-in">
                     <router-view>
                     </router-view>
                 </transition>
-<!--                <profile-infos user_username="{{ auth.user.username }}"
-                               user_email="{{ auth.user.email }}"
-                ></profile-infos>-->
 
 
                 <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>
