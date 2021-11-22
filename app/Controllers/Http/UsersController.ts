@@ -10,7 +10,7 @@ import {ValidationException} from "@adonisjs/validator/build/src/ValidationExcep
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
-import auth from "Config/auth";
+import {ModelObject} from "@ioc:Adonis/Lucid/Orm";
 
 export default class UsersController {
 
@@ -245,7 +245,11 @@ export default class UsersController {
             .withCount('posts', posts => {
                 posts.where('is_valid', 1)
             })
-            .withCount('favourites')
+            .withCount('favourites', favourites => {
+                favourites
+                    .where('is_valid', 1)
+                    .andWhereNull('deleted_at')
+            })
             .preload('city', city => {
                 city
                     .preload('department')
@@ -419,6 +423,7 @@ export default class UsersController {
 
                 const posts = await user.related('posts')
                     .query()
+                    .where('is_valid', request.all().valid)
                     .preload('city')
                     .preload('images', images => {
                         images
@@ -426,7 +431,7 @@ export default class UsersController {
                             .firstOrFail()
                     })
                     .select('id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId')
-                    .paginate(request.qs().page, 5)
+                    .paginate(request.all().page, 5)
 
 
                 return posts
@@ -438,6 +443,82 @@ export default class UsersController {
                     error: error.message
                 }
             })
+
+    }
+
+
+    public async user_conversations({auth, request}: HttpContextContract){
+
+        return auth.check()
+            .then( async checked => {
+                if (!checked) {
+                    return {
+                        success: false,
+                        error: 'not_auth'
+                    }
+                }
+
+                const user = auth.user as User
+
+
+                return user
+
+            })
+
+            .catch( (err: AuthenticationException) => {
+                return {
+                    success: false,
+                    error: err.message
+                }
+            })
+
+
+
+    }
+
+    public async user_favourites({auth, request}: HttpContextContract){
+
+        const authenticated = auth.check()
+            .then( checked => {
+                return checked
+            })
+
+        if (authenticated) {
+            const user = auth.user as User
+
+            return User.query()
+                .where('id', user.id)
+                .firstOrFail()
+                .then(user => {
+
+                    return user.related('favourites')
+                        .query()
+                        .where('is_valid', 1)
+                        .andWhereNull('deleted_at')
+                        .preload('city', city => {
+                            city.preload('department', department => {
+                                department.select('id', 'code', 'name')
+                            })
+                                .select('id', 'code', 'name', 'departmentId')
+                        })
+                        .select('id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId')
+                        .paginate(request.all().page, 5)
+
+                })
+                .catch((error: Exception) => {
+                    return {
+                        success: false,
+                        error: error.message
+                    }
+                })
+
+        }
+        else {
+            return {
+                success: false,
+                error: 'not_auth'
+            }
+        }
 
     }
 

@@ -79,7 +79,7 @@
                  :class="container"
             >
 
-                <router-link :to="{name: element.route_name}"
+                <router-link exact :to="{name: element.route_name}"
                              class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out"
                              :class="element.color"
                              v-for="(element, index) in side_menu" :key="index"

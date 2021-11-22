@@ -45,8 +45,7 @@ export default class ConversationsController {
             .where('conversation_key', request.qs().room_id)
             .preload('messages')
             .preload('post', post => {
-                post
-                    .preload('images', images => {
+                post.preload('images', images => {
                         images
                             .select('path')
                             .firstOrFail()
@@ -80,8 +79,7 @@ export default class ConversationsController {
         if (request.qs().api){
             return {
                 chatroom,
-                messages: chatroom
-                    .conversation.messages
+                // messages: chatroom.conversation.messages
             }
         }
 

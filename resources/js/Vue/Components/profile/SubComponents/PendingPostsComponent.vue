@@ -3,7 +3,7 @@
     <div class="lg:col-span-7 col-span-12">
         <div class="flex-1 py-4 px-8 w-full rounded bg-white">
 
-            <span class="text-2xl font-light mb-5">Annonces</span>
+            <span class="text-2xl font-light mb-5">Annonces en attente de validation</span>
 
             <hr class="w-full border-gray-300 my-5">
 
@@ -67,7 +67,7 @@ import {
 } from 'vue-tailwind/dist/components'
 
 export default {
-    name: "PostsComponent",
+    name: "PendingPostsComponent",
     components: {
         TPagination
     },
@@ -99,7 +99,7 @@ export default {
         async getPosts(page){
             await axios.post(`/api/profile/${ this.username }/posts`, {
                 page,
-                valid: 1
+                valid: 0
             })
 
                 .then(response => {

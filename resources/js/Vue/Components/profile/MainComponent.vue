@@ -27,10 +27,10 @@ export default {
                     label: "Mes favoris",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
-                    route_name: 'favourites'
+                    route_name: 'favourite_ads'
                 },
                 {
-                    label: "En cours de validation",
+                    label: "En attente de validation",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
                     route_name: 'pending_ads'

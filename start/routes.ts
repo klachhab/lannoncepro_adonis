@@ -48,7 +48,7 @@ Route.group(() => {
         .except(['create', 'edit'])
         .as('profile')
 
-    Route.get('mon-profil/:any?/', 'UsersController.show')
+    Route.get('mon-profil/:any?', 'UsersController.show')
         .middleware('auth:web,api')
         .where('any', '.*')
         .as('my_profile')
@@ -102,12 +102,6 @@ Route.group(() => {
             .as('departments.show')
             // .middleware('auth:web,api')
 
-        // Route.get('/', 'DepartmentsController.index')
-        //     .as('departments.index')
-
-        // Route.get('/:code', 'DepartmentsController.show')
-        //     .as('departments.show')
-
     }).prefix('/departments').as('departments')
 
     // Profile ---------------------------------------------------------------------
@@ -119,6 +113,22 @@ Route.group(() => {
                 update: 'auth:api',
                 destroy: 'auth:api',
             })
+
+
+        Route.get('my_profile/chatroom', 'ConversationsController.index')
+            .as('profile_conversation')
+            .middleware('auth:web,api')
+
+
+        Route.get('my_profile/chatroom_messages', 'ConversationsController.show')
+            .as('profile_conversation_messages')
+            .middleware('auth:web,api')
+
+        Route.post('my_profile/favourites', 'UsersController.user_favourites')
+            .as('profile_favourites')
+            .middleware('auth:web,api')
+
+
 
         Route.post('/:username', 'UsersController.show')
             .as('profile.show.api')
@@ -138,14 +148,6 @@ Route.group(() => {
         Route.post('/is_unique', 'UsersController.is_unique')
             .as('profile.is_unique')
 
-        Route.get('/chatroom', 'ConversationsController.index')
-            .as('profile_conversation')
-            .middleware('auth:web,api')
-
-
-        Route.get('/chatroom_messages', 'ConversationsController.show')
-            .as('profile_conversation_messages')
-            .middleware('auth:web,api')
 
     }).as("profile").prefix('/profile')
 

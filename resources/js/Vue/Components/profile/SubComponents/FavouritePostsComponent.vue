@@ -3,7 +3,7 @@
     <div class="lg:col-span-7 col-span-12">
         <div class="flex-1 py-4 px-8 w-full rounded bg-white">
 
-            <span class="text-2xl font-light mb-5">Annonces</span>
+            <span class="text-2xl font-light mb-5">Annonces en attente de validation</span>
 
             <hr class="w-full border-gray-300 my-5">
 
@@ -52,7 +52,7 @@
                 :total-items="meta.total"
                 :per-page="meta.per_page"
                 v-model="meta.current_page"
-                @change="getPosts"
+                @change="getFavourites"
             />
 
         </div>
@@ -67,7 +67,7 @@ import {
 } from 'vue-tailwind/dist/components'
 
 export default {
-    name: "PostsComponent",
+    name: "FavouritePostsComponent",
     components: {
         TPagination
     },
@@ -92,17 +92,17 @@ export default {
     },
 
     mounted() {
-        this.getPosts(this.meta.current_page)
+        this.getFavourites(this.meta.current_page)
     },
 
     methods: {
-        async getPosts(page){
-            await axios.post(`/api/profile/${ this.username }/posts`, {
+        async getFavourites(page){
+            await axios.post(`/api/profile/my_profile/favourites`, {
                 page,
-                valid: 1
             })
 
                 .then(response => {
+
                     const config = response.data.meta
 
                     this.meta = {
