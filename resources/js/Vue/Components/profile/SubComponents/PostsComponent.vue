@@ -43,6 +43,18 @@
                                 </a>
                             </span>
                         </div>
+
+                        <div class="flex items-center w-full mt-2 text-gray-500">
+                            <a href="#" class="transition duration-300 ease-in-out hover:text-red-500"
+                               @click.prevent="removePost(index)"
+                            >
+                                <i class="fas fa-trash text-red-500 mr-2"></i>
+                                <span class="font-normal"
+                                >
+                                    Supprimer
+                                </span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -117,7 +129,25 @@ export default {
 
         },
 
+        async removePost(index){
 
+            const post = this.posts[index]
+
+            await axios.delete(`/api/annonces/annonce/${post.slug}`)
+                .then( response => {
+                    const data = response.data
+
+                    if (data.success){
+                        this.posts.splice(index, 1)
+                        this.getPosts(this.meta.current_page)
+                    }
+                    else {
+                        console.log(data.result)
+                    }
+                })
+
+
+        },
     }
 }
 </script>

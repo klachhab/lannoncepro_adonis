@@ -11,7 +11,7 @@
             <div class="mb-5">
 
                 <div class="flex mb-3 p-3 rounded-md shadow"
-                     v-for="(post, index) in posts"
+                     v-for="(post, index) in posts" :key="index"
                 >
 
                     <img :src="post.primary_image" alt="tailwind logo"
@@ -43,12 +43,24 @@
                                 </a>
                             </span>
                         </div>
+
+                        <div class="flex items-center w-full mt-2 text-gray-500">
+                            <a href="#" class="transition duration-300 ease-in-out hover:text-red-500"
+                               @click.prevent="removeFromFav(index)"
+                            >
+                                <i class=" fa-heart text-red-500 mr-2 fas"></i>
+                                <span class="font-normal"
+                                >
+                                    Enlever
+                                </span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <t-pagination
+            <t-pagination v-if="meta.last_page !== 1"
                 :total-items="meta.total"
                 :per-page="meta.per_page"
                 v-model="meta.current_page"
@@ -117,6 +129,27 @@ export default {
 
         },
 
+        async removeFromFav(index){
+            const post = this.posts[index]
+
+            await axios.post(`/api/annonces/${post.slug}/favourite`)
+                .then(response => {
+                    const data = response.data
+
+                    if (data.success){
+                        this.getFavourites(this.meta.current_page)
+                    }
+                    else {
+                        console.log(data.result)
+                    }
+                })
+                .catch( err => {
+                    return {
+                        error: err
+                    }
+                })
+
+        },
 
     }
 }

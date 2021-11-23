@@ -5,7 +5,7 @@
 
             <div class="flex items-center md:justify-between h-16">
 
-                <a class="flex items-center space-x-1.5" href="#">
+                <a class="flex items-center space-x-1.5" href="/">
                     <img class="h-10 w-auto md:h-9" src="/logo_icon.png" alt="">
                     <p class="font-bold base text-gray-800 dark:text-white
                                 hover:text-gray-700 dark:hover:text-gray-300"
@@ -52,7 +52,7 @@
                                             </span>
                                         </div>
                                     </a>
-                                    <a href="#"
+                                    <a href="/mon-profil/messages"
                                        class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
                                        role="menuitem"
                                     >
@@ -69,7 +69,7 @@
                                         </div>
                                     </a>
 
-                                    <a href="#"
+                                    <a href="/mon-profil/favoris"
                                        class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
                                        role="menuitem"
                                     >
@@ -81,7 +81,7 @@
                                         </div>
                                     </a>
 
-                                    <a href="#"
+                                    <a href="/mon-profil/infos"
                                        class="block block px-3 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
                                        role="menuitem"
                                     >

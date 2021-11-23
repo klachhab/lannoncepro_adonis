@@ -13,6 +13,7 @@ import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import {DateTime} from "luxon";
 import ReportType from "App/Models/Post/ReportType";
 import Conversation from "App/Models/Conversation";
+import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
 
 export default class PostsController {
 
@@ -397,10 +398,10 @@ export default class PostsController {
                             result: post
                         }
                     })
-                    .catch((e: Exception) => {
+                    .catch((e: IsAdminOwnerException) => {
                         return {
                             success: false,
-                            result: e.code
+                            result: e.message
                         }
                     })
 
@@ -521,7 +522,7 @@ export default class PostsController {
 
                             return post.related('favourites')
                                 .detach([user.id])
-                                .then(() => {
+                                .then(async () => {
                                     return {
                                         success: true,
                                         result: false
@@ -537,7 +538,7 @@ export default class PostsController {
                         else {
                             return post.related('favourites')
                                 .attach([user.id])
-                                .then(() => {
+                                .then( async () => {
                                     return {
                                         success: true,
                                         result: true

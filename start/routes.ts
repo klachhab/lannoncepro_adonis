@@ -106,7 +106,7 @@ Route.group(() => {
 
     // Profile ---------------------------------------------------------------------
     Route.group(() => {
-        Route.resource('', 'UsersController')
+        Route.resource('profile', 'UsersController')
             .apiOnly()
             .except(['show'])
             .middleware({
@@ -153,14 +153,17 @@ Route.group(() => {
 
     // Posts ----------------------------------------------------------------------
     Route.group(() => {
-        Route.resource('', 'Post/PostsController')
+
+        Route.resource('annonce', 'Post/PostsController')
             .except(['index', 'show'])
             .apiOnly()
             .middleware({
-                edit: 'auth:web,api',
+                store: 'auth:web,api',
+                destroy: 'admin_owner',
             })
+            .as('annonces')
 
-        Route.post(':slug/restore', 'Post/PostsController.restore')
+        Route.post(':id/restore', 'Post/PostsController.restore')
             .as('annonces.restore')
             .middleware('auth:web,api')
 

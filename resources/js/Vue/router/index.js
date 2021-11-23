@@ -1,18 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import {
-    ProfileComponent,
-    PostsComponent,
-    ConversationComponent,
-    PendingPostsComponent,
-    FavouritePostsComponent,
-} from "../Components/profile/SubComponents"
-// import ProfileComponent from "../Components/profile/SubComponents/ProfileComponent"
-// import PostsComponent from "../Components/profile/SubComponents/PostsComponent"
-// import ConversationComponent from "../Components/profile/SubComponents/ConversationComponent"
-// import PendingPostsComponent from "../Components/profile/SubComponents/PendingPostsComponent"
-// import FavouritePostsComponent from "../Components/profile/SubComponents/PendingPostsComponent"
+import * as Subs from "../Components/profile/SubComponents"
 
 Vue.use(VueRouter);
 
@@ -21,38 +10,39 @@ const routes = [
     {
         path: '/',
         name: 'ads',
-        component: PostsComponent
+        component: Subs.PostsComponent
     },
 
     {
         path: '/messages',
         name: 'messages',
-        component: ConversationComponent
+        component: Subs.ConversationComponent
     },
 
     {
         path: '/favoris',
         name: 'favourite_ads',
-        component: FavouritePostsComponent
+        component: Subs.FavouritePostsComponent
     },
 
     {
         path: '/en-attente',
         name: 'pending_ads',
-        component: PendingPostsComponent
+        component: Subs.PendingPostsComponent
     },
 
     {
         path: '/infos',
         name: 'profile_infos',
-        component: ProfileComponent
+        component: Subs.ProfileComponent
     },
 
 
 ];
 
 const router = new VueRouter({
-    mode: "hash",
+    mode: "history",
+    base: "/mon-profil",
     linkActiveClass: "text-blue-700",
     linkExactActiveClass: "text-blue-700",
     routes
