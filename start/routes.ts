@@ -45,7 +45,7 @@ Route.group(() => {
 
     // Profile -------------------------------------
     Route.resource('profil', 'UsersController')
-        .except(['create', 'edit'])
+        .except(['create', 'edit', "update"])
         .as('profile')
 
     Route.get('mon-profil/:any?', 'UsersController.show')
@@ -110,8 +110,8 @@ Route.group(() => {
             .apiOnly()
             .except(['show'])
             .middleware({
-                update: 'auth:api',
-                destroy: 'auth:api',
+                update: 'auth:api,web',
+                destroy: 'auth:api,web',
             })
 
 
@@ -139,11 +139,11 @@ Route.group(() => {
 
         Route.post('/:username/restore', 'UsersController.restore')
             .as('profile.restore')
-            .middleware('auth:web,api')
+            .middleware('admin')
 
         Route.delete('/:username/force-delete', 'UsersController.forceDelete')
             .as('profile.forceDelete')
-            .middleware('auth:web,api')
+            .middleware('admin')
 
         Route.post('/is_unique', 'UsersController.is_unique')
             .as('profile.is_unique')

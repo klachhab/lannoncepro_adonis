@@ -60,7 +60,7 @@
 
             </div>
 
-            <t-pagination
+            <t-pagination v-if="posts.length && meta.last_page > 1"
                 :total-items="meta.total"
                 :per-page="meta.per_page"
                 v-model="meta.current_page"

@@ -61,6 +61,9 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     public can_receive_news: boolean
 
     @column()
+    public allow_reviews: boolean
+
+    @column()
     public blocked: boolean
 
     @column()

@@ -8,6 +8,33 @@
 
             <hr class="w-full border-gray-300 my-5">
 
+            <!-- Alerts -->
+
+            <div v-if="update_result"
+                class="flex justify-between items-center w-full border-l-4 rounded p-4 mb-10 mt-4 "
+                 :class="update_result === 'success' ?
+                 'border-green-600 bg-green-200 text-green-600' : 'border-red-600 bg-red-200 text-red-600'"
+            >
+                <span v-if="update_result === 'success'">
+                    Mise à jour effectuée avec succès
+                </span>
+                <span v-if="update_result === 'error'">
+                    Une erreur est survenue lors de la mise à jour de vos informations
+                </span>
+
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                     class="h-5 w-5 cursor-pointer"
+                     viewBox="0 0 24 24" stroke="currentColor"
+                     @click.prevent="update_result = null"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+
+            </div>
+
+            <!-- ! Alerts ! -->
+
+
             <div :class="input_class.container">
             <span :class="input_class.label">
                 Civilié
@@ -30,7 +57,8 @@
                 </span>
 
                 <input type="text" :class="input_class.input"
-                       v-model="profile_form.name"/>
+                       v-model="profile_form.name"
+                />
             </div>
 
             <div :class="input_class.container">
@@ -57,7 +85,7 @@
             </div>
 
             <div :class="input_class.container">
-            <span :class="input_class.label">
+                <span :class="input_class.label">
                 Département
             </span>
                 <div :class="focus_dep_class">
@@ -114,7 +142,6 @@
                 </div>
             </div>
 
-
         </div>
 
         <!-- Update password -->
@@ -143,6 +170,15 @@
                        v-model="profile_form.new_pass_confirmation"
                 />
             </div>
+
+            <div :class="input_class.container">
+                <a href="#" class="p-2.5 text-center lg:col-span-2 text-white rounded-md bg-green-600 hover:bg-green-700 focus:bg-green-800"
+                   @click.prevent="updatePassword"
+                >
+                    Enregistrer
+                </a>
+            </div>
+
         </div>
 
 
@@ -157,6 +193,7 @@
 
                 <label class="inline-flex items-center">
                     <input type="checkbox"
+                           v-model="profile_form.can_receive_news"
                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
                            focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
                     >
@@ -165,6 +202,7 @@
 
                 <label class="inline-flex items-center">
                     <input type="checkbox"
+                           v-model="profile_form.allow_reviews"
                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
                            focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
                     >
@@ -173,18 +211,21 @@
 
             </div>
         </div>
+
         <!-- Submit Button -->
         <div :class="input_class.container">
-            <button class="p-2.5 lg:col-span-2 text-white rounded-md bg-green-600 hover:bg-green-700 focus:bg-green-800">
+            <a href="#" class="p-2.5 text-center lg:col-span-2 text-white rounded-md bg-green-600 hover:bg-green-700 focus:bg-green-800"
+                    @click.prevent="updateUserInfos"
+            >
                 Enregistrer
-            </button>
+            </a>
         </div>
 
     </div>
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 
 export default {
     name: "ProfileComponent",
@@ -198,7 +239,7 @@ export default {
                 input: "px-3 py-2 lg:col-span-5 block w-full rounded-md placeholder-gray-400 border-gray-300 border focus:border-blue-400 focus:ring-1 focus:ring-blue-300 focus-visible:outline-none"
             },
             select_class: {
-                focused: " border-blue-400 ring-1 ring-blue-300",
+                focused: "border-blue-400 ring-1 ring-blue-300",
                 unfocused: " border-gray-300",
                 container: "relative lg:col-span-5 block w-full rounded-md border",
                 input: "w-full px-3 py-2 rounded-md focus-visible:outline-none focus-visible:outline-none"
@@ -224,9 +265,13 @@ export default {
 
                 can_receive_news: false,
 
+                allow_reviews: false,
+
                 new_password: null,
                 new_pass_confirmation: null,
             },
+            update_result: null,
+            password_update_result: null,
 
         }
     },
@@ -237,8 +282,15 @@ export default {
 
     computed: {
         ...mapState([
-            'username'
+            'username',
+            // 'input_class'
         ]),
+
+        password_match_class(){
+            return this.profile_form.new_password === this.profile_form.new_pass_confirmation ?
+                "text-black placeholder-gray-400 border-gray-300" :
+                "border-red-300 bg-red-50 placeholder-red-200 text-red-900"
+        },
 
         focus_dep_class(){
 
@@ -253,6 +305,9 @@ export default {
     },
 
     methods: {
+        ...mapMutations([
+            'isPassMatch'
+        ]),
 
         blur_element(element){
             // if (element === 'departments') {
@@ -283,6 +338,8 @@ export default {
                         name: user.name,
                         phone: "0" + user.phone,
                         username: user.username,
+                        can_receive_news: user.can_receive_news === 1,
+                        allow_reviews: user.allow_reviews === 1,
                         email: user.email,
                         city_id: city.id,
                     }
@@ -345,6 +402,57 @@ export default {
             this.profile_form.city_id = city.id
             this.city_name = city.name
             this.cities = []
+        },
+
+
+
+        async updateUserInfos(){
+
+            const url = `/api/profile/profile/${this.profile_form.username }`
+            const form = new FormData
+
+            form.append('title', this.profile_form.title)
+            form.append('name', this.profile_form.name)
+            form.append('phone', this.profile_form.phone)
+            form.append('city_id', this.profile_form.city_id)
+
+            form.append('can_receive_news', this.profile_form.can_receive_news)
+            form.append('allow_reviews', this.profile_form.allow_reviews)
+
+            await axios.put(url, form)
+                .then(response => {
+                    this.update_result = response.data.success ? "success" : "error"
+
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    })
+                })
+
+        },
+
+        checkPass(){
+
+        },
+
+        async updatePassword(){
+            const form = new FormData
+
+            form.append('password', this.profile_form.new_password)
+
+            const url = `/api/profile/profile/${this.profile_form.username }`
+            await axios.put(url, form)
+                .then(response => {
+                    this.getUserInfos()
+                    this.update_result = response.data.success ? "success" : "error"
+
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    })
+                    console.log(response.data)
+                })
+
         },
     },
 }

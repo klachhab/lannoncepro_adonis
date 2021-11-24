@@ -26,6 +26,10 @@ export default class Users extends BaseSchema {
           .notNullable()
           .defaultTo(false);
 
+      table.boolean('allow_reviews')
+          .notNullable()
+          .defaultTo(false);
+
       table.boolean('blocked')
           .notNullable()
           .defaultTo(false);

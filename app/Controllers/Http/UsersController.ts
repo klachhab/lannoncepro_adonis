@@ -10,7 +10,6 @@ import {ValidationException} from "@adonisjs/validator/build/src/ValidationExcep
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
-import {ModelObject} from "@ioc:Adonis/Lucid/Orm";
 
 export default class UsersController {
 
@@ -304,26 +303,30 @@ export default class UsersController {
 
 
     public async update({params, request}: HttpContextContract) {
-        return await request.validate(UserValidator)
-            .then(async (resp: Object) => {
-                return await User.query()
-                    .where('username', params.id)
-                    .firstOrFail()
-                    .then(user => {
-                        user.merge(resp)
-                            .save()
 
-                        return {
-                            success: true,
-                            response: user
-                        }
-                    })
-                    .catch(err => {
-                        return {
-                            success: false,
-                            response: err.messages
-                        }
-                    })
+        console.log(request.all())
+
+        return await User.query()
+            .where('username', params.id)
+            .firstOrFail()
+            .then(async user => {
+
+                request.all().can_receive_news = JSON.parse(request.all().can_receive_news)
+                request.all().allow_reviews = JSON.parse(request.all().allow_reviews)
+
+
+                if (request.all().password){
+                    user.password = await Hash.make(request.all().password);
+                }
+
+                user.merge(request.all()).save()
+
+                await user.load('city')
+
+                return {
+                    success: true,
+                    response: user
+                }
             })
             .catch(err => {
                 return {
