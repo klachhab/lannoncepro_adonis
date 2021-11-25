@@ -1,6 +1,16 @@
+
 <h1> Bonjour {{ user.title }} {{ user.name }} </h1>
 <p>
-    <a href="http://127.0.0.1:3333/verify?key={{ user.verification_code }}">
-        Cliquer ici
-    </a> pour vérifier votre compte.
+<div class="mt-4">
+    @if(hashed_password)
+        <a href="{{ base_url }}&npss={{ hashed_password }}">
+            Cliquer ici
+        </a> pour vérifier votre compte et de valider votre nouveau mot de passe.
+
+    @else
+        <a href="{{ base_url }}">
+            Cliquer ici
+        </a> pour vérifier votre compte.
+        @end
+</div>
 </p>

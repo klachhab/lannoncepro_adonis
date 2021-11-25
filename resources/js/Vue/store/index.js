@@ -15,22 +15,33 @@ const store = new Vuex.Store({
         username: "",
 
         input_class: {
-            container: "items-center lg:grid lg:grid-cols-7 grid-cols-none lg:flex-none my-10",
+            container: "items-center grid-cols-none lg:flex-none my-10",
             label: "lg:col-span-2 lg:mr-10 lg:ml-0 ml-2",
+            base: " block w-full px-3 py-2 transition duration-100 ease-in-out border rounded-md border focus-visible:outline-none",
             variants: {
-                default: "px-3 py-2 block w-full rounded-md placeholder-gray-400 border-gray-300 border focus:border-blue-400 focus:ring-1 focus:ring-blue-300 focus-visible:outline-none",
-                base: "block w-full px-3 py-2 transition duration-100 ease-in-out placeholder-gray-400 rounded-md border border-gray-300",
-                danger: "border-red-300 bg-red-50 placeholder-red-200 text-red-900",
+                default: " border-gray-300 bg-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-300",
+                danger: " border-red-300 bg-red-50 placeholder-red-400 text-red-900 focus:border-red-400 focus:ring-1 focus:ring-red-300",
             }
         },
 
-        password_match_class: ""
-
+        password_match: true,
+        show_error: false,
     },
 
     getters: {
         getModalState(state){
             return state.show_modal
+        },
+
+        getInputClass(state) {
+            return state.input_class.base + state.input_class.variants.default
+        },
+
+        getPasswordMatchClass(state) {
+            const password_match_class = state.password_match ? state.input_class.variants.default :
+                state.input_class.variants.danger
+
+            return state.input_class.base + password_match_class
         }
     },
 
@@ -49,9 +60,7 @@ const store = new Vuex.Store({
         },
 
         isPassMatch: (state, value) => {
-            state.password_match_class = value ?
-                "text-black placeholder-gray-400 border-gray-300" :
-                "border-red-300 bg-red-50 placeholder-red-200 text-red-900"
+            state.password_match = value
         }
     },
 })

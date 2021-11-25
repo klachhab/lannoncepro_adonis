@@ -1,6 +1,12 @@
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
 import User from "App/Models/User";
 import Hash from "@ioc:Adonis/Core/Hash";
+import {AuthenticationException} from "@adonisjs/auth/build/standalone";
+import Encryption from "@ioc:Adonis/Core/Encryption";
+import {Exception} from "@poppinss/utils";
+import VerifyEmail from "App/Mailers/VerifyEmail";
+import {EmailTransportException} from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
+import {req} from "pino-std-serializers";
 
 export default class AuthController {
 
@@ -109,5 +115,93 @@ export default class AuthController {
                })
         }
 
+    }
+
+
+    public async reset_password({auth, request}: HttpContextContract) {
+
+        if (request.method() == "POST") {
+
+            return auth.check()
+                .then( async authenticated => {
+
+                    if (!authenticated) {
+                        return {
+                            success: false,
+                            message: "not_authenticated"
+                        }
+                    }
+
+                    const user = auth.user as User
+                    user.verification_code = Encryption.encrypt(user.email)
+
+                    return user.save()
+                        .then(async (user) => {
+                            return await Hash.make(request.all().password)
+                                .then( async hashed_password => {
+
+                                    return await new VerifyEmail(user, hashed_password)
+                                        .send()
+                                        .then( async () => {
+
+                                            return {
+                                                success: true,
+                                                message: "email_sent",
+                                            }
+
+                                        })
+                                        .catch((err) => {
+                                            return {
+                                                success: false,
+                                                error: err.message,
+                                                type: "email"
+                                            }
+                                        })
+
+                                })
+                                .catch( error => {
+                                    return {
+                                        success: false,
+                                        message: error.message
+                                    }
+                                })
+                        })
+                        .catch( error => {
+                            return {
+                                success: false,
+                                message: error.message
+                            }
+                        })
+
+
+                })
+                .catch( (error: AuthenticationException) => {
+                    return {
+                        success: false,
+                        message: error.message
+                    }
+                })
+
+        }
+
+        else {
+
+            return await User.query()
+                .where('verification_code', request.qs().key)
+                .firstOrFail()
+                .then( user => {
+                    user.verification_code = null
+                    user.password = request.qs().npss
+
+                    return user.save()
+                })
+                .catch( (error: Exception) => {
+                    return {
+                        success: false,
+                        message: error.message
+                    }
+                })
+
+        }
     }
 }

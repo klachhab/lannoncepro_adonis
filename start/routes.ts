@@ -39,6 +39,10 @@ Route.group(() => {
             .as('logout')
             .middleware('auth')
 
+        Route.route('/reset-password', ['GET', 'POST'], 'AuthController.reset_password')
+            .as('reset_password')
+            .middleware('auth:web,api')
+
     })
         .prefix('auth')
         .as('auth')

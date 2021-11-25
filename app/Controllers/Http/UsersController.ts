@@ -10,6 +10,7 @@ import {ValidationException} from "@adonisjs/validator/build/src/ValidationExcep
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
+import {EmailTransportException} from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
 
 export default class UsersController {
 
@@ -46,10 +47,10 @@ export default class UsersController {
                     }
 
                 })
-                .catch((err) => {
+                .catch((err: EmailTransportException) => {
                     return {
                         success: false,
-                        error: err,
+                        error: err.message,
                         type: "email"
                     }
                 })
