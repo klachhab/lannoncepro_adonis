@@ -19,7 +19,7 @@
                     >
 
                     <div class="w-full md:w-2/3 bg-white flex flex-col">
-                        <a :href="`/annonces/${ post.slug }`" class="font-bold text-gray-800 md:text-xl text-md">
+                        <a :href="`/annonces/${ post.slug }`" target="_blank" class="font-bold text-gray-800 md:text-xl text-md">
                             {{ post.title }}
                         </a>
                         <p class="text-green-500 mt-2">

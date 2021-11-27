@@ -19,7 +19,7 @@
                     >
 
                     <div class="w-full md:w-2/3 bg-white flex flex-col">
-                        <a :href="`/annonces/${ post.slug }`" class="font-bold text-gray-800 md:text-xl text-md">
+                        <a :href="`/annonces/${ post.slug }`" target="_blank" class="font-bold text-gray-800 md:text-xl text-md">
                             {{ post.title }}
                         </a>
                         <p class="text-green-500 mt-2">
@@ -44,7 +44,7 @@
                             </span>
                         </div>
 
-                        <div class="flex items-center w-full mt-2 text-gray-500">
+                        <div v-if="is_me === 'true'" class="flex items-center w-full mt-2 text-gray-500">
                             <a href="#" class="transition duration-300 ease-in-out hover:text-red-500"
                                @click.prevent="removePost(index)"
                             >
@@ -80,6 +80,7 @@ import {
 
 export default {
     name: "PostsComponent",
+    props: ['is_me'],
     components: {
         TPagination
     },

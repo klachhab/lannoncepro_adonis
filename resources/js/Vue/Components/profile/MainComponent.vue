@@ -5,10 +5,11 @@ import {mapState} from "vuex";
 export default {
     name: "MainComponent",
 
-    props: ['unread_messages_count', 'username'],
+    props: ['unread_messages_count', 'username', 'my_username', 'is_online'],
 
     data() {
         return {
+
             side_menu: [
                 {
                     label: "Mes annonces",
@@ -48,12 +49,20 @@ export default {
                 //     route_name: 'delete_acccount'
                 // },
             ],
+
         }
     },
 
     created() {
         this.$store.commit('update_message_count', Number.parseInt(this.unread_messages_count))
         this.$store.commit('setUserName', this.username)
+
+        if (this.is_my_profile){
+            this.$router.push({
+                name: "ads",
+            })
+            .catch( () => {})
+        }
     },
 
     computed: {
@@ -61,8 +70,20 @@ export default {
             'container', 'messages_count'
         ]),
 
+        is_my_profile(){
+            return this.my_username === this.username
+        },
+
+        online(){
+            return Number.parseInt(this.is_online)
+        }
+
+
     },
 
+    mounted() {
+
+    }
 
 
 }

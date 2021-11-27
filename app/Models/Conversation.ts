@@ -19,7 +19,7 @@ export default class Conversation extends BaseModel {
   public conversationKey: string
 
   @column()
-  public read: number
+  public read: boolean
 
   @column({serializeAs: null})
   public postId: number

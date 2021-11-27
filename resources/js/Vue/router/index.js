@@ -34,7 +34,8 @@ const routes = [
     {
         path: '/infos',
         name: 'profile_infos',
-        component: Subs.ProfileComponent
+        component: Subs.ProfileComponent,
+        props: true
     },
 
 

@@ -7,6 +7,8 @@
     <user-profile inline-template id="container"
                   unread_messages_count="{{ unread_messages_count }}"
                   username="{{ user.username }}"
+                  my_username="{{ my_username }}"
+                  is_online="{{ user.is_online }}"
     >
 
         <div class="grid grid-cols-1 max-h-full pb-20">
@@ -41,16 +43,14 @@
                                 {{ user.name }}
                             </span>
 
-                            <span class="text-xs text-white bg-green-500 rounded-full py-1 px-2 ml-1">
-                                En ligne
-                            </span>
-
                         </div>
 
 
                         <span class="lg:text-left text-center text-sm text-gray-500">
-                                Membre depuis le <b>{{user.membre_depuis }}</b>
-                            </span>
+                            Membre depuis le <b>{{user.membre_depuis }}</b>
+                        </span>
+
+
                     </div>
 
                 </div>
@@ -75,7 +75,9 @@
             </div>
 
 
-            <div class="hidden lg:flex flex-wrap mx-auto space-x-4 divide-x divide-gray-200 px-4 w-full bg-white rounded-b border-t border-gray-200"
+            @if(my_username == user.username)
+
+                <div class="hidden lg:flex flex-wrap mx-auto space-x-4 divide-x divide-gray-200 px-4 w-full bg-white rounded-b border-t border-gray-200"
                  :class="container"
             >
 
@@ -100,20 +102,26 @@
 
             </div>
 
-            <div class="lg:flex-none lg:grid lg:grid-cols-12 lg:gap-x-4 mx-auto w-full mt-5"
-                 :class="container"
-            >
+            @end
 
-                <transition name="fade" mode="out-in">
-                    <router-view>
-                    </router-view>
-                </transition>
+                <div class="lg:flex-none lg:grid lg:grid-cols-12 lg:gap-x-4 mx-auto w-full mt-5"
+                     :class="container"
+                >
+                    @if(my_username == user.username)
+
+                    <transition name="fade" mode="out-in">
+                        <router-view>
+                        </router-view>
+                    </transition>
+                    @else
+
+                        <user-post is_me="{{ my_username == user.username }}"></user-post>
+                    @end
 
 
-                <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>
+                    <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>
 
-
-            </div>
+                </div>
 
 
 

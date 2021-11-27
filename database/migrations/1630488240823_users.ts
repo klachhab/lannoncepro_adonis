@@ -18,6 +18,10 @@ export default class Users extends BaseSchema {
           .notNullable().defaultTo('user');
 
       table.integer('phone', 10).notNullable();
+      table.boolean('is_online')
+          .notNullable()
+          .defaultTo(false);
+
       table.boolean('is_pro')
           .notNullable()
           .defaultTo(false);

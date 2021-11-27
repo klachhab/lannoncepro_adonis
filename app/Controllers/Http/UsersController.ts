@@ -14,12 +14,13 @@ import {EmailTransportException} from "@adonisjs/mail/build/src/Exceptions/Email
 
 export default class UsersController {
 
-    public async index({}: HttpContextContract) {
+    public async index({response}: HttpContextContract) {
 
-        return await User.withTrashed()
-            .withCount('posts')
-            .withCount('reports')
-            .withCount('reviews')
+        return response.status(404)
+        // return await User.withTrashed()
+        //     .withCount('posts')
+        //     .withCount('reports')
+        //     .withCount('reviews')
 
     }
 
@@ -225,13 +226,22 @@ export default class UsersController {
     }
 
 
-    public async show({params, auth, view}: HttpContextContract) {
+    public async show({ params, auth, view, response}: HttpContextContract) {
+
+        if ( await auth.check().then( logged => { return logged}) ){
+            const user = auth.user as User
+
+            if (params.id == user.username) {
+                return response.redirect().toRoute("web.my_profile")
+            }
+        }
 
         const username = await auth.check()
-            .then( logged => {
+            .then( () => {
                 const user = auth.user as User
-                if (!logged && (params.id || params.username)) {
-                    return params.id || params.username
+
+                if (params.id && params.id !== user.username) {
+                    return params.id
                 }
                 else return user.username
             })
@@ -267,27 +277,31 @@ export default class UsersController {
                     return {
                         success: true,
                         user,
-                        // user: user
-                        //     .serialize({
-                        //         fields: [
-                        //             'id', 'title', 'name', 'phone', 'is_pro',
-                        //             'blocked', 'membre_depuis'
-                        //         ],
-                        //     }),
-
                     }
                 }
 
                 else {
+                    const my_username = await auth.check()
+                        .then( logged => {
+                            if (logged) {
+                                const user = auth.user as User
+                                return user.username
+                            } else {
+                                return null
+                            }
+                        })
+
                     return view.render('user/profile', {
                         user: user.serialize({
                             fields: ['id', 'name', 'avatar', 'email', 'is_pro',
-                                'blocked', 'membre_depuis', 'username'
+                                'blocked', 'membre_depuis', 'username', 'is_online'
                             ],
                         }),
                         unread_messages_count: conversations
-                            .filter(conversation => conversation.read)
+                            .filter(conversation => !conversation.read)
                             .length,
+
+                        my_username
                     })
                 }
 
@@ -402,19 +416,7 @@ export default class UsersController {
     // For API ==========================
     public async user_posts({auth, params, request}: HttpContextContract){
 
-        const username = await auth.check()
-            .then( logged => {
-                const user = auth.user as User
-                if (!logged && (params.id || params.username)) {
-                    return params.id || params.username
-                }
-                else return user.username
-            })
-            .catch( (err: AuthenticationException) => {
-                return {
-                    error: err.message
-                }
-            })
+        const username = params.username
 
         return await User.query().where('username', username)
             .withCount('posts', posts => {

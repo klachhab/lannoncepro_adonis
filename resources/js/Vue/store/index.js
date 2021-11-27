@@ -55,6 +55,7 @@ const store = new Vuex.Store({
             state.messages_count = value
         },
 
+
         setUserName: (state, value) => {
             state.username = value
         },

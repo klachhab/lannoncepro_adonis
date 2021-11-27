@@ -55,6 +55,9 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     public phone: number
 
     @column()
+    public is_online: boolean
+
+    @column()
     public is_pro: boolean
 
     @column()

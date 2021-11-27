@@ -10,9 +10,9 @@
 
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-            <span :class="input_class.label">
-                Civilié
-            </span>
+                <span :class="input_class.label">
+                    Civilié
+                </span>
 
                 <select class="lg:col-span-5 ":class="getInputClass"
                         v-model="profile_form.title"
@@ -55,7 +55,7 @@
             <span :class="input_class.label">
                 Téléphone
             </span>
-                <input type="text" class="lg:col-span-5 ":class="getInputClass" v-model="profile_form.phone" />
+                <input type="text" class="lg:col-span-5 " :class="getInputClass" v-model="profile_form.phone" />
             </div>
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">

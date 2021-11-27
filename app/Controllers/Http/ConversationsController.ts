@@ -4,10 +4,25 @@ import User from "App/Models/User";
 
 
 export default class ConversationsController {
+
     public async index({auth}: HttpContextContract) {
         const user = auth.user as User
 
-        const messages = user.related('posts')
+        return user.related('conversations')
+            .query()
+            .preload('messages', messages => {
+                messages.groupOrderBy('created_at', 'desc')
+                    .groupLimit(1)
+            })
+            // .preload('post', post => {
+            //     post
+            //         .preload('images', images => {
+            //             images.select('path').limit(1)
+            //         })
+            //         .select('id', 'title', 'slug')
+            // })
+
+        return user.related('posts')
             .query()
             .has('conversations')
             .preload('conversations', conversations => {
@@ -16,12 +31,12 @@ export default class ConversationsController {
             .preload('images', images => {
                 images.select('path')
                     .firstOrFail()
-                    .then( image => {
+                    .then(image => {
                         return image
                     })
             })
             .select('slug', 'title', 'user_id', 'id')
-            .then( posts => {
+            .then(posts => {
                 const unread_message_filter = posts.filter(post => post.has_unread_message == true)
                 return {
                     conversations: posts,
@@ -29,45 +44,39 @@ export default class ConversationsController {
                     has_unread_message: unread_message_filter.length !== 0,
                 }
             })
-
-        return messages
+            .catch( err => {
+                return {
+                    success: false,
+                    error: err.message
+                }
+            })
     }
 
-    public async create({}: HttpContextContract) {
-    }
-
-    public async store({}: HttpContextContract) {
-    }
 
     public async show({request, view}: HttpContextContract) {
-
         const chatroom = await Conversation.query()
             .where('conversation_key', request.qs().room_id)
+
             .preload('messages')
+
             .preload('post', post => {
-                post.preload('images', images => {
-                        images
-                            .select('path')
-                            .firstOrFail()
-                            .then( image => {
-                                return image
-                            })
-                            .catch( () => {
-                                return null
-                            })
-                    })
-                    .preload('user', user => {
-                    user.select('name', 'title', 'createdAt')
-                })
-                    .select('slug', 'title', 'userId', 'createdAt')
+                post.select('id','slug', 'title', 'createdAt')
             })
             .firstOrFail()
 
-            .then(conversation => {
-                return {
-                    success: true,
-                    conversation
-                }
+            .then(conv => {
+
+                conv.read = true
+
+                return conv.save()
+                    .then( conversation => {
+                        return {
+                            success: true,
+                            conversation
+                        }
+                    })
+
+
             })
             .catch( err => {
                 return {
@@ -77,10 +86,7 @@ export default class ConversationsController {
             })
 
         if (request.qs().api){
-            return {
-                chatroom,
-                // messages: chatroom.conversation.messages
-            }
+            return chatroom
         }
 
         return view.render('chatroom', {

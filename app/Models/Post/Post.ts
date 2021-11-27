@@ -118,10 +118,10 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
             })
     }
 
-    @computed()
-    public get primary_image(){
-        return this.images?.length ? this.images[0].path : null
-    }
+    // @computed()
+    // public get primary_image(){
+    //     return this.images?.length ? this.images[0].path : null
+    // }
 
     @computed()
     public get has_unread_message(){
