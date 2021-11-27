@@ -1,4 +1,4 @@
-<template xmlns:x-transition="http://www.w3.org/1999/xhtml">
+<template>
     <div class="lg:col-span-7 col-span-12">
 
         <!-- Infos -->
@@ -30,7 +30,7 @@
                     Nom
                 </span>
 
-                <input type="text" class="lg:col-span-5 ":class="getInputClass"
+                <input type="text" class="lg:col-span-5 " :class="getInputClass"
                        v-model="profile_form.name"
                 />
             </div>
@@ -60,8 +60,8 @@
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
-                Département
-            </span>
+                    Département
+                </span>
                 <div :class="focus_dep_class">
 
                     <input type="text" :class="select_class.input"
@@ -147,7 +147,7 @@
                 <div class="lg:col-span-5 flex flex-col">
                     <input type="password" :class="profile_form.new_pass_confirmation ? getPasswordMatchClass : getInputClass"
                            v-model="profile_form.new_pass_confirmation"
-                           @input="isPassMatch(profile_form.new_pass_confirmation === profile_form.new_password)"
+                           @input="setPassMatch(profile_form.new_pass_confirmation === profile_form.new_password)"
                     />
 
                     <span class="text-sm text-red-500" v-if="profile_form.new_pass_confirmation && !password_match">
@@ -227,12 +227,12 @@ export default {
     data() {
         return {
 
-            select_class: {
-                focused: "border-blue-400 ring-1 ring-blue-300",
-                unfocused: " border-gray-300",
-                container: "relative lg:col-span-5 block w-full rounded-md border",
-                input: "w-full px-3 py-2 rounded-md focus-visible:outline-none focus-visible:outline-none"
-            },
+            // select_class: {
+            //     focused: "border-blue-400 ring-1 ring-blue-300",
+            //     unfocused: " border-gray-300",
+            //     container: "relative lg:col-span-5 block w-full rounded-md border",
+            //     input: "w-full px-3 py-2 rounded-md focus-visible:outline-none focus-visible:outline-none"
+            // },
 
             selected_input: null,
 
@@ -272,12 +272,12 @@ export default {
 
     computed: {
         ...mapState([
-            'username', 'input_class', 'password_match'
+            'username', 'input_class', 'password_match', 'select_class'
         ]),
 
         ...mapGetters([
             "getPasswordMatchClass",
-            "getInputClass"
+            "getInputClass",
         ]),
 
         focus_dep_class() {
@@ -294,7 +294,7 @@ export default {
 
     methods: {
         ...mapMutations([
-            'isPassMatch'
+            'setPassMatch'
         ]),
 
         blur_element(element) {
@@ -382,8 +382,7 @@ export default {
                     name: value
                 })
                     .then(response => {
-                        const cities = response.data
-                        this.cities = cities
+                        this.cities = response.data
                     })
             }
         },

@@ -36,6 +36,7 @@ export default class UsersController {
 
     public async store({request}: HttpContextContract) {
 
+
         // Sending verification E-mail
         const sendEmail = async ( user: User) => {
             return await new VerifyEmail(user)

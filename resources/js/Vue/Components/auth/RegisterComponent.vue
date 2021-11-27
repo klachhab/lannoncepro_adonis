@@ -1,4 +1,5 @@
 <script>
+import {mapGetters, mapMutations, mapState} from "vuex";
 
 import {
     email, maxLength, minLength, numeric, required, requiredIf, sameAs
@@ -23,24 +24,34 @@ export default {
 
             // Form ------------------------------------------
             form: {
-                title: null,
+                title: "",
                 name: "",
                 username: "",
                 phone: "",
                 email: "",
                 city_id: "",
+                city_name: "",
                 password: "",
                 password_confirmation: "",
 
+                department_code: "",
+                department_name: "",
                 conditions: false,
+            },
+
+            hide: {
+                password: true,
+                password_confirmation: true,
             },
             // Form ------------------------------------------
 
-            selectedDep: null,
+
+            departments: [],
             cities: [],
 
-            errors: [],
-            error_field: "",
+            errors: {},
+            errorFields: [],
+
             field_class: {
                 has_err: "border-red-300 focus:border-red-300 ring-red-200 ring ring-opacity-50 focus:ring-red-200 focus:ring focus:ring-opacity-50",
                 normal: "border-gray-300 focus:border-blue-400 focus:ring-blue-300",
@@ -48,75 +59,13 @@ export default {
 
             show_errors: false,
             saving: false,
+
+            selected_select: "",
         }
     },
 
     validations: {
         form: {
-
-            title: {
-                required,
-                is_title
-            },
-            name: {
-                required,
-            },
-            username: {
-                required,
-                unique: async value => {
-                    return await axios.post(`/api/profile/is_unique`, {
-                        value
-                    })
-                        .then( resp => {
-                            return Boolean(resp.data)
-                        })
-                        .catch( (err) => {
-                            console.log(err)
-                            return err
-                        })
-                },
-            },
-            email: {
-                required,
-                email,
-                unique: async value => {
-                    return await axios.post(`/api/profile/is_unique`, {
-                        value
-                    })
-                        .then( resp => {
-                            return Boolean(resp.data)
-                        })
-                        .catch( (err) => {
-                            return err
-                        })
-                },
-            },
-            phone: {
-                required,
-                numeric,
-                minLength: minLength(10),
-                maxLength: maxLength(10),
-            },
-            password: {
-                required,
-                minLength: minLength(8)
-            },
-            password_confirmation: {
-                sameAsPassword: sameAs('password')
-            },
-            city_id: {
-                required,
-                numeric,
-                isCity: async value => {
-                    return await axios.post(`/api/cities/${value}`)
-                        .then( resp => {
-                            return resp.data.success
-                        })
-                        .catch( err => {
-                            console.log(err)
-                        })
-                }
-            },
             conditions: {
                 accepted,
             }
@@ -124,12 +73,49 @@ export default {
     },
 
     computed: {
+        ...mapState([
+            'input_class', 'password_match', 'select_class'
+        ]),
+
+        ...mapGetters([
+            "getPasswordMatchClass",
+            "getInputClass"
+        ]),
+
         accepted: () => {
             return true
+        },
+
+        focus_password_class() {
+            const clss = this.selected_select === 'pass' ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
+            return this.select_class.container + clss
+        },
+
+        focus_pass_conf_class() {
+            const clss = this.selected_select === 'pass_conf' ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
+            return this.select_class.container + clss
         },
     },
 
     methods: {
+
+        ...mapMutations([
+            'setErrorFields'
+        ]),
+
+        blurInput($event, field){
+
+            const element = $event.target
+            const defaultClasses = this.getInputClass('default').split(" ")
+            const errorClasses = this.getInputClass('error').split(" ")
+
+            if (this.errorFields.includes(field)) {
+                element.classList.remove(...errorClasses)
+                element.classList.add(...defaultClasses)
+                const fieldIndex = this.errorFields.indexOf(field)
+                this.errorFields.slice(fieldIndex, 1)
+            }
+        },
 
         showAlert(){
             this.$swal({
@@ -146,16 +132,12 @@ export default {
 
         async newUser(){
 
-            if (this.$v.form.$invalid){
-                this.show_errors = true
-                return
-            }
-
             this.saving = true
 
             const form = new FormData()
 
             form.append('title', this.form.title)
+
             form.append('name', this.form.name)
             form.append('username', this.form.username)
             form.append('email', this.form.email)
@@ -164,15 +146,28 @@ export default {
             form.append('phone', this.form.phone)
             form.append('city_id', this.form.city_id)
 
-
-            await axios.post('/api/profile', form)
+            await axios.post('/api/profile/profile', form)
                 .then(async response => {
                     const success = response.data.success
-                    const data = response.data.response
+                    const data = response.data
+
+                    this.saving = false
+                    this.errors = {}
 
                     if (success) {
                         this.showAlert()
                     }
+                    else {
+                        const errors = data.error.errors
+                        this.errorFields = errors.map(err => err.field)
+                        console.log(this.errorFields)
+
+                        for (let errorKey in errors) {
+                            const error = errors[errorKey]
+                            this.errors[error.field] = error.message
+                        }
+                    }
+
                 })
                 .catch(err => {
                     console.log(err)
@@ -180,22 +175,71 @@ export default {
 
         },
 
-        async getCities(){
 
-            this.form.city_id = null
+        async getDepartments($event) {
+            const element = $event.target
+            const defaultClasses = this.getInputClass('default').split(" ")
+            const errorClasses = this.getInputClass('error').split(" ")
 
-            await axios.post(`/api/departments/${ this.selectedDep}`)
-            .then( resp => {
-                if (!resp.data.success){
-                    alert('Une erreur est survenu lors de la récupération de la liste des villes')
-                }
-                this.cities = resp.data.cities
-                return resp.data.cities
-            })
-            .catch( err => {
-                return err
-            })
-        }
+            element.classList.remove(...errorClasses)
+            element.classList.add(...defaultClasses)
+
+            if (element.value.trim() === "") {
+
+                this.form.department_code = ""
+                this.departments = []
+
+            } else {
+                await axios.post(`/api/departments`, {
+                    name: element.value.trim()
+                })
+                    .then(response => {
+                        this.departments = response.data
+                    })
+
+            }
+        },
+
+        async getDepartment(department) {
+
+            this.getInputClass(false)
+            this.form.department_name = department.name
+            this.form.department_code = department.code
+
+            this.form.city_name = ""
+            this.form.city_id = ""
+            this.departments = []
+            this.cities = []
+        },
+
+        async getCities($event) {
+            const element = $event.target
+            const defaultClasses = this.getInputClass('default').split(" ")
+            const errorClasses = this.getInputClass('error').split(" ")
+
+            element.classList.remove(...errorClasses)
+            element.classList.add(...defaultClasses)
+
+            if (element.value.trim() === "") {
+                this.cities = []
+            }
+            else {
+                await axios.post(`/api/cities/${this.form.department_code}`, {
+                    name: element.value.trim()
+                })
+                    .then(response => {
+                        this.cities = response.data
+                    })
+            }
+        },
+
+        async getCity(city) {
+            console.log(city)
+            this.form.city_id = city.id
+            this.form.city_name = city.name
+            this.cities = []
+        },
+
     },
 }
 </script>

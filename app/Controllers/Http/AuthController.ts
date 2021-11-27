@@ -5,8 +5,7 @@ import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {Exception} from "@poppinss/utils";
 import VerifyEmail from "App/Mailers/VerifyEmail";
-import {EmailTransportException} from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
-import {req} from "pino-std-serializers";
+
 
 export default class AuthController {
 

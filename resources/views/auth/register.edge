@@ -14,167 +14,247 @@
 
                 <div class=" w-full mt-4 md:px-8 grid grid-cols-1 place-items-center">
 
-                    <span class="font-semibold text-3xl text-blue-600 mb-12">Créer un nouveau compte</span>
+                    <span class="font-semibold text-3xl text-blue-600 mb-12">
+                        Créer un nouveau compte
+                    </span>
 
                     <!-- Title -->
                     <div class="relative mb-7 w-full ">
+
                         <select
                                 class="mt-1 block w-full rounded-md placeholder-gray-400"
-                                :class="field_class.normal"
-                                v-model="$v.form.title.$model"
+                                :class="getInputClass(errors.title ? 'error' : 'default')"
+                                @change.once="blurInput($event, 'title')"
+                                v-model="form.title"
                         >
-
-                            <option value="null" selected disabled>Civilié...</option>
+                            <option value="" selected disabled>Civilié...</option>
                             <option value="mrs">Mme.</option>
                             <option value="miss">Mlle.</option>
                             <option value="mr">Mr.</option>
 
                         </select>
 
-                        <p v-if="show_errors && !$v.form.title.is_title" class="absolute text-xs text-red-400 ml-2 mt-1">
-                            Le titre de civilité n'est pas valide
-                        </p>
+                        <span class="text-xs text-red-500" v-if="errors.title">
+                            @{{ errors.title }}
+                        </span>
                     </div>
 
                     <!-- Name -->
                    <div class="relative mb-7 w-full ">
                         <input type="text"
                                class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.name.$invalid ? field_class.has_err : field_class.normal"
-                               v-model="$v.form.name.$model"
+                               :class="getInputClass(errors.name ? 'error' : 'default')"
+                               @input="blurInput($event, 'name')"
+                               v-model="form.name"
                                placeholder="Nom complet" />
 
-                        <p v-if="show_errors && !$v.form.name.required" class="absolute text-xs text-red-400 ml-2 mt-1">
-                            Merci de saisir votre nom complet
-                        </p>
+                       <span class="text-xs text-red-500" v-if="errors.name">
+                           @{{ errors.name }}
+                       </span>
                    </div>
 
                     <!-- Username -->
                     <div class="relative mb-7 w-full">
                         <input type="text"
                                class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.username.$invalid? field_class.has_err : field_class.normal"
-                               v-model.lazy="$v.form.username.$model"
+                               :class="getInputClass(errors.username ? 'error' : 'default')"
+                               @input.once="blurInput($event, 'username')"
+                               v-model.lazy="form.username"
                                placeholder="Nom d'utilisateur" />
 
-                        <p v-if="show_errors && !$v.form.username.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            Merci de saisir votre nom complet
-                        </p>
-                        <p v-else-if="show_errors && !$v.form.username.unique" class="absolute text-xs text-red-400 ml-2 mb-1">
-                            Le nom d'utilisateur doit être unique
-                        </p>
+                        <span class="text-xs text-red-500" v-if="errors.username">
+                           @{{ errors.username }}
+                        </span>
+
                     </div>
 
                     <!-- Phone -->
                     <div class="relative mb-7 w-full ">
                         <input type="text"
                                class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.phone.$invalid? field_class.has_err : field_class.normal"
-                               v-model="$v.form.phone.$model"
+                               :class="getInputClass(errors.phone ? 'error' : 'default')"
+                               @input="blurInput($event, 'phone')"
+                               v-model="form.phone"
                                placeholder="Numéro de téléphone" />
 
-                        <p v-if="show_errors && !$v.form.phone.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            Merci de saisir votre numéro de téléphone
-                        </p>
-                        <p v-else-if="show_errors && !$v.form.phone.numeric" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            Le numéro de téléphone que vous avez saisi n'est pas valide
-                        </p>
-                        <p v-else-if="show_errors && !$v.form.phone.minLength || show_errors && !$v.maxLength" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            Le numéro de téléphone doit contenir 10 chiffres
-                        </p>
+                        <span class="text-xs text-red-500" v-if="errors.phone">
+                           @{{ errors.phone }}
+                       </span>
+
                     </div>
 
                     <!-- Department -->
                     <div class="relative mb-7 w-full">
-                        <select
-                                @change="getCities"
-                                class="mt-1 block w-full rounded-md placeholder-gray-400"
-                                :class="field_class.normal"
-                                v-model="selectedDep">
 
-                            <option value="null" disabled selected>Département</option>
+                        <div class="relative" @blur.self="departments = []" tabindex="-1">
 
-                            @each(department in departments)
+                            <input type="text"
+                                   class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                   :class="getInputClass(errors.department_code ? 'error' : 'default')"
+                                   v-model="form.department_name"
+                                   placeholder="Département"
+                                   @focus="selected_select = 'dep'"
+                                   @input="getDepartments"
+                            />
 
-                            <option value="{{ department.code }}">{{ department.code }} - {{ department.name }}</option>
+                            <div v-if="departments.length"
+                                 class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
 
-                            @end
-                        </select>
+                                <div class="w-full flex flex-col overflow-auto"
+                                     :class=" departments.length < 4 ? `h-${ departments.length * 8 }`:'h-32'"
+                                >
 
-                        <p v-if="error_field === 'E_ROW_NOT_FOUND'" class="absolute text-xs text-red-400 ml-2 mt-1">
-                            Le choix n'est pas valide
-                        </p>
+                                    <span class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
+                                          v-for="(department,index) in departments" :key="index"
+                                          @click="getDepartment(department)"
+                                    >
+                                        @{{ department.name }}
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <span class="text-xs text-red-500" v-if="errors.department_code">
+                            @{{ errors.department_code }}
+                        </span>
+
                     </div>
 
                     <!-- City -->
-                    <div class="relative mb-7 w-full" v-if="selectedDep">
-                        <select
-                               class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.city_id.$invalid? field_class.has_err : field_class.normal"
-                               v-model="$v.form.city_id.$model">
+                    <div class="relative mb-7 w-full" v-if="form.department_code">
 
-                            <option value="null" disabled selected>Ville</option>
-                            <option v-for="city in cities" :value="city.id">@{{ city.name }}</option>
+                        <div class="relative" @blur="cities = []" tabindex="-1" >
 
-                        </select>
+                            <input type="text"
+                                   class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                   :class="getInputClass(errors.city_id ? 'error' : 'default')"
+                                   v-model="form.city_name"
+                                   placeholder="Ville"
+                                   @input="getCities"
+                            />
 
-                        <div v-if="$v.form.city_id.$dirty">
-                            <p v-if="show_errors && !$v.form.city_id.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                                Merci de selectionner votre ville / commune
-                            </p>
-                            <p v-else-if="show_errors && !$v.form.city_id.isCity" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                                Le ville / commune est introuvable
-                            </p>
+                            <div v-if="cities.length" tabindex="1"
+                                 class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
+
+                                <div class="w-full flex flex-col overflow-auto"
+                                     :class="cities.length < 4 ? `h-${ cities.length * 8 }`:'h-32'">
+                                    <span class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
+                                          v-for="(city,index) in cities" :key="index"
+                                          @click="getCity(city)"
+                                    >
+                                        @{{ city.name }}
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
+
+                        <span class="text-xs text-red-500" v-if="errors.city_id">
+                           @{{ errors.city_id }}
+                       </span>
+
                     </div>
 
                     <!-- Email -->
                     <div class="relative mb-7 w-full">
                         <input type="email"
                                class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.email.$invalid? field_class.has_err : field_class.normal"
-                               v-model.lazy="$v.form.email.$model"
+                               :class="getInputClass(errors.email ? 'error' : 'default')"
+                               @input="blurInput($event, 'email')"
+                               v-model.lazy="form.email"
                                placeholder="Adresse e-mail" />
 
-                        <p v-if="show_errors && !$v.form.email.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            L'adresse e-mail est obligatoire
-                        </p>
-                        <p v-else-if="show_errors && !$v.form.email.email" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            L'adresse e-mail n'est pas valide
-                        </p>
-                        <p v-else-if="show_errors && !$v.form.email.unique" class="absolute text-xs text-red-400 ml-2 mb-1">
-                            L'adresse e-mail doit être unique
-                        </p>
+                        <span class="text-xs text-red-500" v-if="errors.email">
+                           @{{ errors.email }}
+                       </span>
+
                     </div>
 
                     <!-- Password -->
                     <div class="relative mb-7 w-full ">
-                        <input type="password"
-                               class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.password.$invalid? field_class.has_err : field_class.normal"
-                               v-model.lazy="$v.form.password.$model"
-                               placeholder="Mote de passe" />
+
+                        <div :class="focus_password_class" class="flex flex-between items-center">
+
+                            <input :type="hide.password ? 'password' : 'text'"
+                                   :class="select_class.input"
+                                   v-model="form.password"
+                                   placeholder="Mot de passe"
+                                   @focus="selected_select = 'pass'"
+                                   @blur="selected_select = null"
+                                   @input="blurInput($event, 'password')"
+                            />
+
+                            <svg v-if="hide.password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                 @click="hide.password = false"
+                                 stroke="currentColor" >
+
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                                      stroke-linejoin="round" stroke-width="2"></path>
+
+                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                 @click="hide.password = true"
+                                 stroke="currentColor"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                ></path>
+                            </svg>
+                        </div>
+
+                        <span class="text-xs text-red-500" v-if="errors.password">
+                            @{{ errors.password }}
+                        </span>
 
 
-                        <p v-if="show_errors && !$v.form.password.required" class="absolute text-xs text-red-400 ml-2 mt-1 mb-1">
-                            Merci de saisir un mot de passe
-                        </p>
-                        <p v-else-if="show_errors && !$v.form.password.minLength" class="absolute text-xs text-red-400 ml-2 mb-1">
-                            Le mot de passe doit contenir au moins 8 caractères
-                        </p>
                     </div>
 
                     <!-- Password confirmation -->
                     <div class="relative mb-7 w-full ">
-                        <input type="password"
-                               class="mt-1 block w-full rounded-md placeholder-gray-400"
-                               :class="show_errors && $v.form.password_confirmation.$invalid? field_class.has_err : field_class.normal"
-                               v-model="$v.form.password_confirmation.$model"
-                               placeholder="Confirmation du mote de passe" />
+                        <div :class="focus_pass_conf_class" class="flex flex-between items-center">
 
-                        <p v-if="show_errors && !$v.form.password_confirmation.sameAsPassword" class="absolute text-xs text-red-400 ml-2 mb-1">
-                            Les mots de passe que vous avez entrés ne sont pas identiques
-                        </p>
+                            <input :type="hide.password_confirmation ? 'password' : 'text'"
+                                   :class="select_class.input"
+                                   v-model="form.password_confirmation"
+                                   placeholder="Confirmation du mote de passe"
+                                   @focus="selected_select = 'pass_conf'"
+                                   @blur="selected_select = null"
+                                   @input="blurInput($event, 'password_confirmation')"
+                            />
+
+                            <svg v-if="hide.password_confirmation" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                 @click="hide.password_confirmation = false"
+                                 stroke="currentColor" >
+
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                                      stroke-linejoin="round" stroke-width="2"></path>
+
+                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                 @click="hide.password_confirmation = true"
+                                 stroke="currentColor"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                ></path>
+                            </svg>
+                        </div>
+
+                        <span class="text-xs text-red-500" v-if="errors.password_confirmation">
+                            @{{ errors.password }}
+                        </span>
+
                     </div>
 
                     <!-- Terms and conditions -->
@@ -195,8 +275,8 @@
                     </div>
 
                     <!-- Validation -->
-                    <button :class="$v.form.$invalid || saving? 'btn-disabled bg-blue-300':'bg-blue-500'"
-                            :disabled="$v.form.$invalid || saving"
+                    <button :class="!form.conditions || saving? 'btn-disabled bg-blue-300':'bg-blue-500'"
+                            :disabled="!form.conditions || saving"
                             @click="newUser()"
                             class="flex items-center py-2 px-7 mb-7 mt-3 text-white rounded-md transition delay-100 ease-in-out hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
                     >

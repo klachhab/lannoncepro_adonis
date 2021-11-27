@@ -1,6 +1,5 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-
 import * as Subs from "../Components/profile/SubComponents"
 
 Vue.use(VueRouter);
