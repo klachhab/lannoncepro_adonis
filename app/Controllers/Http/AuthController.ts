@@ -121,87 +121,104 @@ export default class AuthController {
 
         if (request.method() == "POST") {
 
-            return auth.check()
+            const get_email = await auth.check()
                 .then( async authenticated => {
-
-                    var email = ""
-
-                    if (JSON.parse(request.all().guest)) {
-                        email = request.all().email
+                    if (!authenticated) {
+                        const is_gest = JSON.parse(request.all().guest) as boolean
+                        return {
+                            success: is_gest,
+                            message: !is_gest ? "not_authenticated" : request.all().email
+                        }
+                    }
+                    else if (request.all().new_password !== request.all().new_pass_confirmation) {
+                        return {
+                            success: false,
+                            message: "pass_not_match"
+                        }
                     }
                     else {
-                        if (!authenticated) {
-                            return {
-                                success: false,
-                                message: "not_authenticated"
-                            }
+                        const user = auth.user as User
+                        return {
+                            success: true,
+                            message: user.email
                         }
-
-                        const usr = auth.user as User
-                        email = usr.email
                     }
-
-                    return await User.query()
-                        .where('email', email)
-                        .firstOrFail()
-                        .then( async user => {
-                            user.verification_code = Encryption.encrypt(user.email)
-
-                            return user.save()
-                                .then(async (user) => {
-
-                                    const hashed = await Hash.make(request.all().password)
-                                        .then( async hashed_password => {
-                                            return hashed_password
-                                        })
-
-                                        .catch( () => {
-                                            return null
-                                        })
-
-                                    return await new VerifyEmail(user, request.all().password ? hashed : null, JSON.parse(request.all().guest))
-                                        .send()
-                                        .then( async () => {
-
-                                            return {
-                                                success: true,
-                                                message: "email_sent",
-                                            }
-
-                                        })
-                                        .catch((err) => {
-                                            return {
-                                                success: false,
-                                                error: err.message,
-                                                type: "email"
-                                            }
-                                        })
-                                })
-
-                                .catch( error => {
-                                    return {
-                                        success: false,
-                                        message: error.message
-                                    }
-                                })
-
-                        })
-
-                        .catch( error => {
-                            return {
-                                success: false,
-                                message: error.code
-                            }
-                        })
-
                 })
-
                 .catch( (error: AuthenticationException) => {
                     return {
                         success: false,
                         message: error.message
                     }
                 })
+
+            // return get_email
+
+            if (get_email.success) {
+                return await User.query()
+                    .where('email', get_email.message)
+                    .firstOrFail()
+                    .then(async user => {
+                        // return user
+                        user.verification_code = Encryption.encrypt(user.email)
+
+                        return user.save()
+                            .then(async (user) => {
+
+                                var hashed = ""
+
+                                if (!JSON.parse(request.all().guest)) {
+
+                                    hashed = await Hash.make(request.all().new_password)
+                                        .then(hashed_pass => {
+                                            return hashed_pass
+                                        }).catch( () => {
+                                            return ""
+                                        })
+
+                                }
+
+                                return await new VerifyEmail(user, hashed, JSON.parse(request.all().guest))
+                                    .send()
+                                    .then(async () => {
+
+                                        return {
+                                            success: true,
+                                            message: "email_sent",
+                                        }
+
+                                    })
+                                    .catch((err) => {
+                                        return {
+                                            success: false,
+                                            error: err.message,
+                                            type: "email"
+                                        }
+                                    })
+                            })
+
+                            .catch(error => {
+                                return {
+                                    success: false,
+                                    message: error.message
+                                }
+                            })
+
+                    })
+
+                    .catch(error => {
+                        return {
+                            success: false,
+                            message: error.code
+                        }
+                    })
+            }
+
+            else {
+                return {
+                    success: false,
+                    message: "unsuccess"
+                }
+            }
 
         }
 
@@ -259,8 +276,16 @@ export default class AuthController {
     public async update_password({auth, request, response}: HttpContextContract) {
 
         const errors = {
-            length: request.all().password.trim() !== null && request.all().password.length >= 8,
+            pass_null: request.all().password !== null,
+            length:  request.all().password.trim().length >= 8,
             match_ok: request.all().password_confirmation === request.all().password
+        }
+
+        if (!errors.pass_null){
+            return {
+                success: false,
+                message: "pass_null"
+            }
         }
 
         if (!errors.length){

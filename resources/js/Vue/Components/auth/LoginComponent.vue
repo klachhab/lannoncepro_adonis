@@ -82,10 +82,11 @@ export default {
                     if (!result.data.success) {
 
                         if (result.data.error === "E_ROW_NOT_FOUND") {
-                            this.setUserExists(result.data.success)
+                            this.setUserExists(false)
                         }
+
                         else {
-                            this.setPassMatch(result.data.success)
+                            this.setPassMatch(false)
                             this.setUserExists(true)
                         }
 
@@ -125,6 +126,7 @@ export default {
 
             axios.post('/auth/reset-password', form)
                 .then(response => {
+                    this.request_sent = false
                     if (response.data.success) {
                         this.$swal({
                             icon: 'success',
@@ -133,7 +135,6 @@ export default {
                         })
                             .then( () => {
                                 window.location.replace('/')
-                                this.request_sent = false
                             })
                     }
                 })

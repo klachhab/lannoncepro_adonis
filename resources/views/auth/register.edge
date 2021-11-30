@@ -34,7 +34,7 @@
 
                         </select>
 
-                        <span class="text-xs text-red-500" v-if="errors.title">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.title">
                             @{{ errors.title }}
                         </span>
                     </div>
@@ -48,7 +48,7 @@
                                v-model="form.name"
                                placeholder="Nom complet" />
 
-                       <span class="text-xs text-red-500" v-if="errors.name">
+                       <span class="text-xs text-red-500 ml-2" v-if="errors.name">
                            @{{ errors.name }}
                        </span>
                    </div>
@@ -62,7 +62,7 @@
                                v-model.lazy="form.username"
                                placeholder="Nom d'utilisateur" />
 
-                        <span class="text-xs text-red-500" v-if="errors.username">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.username">
                            @{{ errors.username }}
                         </span>
 
@@ -77,7 +77,7 @@
                                v-model="form.phone"
                                placeholder="Numéro de téléphone" />
 
-                        <span class="text-xs text-red-500" v-if="errors.phone">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.phone">
                            @{{ errors.phone }}
                        </span>
 
@@ -89,7 +89,7 @@
                         <div class="relative" @blur.self="departments = []" tabindex="-1">
 
                             <input type="text"
-                                   class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                   class="mt-1"
                                    :class="getInputClass(errors.department_code ? 'error' : 'default')"
                                    v-model="form.department_name"
                                    placeholder="Département"
@@ -115,7 +115,7 @@
 
                         </div>
 
-                        <span class="text-xs text-red-500" v-if="errors.department_code">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.department_code">
                             @{{ errors.department_code }}
                         </span>
 
@@ -150,7 +150,7 @@
 
                         </div>
 
-                        <span class="text-xs text-red-500" v-if="errors.city_id">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.city_id">
                            @{{ errors.city_id }}
                        </span>
 
@@ -165,7 +165,7 @@
                                v-model.lazy="form.email"
                                placeholder="Adresse e-mail" />
 
-                        <span class="text-xs text-red-500" v-if="errors.email">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.email">
                            @{{ errors.email }}
                        </span>
 
@@ -208,7 +208,7 @@
                             </svg>
                         </div>
 
-                        <span class="text-xs text-red-500" v-if="errors.password">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.password">
                             @{{ errors.password }}
                         </span>
 
@@ -251,7 +251,7 @@
                             </svg>
                         </div>
 
-                        <span class="text-xs text-red-500" v-if="errors.password_confirmation">
+                        <span class="text-xs text-red-500 ml-2" v-if="errors.password_confirmation">
                             @{{ errors.password }}
                         </span>
 

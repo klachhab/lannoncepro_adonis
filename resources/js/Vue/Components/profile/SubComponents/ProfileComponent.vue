@@ -14,7 +14,8 @@
                     Civilié
                 </span>
 
-                <select class="lg:col-span-5 ":class="getInputClass"
+                <select class="lg:col-span-5"
+                        :class="getInputClass('default')"
                         v-model="profile_form.title"
                 >
 
@@ -25,12 +26,14 @@
                 </select>
             </div>
 
+
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
                     Nom
                 </span>
 
-                <input type="text" class="lg:col-span-5 " :class="getInputClass"
+                <input type="text" class="lg:col-span-5"
+                       :class="getInputClass('default')"
                        v-model="profile_form.name"
                 />
             </div>
@@ -40,14 +43,14 @@
                     Nom d'utilisateur
                 </span>
 
-                <input type="text" disabled class="lg:col-span-5 ":class="getInputClass" :value="profile_form.username" />
+                <input type="text" disabled class="lg:col-span-5 " :class="getInputClass('default')" :value="profile_form.username" />
             </div>
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
                     Adresse e-mail
                 </span>
-                <input disabled type="email" class="lg:col-span-5 ":class="getInputClass" :value="profile_form.email" />
+                <input disabled type="email" class="lg:col-span-5 " :class="getInputClass('default')" :value="profile_form.email" />
 
             </div>
 
@@ -56,14 +59,16 @@
                 <span :class="input_class.label">
                     Téléphone
                 </span>
-                <input type="text" class="lg:col-span-5 " :class="getInputClass" v-model="profile_form.phone" />
+                <input type="text" class="lg:col-span-5 "
+                       :class="getInputClass('default')" v-model="profile_form.phone" />
             </div>
+
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
                     Département
                 </span>
-                <div :class="focus_dep_class">
+                <div :class="focus_dep_class" @blur.self="departments = []" tabindex="-1">
 
                     <input type="text" :class="select_class.input"
                            v-model="department.name"
@@ -89,6 +94,7 @@
 
                 </div>
             </div>
+
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
@@ -130,32 +136,90 @@
 
             <hr class="w-full border-gray-300 my-5">
 
+
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
                     Nouveau mot de passe
                 </span>
 
-                <input type="password" class="lg:col-span-5 " :class="getInputClass"
-                       v-model="profile_form.new_password"
-                />
+                <div :class="focus_password_class" class="flex flex-between items-center">
+
+                    <input :type="hide.password ? 'password' : 'text'"
+                           :class="select_class.input"
+                           v-model="profile_form.new_password"
+                           placeholder="Mot de passe"
+                           @focus="selected_input = 'pass'"
+                           @blur="selected_input = null"
+                    />
+
+                    <svg v-if="hide.password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                         @click="hide.password = false"
+                         stroke="currentColor" >
+
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"></path>
+
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                         @click="hide.password = true"
+                         stroke="currentColor"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        ></path>
+                    </svg>
+                </div>
+
+
             </div>
+
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <span :class="input_class.label">
                     Confirmation
                 </span>
 
-                <div class="lg:col-span-5 flex flex-col">
-                    <input type="password" :class="profile_form.new_pass_confirmation ? getPasswordMatchClass : getInputClass"
+                <div :class="focus_pass_conf_class" class="flex flex-between items-center">
+
+                    <input :type="hide.password_confirmation ? 'password' : 'text'"
+                           :class="select_class.input"
                            v-model="profile_form.new_pass_confirmation"
-                           @input="setPassMatch(profile_form.new_pass_confirmation === profile_form.new_password)"
+                           placeholder="Confirmation du mote de passe"
+                           @focus="selected_input = 'pass_conf'"
+                           @blur="selected_input = null"
                     />
 
-                    <span class="text-sm text-red-500" v-if="profile_form.new_pass_confirmation && !password_match">
-                        Les deux mots de passe ne correspondent pas
-                    </span>
+                    <svg v-if="hide.password_confirmation" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                         @click="hide.password_confirmation = false"
+                         stroke="currentColor" >
+
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"></path>
+
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                         @click="hide.password_confirmation = true"
+                         stroke="currentColor"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        ></path>
+                    </svg>
                 </div>
+
             </div>
+
+
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
                 <button :disabled="!profile_form.new_pass_confirmation || !password_match"
@@ -228,13 +292,6 @@ export default {
     data() {
         return {
 
-            // select_class: {
-            //     focused: "border-blue-400 ring-1 ring-blue-300",
-            //     unfocused: " border-gray-300",
-            //     container: "relative lg:col-span-5 block w-full rounded-md border",
-            //     input: "w-full px-3 py-2 rounded-md focus-visible:outline-none focus-visible:outline-none"
-            // },
-
             selected_input: null,
 
             department: {
@@ -260,6 +317,11 @@ export default {
 
                 new_password: null,
                 new_pass_confirmation: null,
+            },
+
+            hide: {
+                password: true,
+                password_confirmation: true,
             },
 
             updating_infos: false,
@@ -290,7 +352,17 @@ export default {
         focus_city_class() {
             const clss = this.selected_input === 'city' ? this.select_class.focused : this.select_class.unfocused
             return this.select_class.container + clss
-        }
+        },
+
+        focus_password_class() {
+            const clss = this.selected_input === 'pass' ? this.select_class.focused : this.select_class.unfocused
+            return this.select_class.container + clss
+        },
+
+        focus_pass_conf_class() {
+            const clss = this.selected_input === 'pass_conf' ? this.select_class.focused : this.select_class.unfocused
+            return this.select_class.container + clss
+        },
     },
 
     methods: {
@@ -452,16 +524,15 @@ export default {
         async updatePassword() {
             const form = new FormData
 
-            form.append('password', this.profile_form.new_password)
+            form.append('new_password', this.profile_form.new_password)
+            form.append('new_pass_confirmation', this.profile_form.new_pass_confirmation)
 
             this.updating_pass = true
-
-            this.profile_form.new_password = null
-            this.profile_form.new_pass_confirmation = null
 
             await axios.post(`/auth/reset-password`, form)
                 .then(response => {
 
+                    console.log(response.data)
                     if (response.data.success) {
                         this.$swal({
                             icon: "success",
@@ -474,12 +545,15 @@ export default {
                         })
 
                     } else {
+                        const error_message = response.data.message === "pass_not_match" ? "Les 2 mots de passe ne sont pas identiques" :
+                            'Une erreur est survenue lors de la modification de votre mot de passe.\nMerci de contacter notre support.'
+                            + `\n${response.data.message}`
+
                         this.$swal({
                             icon: "error",
                             title: "Erreur",
-                            text: 'Une erreur est survenue lors de la modification de votre mot de passe.\n' +
-                                `Merci de contacter notre support.`
-                            + `\n${response.data.error}`
+                            text: error_message
+
                         }).then( () => {
                             this.updating_pass = false
                         })
