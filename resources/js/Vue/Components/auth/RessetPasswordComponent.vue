@@ -2,8 +2,7 @@
 import {mapGetters, mapMutations, mapState} from "vuex";
 
 export default {
-    components: {
-    },
+    props: ['code'],
 
     data() {
         return {
@@ -15,14 +14,16 @@ export default {
             },
 
             form: {
-                auth_field: "",
                 password: "",
+                password_confirmation: "",
             },
+
+            selected: null,
 
             error_field: "",
 
             hide_password: true,
-            select_pass: false,
+            hide_password_confirmation: true,
 
             errorFields: [],
 
@@ -38,7 +39,7 @@ export default {
 
     computed: {
         ...mapState([
-            'input_class', 'password_match', 'user_exists', 'select_class'
+            'input_class', 'password_match', 'select_class'
         ]),
 
         ...mapGetters([
@@ -47,7 +48,12 @@ export default {
         ]),
 
         focus_password_class() {
-            const clss = this.select_pass ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
+            const clss = this.selected === "password" ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
+            return this.select_class.container + clss
+        },
+
+        focus_password_conf_class() {
+            const clss = this.selected === "password_confirmation" ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
             return this.select_class.container + clss
         },
 
@@ -73,69 +79,34 @@ export default {
             }
         },
 
-        login(){
-            this.request_sent = true
-
-            axios.post('/auth/login', this.form)
-                .then( result => {
-
-                    if (!result.data.success) {
-
-                        if (result.data.error === "E_ROW_NOT_FOUND") {
-                            this.setUserExists(result.data.success)
-                        }
-                        else {
-                            this.setPassMatch(result.data.success)
-                            this.setUserExists(true)
-                        }
-
-                        this.error_field = result.data.error
-                        this.request_sent = false
-                    }
-                    else {
-                        this.error_field = ""
-                        window.location.replace('/mon-profil')
-                    }
-
-                    console.log(result.data)
-                })
-                .catch( err => {
-                    console.log(err)
-                })
-        },
-
-
-        switch_reset_form(){
-            this.reset = !this.reset
-            this.form = {
-                auth_field: "",
-                password: "",
-            }
-            this.reset_email = ""
-
-        },
-
         reset_password(){
             this.request_sent = true
 
             const form = new FormData
 
-            form.append('email', this.reset_email)
-            form.append('guest', true)
+            form.append('verification_code', this.code)
+            form.append('password', this.form.password)
+            form.append('password_confirmation', this.form.password_confirmation)
 
-            axios.post('/auth/reset-password', form)
+            axios.put('/auth/update-password', form)
                 .then(response => {
+                    console.log(response.data)
                     if (response.data.success) {
                         this.$swal({
                             icon: 'success',
-                            title: "",
-                            text: "Merci de vérifier votre boite e-mail afin de valider le changement de votre mot de passe"
+                            title: "Mot de passe modifier avec succès"
                         })
-                            .then( () => {
-                                window.location.replace('/')
-                                this.request_sent = false
-                            })
+                        .then( () => {
+                            window.location.replace('/mon-profil')
+                        })
                     }
+
+
+
+                    this.request_sent = false
+                })
+                .catch(err => {
+                    console.log(err.message)
                 })
 
         },

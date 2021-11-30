@@ -117,29 +117,49 @@ export default class AuthController {
     }
 
 
-    public async reset_password({auth, request}: HttpContextContract) {
+    public async reset_password({auth, request, view, response}: HttpContextContract) {
 
         if (request.method() == "POST") {
 
             return auth.check()
                 .then( async authenticated => {
 
-                    if (!authenticated) {
-                        return {
-                            success: false,
-                            message: "not_authenticated"
+                    var email = ""
+
+                    if (JSON.parse(request.all().guest)) {
+                        email = request.all().email
+                    }
+                    else {
+                        if (!authenticated) {
+                            return {
+                                success: false,
+                                message: "not_authenticated"
+                            }
                         }
+
+                        const usr = auth.user as User
+                        email = usr.email
                     }
 
-                    const user = auth.user as User
-                    user.verification_code = Encryption.encrypt(user.email)
+                    return await User.query()
+                        .where('email', email)
+                        .firstOrFail()
+                        .then( async user => {
+                            user.verification_code = Encryption.encrypt(user.email)
 
-                    return user.save()
-                        .then(async (user) => {
-                            return await Hash.make(request.all().password)
-                                .then( async hashed_password => {
+                            return user.save()
+                                .then(async (user) => {
 
-                                    return await new VerifyEmail(user, hashed_password)
+                                    const hashed = await Hash.make(request.all().password)
+                                        .then( async hashed_password => {
+                                            return hashed_password
+                                        })
+
+                                        .catch( () => {
+                                            return null
+                                        })
+
+                                    return await new VerifyEmail(user, request.all().password ? hashed : null, JSON.parse(request.all().guest))
                                         .send()
                                         .then( async () => {
 
@@ -156,24 +176,26 @@ export default class AuthController {
                                                 type: "email"
                                             }
                                         })
-
                                 })
+
                                 .catch( error => {
                                     return {
                                         success: false,
                                         message: error.message
                                     }
                                 })
+
                         })
+
                         .catch( error => {
                             return {
                                 success: false,
-                                message: error.message
+                                message: error.code
                             }
                         })
 
-
                 })
+
                 .catch( (error: AuthenticationException) => {
                     return {
                         success: false,
@@ -185,14 +207,43 @@ export default class AuthController {
 
         else {
 
+            const authenticated = await auth.check()
+                .then( checked => {
+                    return checked
+                })
+
+                .catch( (error: AuthenticationException) => {
+                    console.log(error.message)
+                    return false
+                })
+
+            if (authenticated){
+                return response.redirect().toRoute('web.my_profile')
+            }
+
             return await User.query()
                 .where('verification_code', request.qs().key)
                 .firstOrFail()
-                .then( user => {
-                    user.verification_code = null
-                    user.password = request.qs().npss
+                .then( async user => {
 
-                    return user.save()
+                    if (request.qs().q == 'rst'){
+                        user.verification_code = null
+                        user.password = request.qs().npss
+
+                        return await user.save()
+                            .then( () => {
+                                return response.redirect('/mon-profil/infos')
+                            })
+                    }
+
+                    else if (request.qs().q == 'ui_rst'){
+                        return view.render('auth/reset_password', {
+                            verification_code: user.verification_code
+                        })
+                    }
+
+                    else return response.redirect().toRoute('web.my_profile')
+
                 })
                 .catch( (error: Exception) => {
                     return {
@@ -203,4 +254,86 @@ export default class AuthController {
 
         }
     }
+
+
+    public async update_password({auth, request, response}: HttpContextContract) {
+
+        const errors = {
+            length: request.all().password.trim() !== null && request.all().password.length >= 8,
+            match_ok: request.all().password_confirmation === request.all().password
+        }
+
+        if (!errors.length){
+            return {
+                success: false,
+                message: "length_ko"
+            }
+        }
+
+        if (!errors.match_ok){
+            return {
+                success: false,
+                message: "no_match"
+            }
+        }
+
+        return await auth.check()
+            .then( async authenticated => {
+
+                if (authenticated) {
+                    return response.redirect('/mon-profil')
+                }
+
+                else {
+                    return await User.query()
+                        .where('verification_code', request.all().verification_code)
+                        .firstOrFail()
+                        .then( async user => {
+
+                            user.password = await Hash.make(request.all().password)
+                            user.verification_code = null
+
+                            return user.save()
+                                .then(() => {
+
+                                    return auth.attempt(user.email, request.all().password)
+                                        .then( () => {
+                                            return {
+                                                success: true
+                                            }
+                                        })
+                                        .catch( (error) => {
+                                            return {
+                                                method: 'AuthController@update_password_login_attemption',
+                                                success: false,
+                                                message: error.message
+                                            }
+                                        })
+
+
+                                })
+
+                                .catch( (error) => {
+                                    return {
+                                        method: 'AuthController@update_password_user_save',
+                                        success: false,
+                                        message: error.message
+                                    }
+                                })
+
+                        })
+
+                }
+
+
+            })
+            .catch( (error: AuthenticationException) => {
+                return {
+                    method: 'AuthController@update_password_authExce',
+                    success: false,
+                    message: error.message
+                }
+            })
+    }
+
 }

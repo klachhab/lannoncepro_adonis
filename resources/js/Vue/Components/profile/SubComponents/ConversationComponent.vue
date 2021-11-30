@@ -9,7 +9,7 @@
 
             <!-- component -->
 
-            <div v-if="conversations.length" class="w-full flex flex-col relative overflow-hidden">
+            <div v-if="conversations.length" class="w-full flex flex-col relative overflow-hidden border border-gray-500">
 
                 <div class="w-full md:w-2/4 lg:w-2/5 z-20 flex flex-col absolute inset-y-0 left-0 bg-white transform transition duration-200 ease-in-out"
                      :class="showMessages ? '-translate-x-full' :''"

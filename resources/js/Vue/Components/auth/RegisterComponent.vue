@@ -160,7 +160,6 @@ export default {
                     else {
                         const errors = data.error.errors
                         this.errorFields = errors.map(err => err.field)
-                        console.log(this.errorFields)
 
                         for (let errorKey in errors) {
                             const error = errors[errorKey]

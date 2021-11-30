@@ -41,7 +41,9 @@ Route.group(() => {
 
         Route.route('/reset-password', ['GET', 'POST'], 'AuthController.reset_password')
             .as('reset_password')
-            .middleware('auth:web,api')
+
+        Route.put('/update-password',  'AuthController.update_password')
+            .as('update_password')
 
     })
         .prefix('auth')
@@ -82,18 +84,13 @@ Route.group(() => {
 Route.group(() => {
 
     // cities ----------------------------------------------------------------
-    // Route.resource('cities', 'CitiesController').apiOnly()
-    //     .only(['index'])
 
     Route.post('cities/:dep_code', 'CitiesController.index')
         .as('cities.index')
 
-    // Route.get('cities/:dep_code', 'CitiesController.index')
-    //     .as('cities.index')
-
     // Route.get('cities/:code', 'CitiesController.show')
     //     .as('cities.show')
-        // .middleware('auth:web,api')
+    //     .middleware('auth:web,api')
 
     // departments ----------------------------------------------------------------
     Route.group( () => {

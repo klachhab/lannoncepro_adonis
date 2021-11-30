@@ -1,16 +1,20 @@
 
 <h1> Bonjour {{ user.title }} {{ user.name }} </h1>
-<p>
+
 <div class="mt-4">
     @if(hashed_password)
-        <a href="{{ base_url }}&npss={{ hashed_password }}">
-            Cliquer ici
-        </a> pour vérifier votre compte et de valider votre nouveau mot de passe.
+        <a href="{{ base_url }}/verify?key={{ user.verification_code }}&npss={{ hashed_password }}&q=rst">Cliquer ici</a>
+        pour valider votre nouveau mot de passe.
+
+    @elseif(pass_reset)
+
+        <a href="{{ base_url }}/auth/reset-password?key={{ user.verification_code }}&q=ui_rst">Cliquer ici</a>
+        pour changer votre mot de passe.
 
     @else
-        <a href="{{ base_url }}">
-            Cliquer ici
-        </a> pour vérifier votre compte.
-        @end
+        <a href="{{ base_url }}/verify?key={{ user.verification_code }}">Cliquer ici</a>
+        pour vérifier votre compte.
+
+    @end
 </div>
-</p>
+

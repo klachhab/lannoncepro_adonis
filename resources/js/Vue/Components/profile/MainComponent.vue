@@ -57,7 +57,7 @@ export default {
         this.$store.commit('update_message_count', Number.parseInt(this.unread_messages_count))
         this.$store.commit('setUserName', this.username)
 
-        if (this.is_my_profile){
+        if (this.is_my_profile && !window.location.pathname.includes('mon-profil')){
             this.$router.push({
                 name: "ads",
             })
@@ -78,12 +78,7 @@ export default {
             return Number.parseInt(this.is_online)
         }
 
-
     },
-
-    mounted() {
-
-    }
 
 
 }

@@ -52,9 +52,10 @@
             </div>
 
             <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-            <span :class="input_class.label">
-                Téléphone
-            </span>
+
+                <span :class="input_class.label">
+                    Téléphone
+                </span>
                 <input type="text" class="lg:col-span-5 " :class="getInputClass" v-model="profile_form.phone" />
             </div>
 
@@ -134,7 +135,7 @@
                     Nouveau mot de passe
                 </span>
 
-                <input type="password" class="lg:col-span-5 ":class="getInputClass"
+                <input type="password" class="lg:col-span-5 " :class="getInputClass"
                        v-model="profile_form.new_password"
                 />
             </div>

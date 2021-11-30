@@ -40,6 +40,7 @@ Vue.component('chatroom', require('./Vue/Components/ChatroomComponent').default)
 // Auth
 Vue.component('login', require('./Vue/Components/auth/LoginComponent').default);
 Vue.component('register', require('./Vue/Components/auth/RegisterComponent').default);
+Vue.component('resetPassword', require('./Vue/Components/auth/RessetPasswordComponent').default);
 
 // Profile
 Vue.component('userProfile', require('./Vue/Components/profile/MainComponent').default)
