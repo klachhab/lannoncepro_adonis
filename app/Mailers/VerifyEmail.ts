@@ -21,7 +21,7 @@ export default class VerifyEmail extends BaseMailer {
      * also be async.
      */
 
-    constructor(private user: User, private hashed_password: string, private isGuest: boolean = false) {
+    constructor(private user: User, private hashed_password: string, private isGuest: string = "false") {
         super();
     }
 
@@ -34,7 +34,7 @@ export default class VerifyEmail extends BaseMailer {
             .htmlView('emails/verify', {
                 user: this.user,
                 hashed_password: this.hashed_password,
-                is_guest: this.isGuest,
+                is_guest: JSON.parse(this.isGuest),
                 base_url: `http://${Env.get('HOST')}:${Env.get('PORT')}`
             })
     }

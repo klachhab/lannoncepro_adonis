@@ -50,6 +50,7 @@ export default {
                 // },
             ],
 
+            open: false,
         }
     },
 
@@ -73,10 +74,6 @@ export default {
         is_my_profile(){
             return this.my_username === this.username
         },
-
-        online(){
-            return Number.parseInt(this.is_online)
-        }
 
     },
 

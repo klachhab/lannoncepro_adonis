@@ -178,55 +178,6 @@ export default class UsersController {
     }
 
 
-    public async verify({request, auth, response}: HttpContextContract) {
-
-        return await User.query()
-            .where('verification_code', request.qs().key)
-            .firstOrFail()
-            .then(user => {
-                user.verification_code = null
-                user.email_verified = true
-
-                return user.save()
-                    .then( async () => {
-                        return auth.use('web').login(user)
-                            .then( async () => {
-                                return await auth.check()
-                                    .then( () => {
-                                        return response.redirect('/')
-                                    })
-                                    .catch( async () => {
-                                        return {
-                                            user: auth.user,
-                                            verified: true,
-                                        }
-                                    })
-
-                            })
-                            .catch( (err: AuthenticationException) => {
-                                return {
-                                    err: err.message,
-                                    verified: false
-                                }
-                            })
-
-                    })
-                    .catch(err => {
-                        return {
-                            error: err.code
-                        }
-                    })
-
-
-            })
-            .catch(err => {
-                return {
-                    error: err.code
-                }
-            })
-    }
-
-
     public async show({ params, auth, view, response}: HttpContextContract) {
 
         if ( await auth.check().then( logged => { return logged}) ){
@@ -241,7 +192,7 @@ export default class UsersController {
             .then( () => {
                 const user = auth.user as User
 
-                if (params.id && params.id !== user.username) {
+                if (params.id) {
                     return params.id
                 }
                 else return user.username
@@ -417,7 +368,15 @@ export default class UsersController {
     // For API ==========================
     public async user_posts({auth, params, request}: HttpContextContract){
 
-        const username = params.username
+        const username = await auth.check()
+            .then( checked => {
+
+                if (checked){
+                    const user = auth.user as User
+                    return user.username
+                }
+                else return params.username
+            })
 
         return await User.query().where('username', username)
             .withCount('posts', posts => {

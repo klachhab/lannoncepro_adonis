@@ -3,7 +3,7 @@
 
 <div class="mt-4">
     @if(hashed_password !== "")
-        <a href="{{ base_url }}/verify?key={{ user.verification_code }}&npss={{ hashed_password }}&q=rst">Cliquer ici</a>
+        <a href="{{ base_url }}/auth/verify?key={{ user.verification_code }}&npss={{ hashed_password }}&q=rst">Cliquer ici</a>
         pour valider votre nouveau mot de passe.
 
     @elseif(is_guest)
@@ -12,7 +12,7 @@
         pour changer votre mot de passe.
 
     @else
-        <a href="{{ base_url }}/verify?key={{ user.verification_code }}">Cliquer ici</a>
+        <a href="{{ base_url }}/auth/verify?key={{ user.verification_code }}">Cliquer ici</a>
         pour vérifier votre compte.
 
     @end

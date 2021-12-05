@@ -9,10 +9,25 @@ export default {
         return {
             container: "max-w-xs lg:max-w-lg md:max-w-lg sm:max-w-xl",
 
-            input_variants: {
-                default: " border-gray-300 bg-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-300",
-                danger: " border-red-300 bg-red-50 placeholder-red-400 text-red-900 focus:border-red-400 focus:ring-1 focus:ring-red-300",
+            password_variants: {
+                container: {
+                    default: " border-gray-300 bg-white placeholder-gray-400",
+                    focused: " border-blue-400 ring-1 ring-blue-300",
+                    danger: " border-red-300 bg-red-50 focus:border-red-400 focus:ring-1 focus:ring-red-300",
+                    danger_focused: " border-red-400 ring-1 ring-red-300",
+                },
+                input: {
+                    default: " text-red-900 placeholder-gray-400",
+                    danger: " placeholder-red-400 text-red-900",
+                },
+                eye_icon: {
+                    default: " text-red-900 placeholder-gray-400",
+                    danger: " placeholder-red-400 text-red-900",
+                }
             },
+
+            password_has_error: false,
+
 
             form: {
                 auth_field: "",
@@ -46,9 +61,11 @@ export default {
             "getInputClass"
         ]),
 
-        focus_password_class() {
-            const clss = this.select_pass ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
-            return this.select_class.container + clss
+        password_class() {
+            const clss = this.select_pass ? " border-blue-400 ring-1 ring-blue-300" : "border-gray-300"
+            const danger = this.select_pass ? " border-red-400 ring-1 ring-red-300" : " border-red-300"
+
+            return this.password_has_error ? `bg-red-50 ${danger}` : clss
         },
 
     },
@@ -80,18 +97,20 @@ export default {
                 .then( result => {
 
                     if (!result.data.success) {
+                        this.error_field = result.data.error
+                        this.request_sent = false
 
-                        if (result.data.error === "E_ROW_NOT_FOUND") {
+                        if (this.error_field === "E_ROW_NOT_FOUND") {
                             this.setUserExists(false)
                         }
 
-                        else {
-                            this.setPassMatch(false)
+                        else if (this.error_field === 'pass_incorrect') {
                             this.setUserExists(true)
+                            this.setPassMatch(false)
+                            this.password_has_error = true
                         }
 
-                        this.error_field = result.data.error
-                        this.request_sent = false
+
                     }
                     else {
                         this.error_field = ""

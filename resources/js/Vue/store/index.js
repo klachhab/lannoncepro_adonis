@@ -26,9 +26,10 @@ const store = new Vuex.Store({
         },
         select_class: {
             focused: "border-blue-400 ring-1 ring-blue-300 ",
+            danger: "border-red-300 bg-red-50 ",
             unfocused: "border-gray-300 ",
             container: "relative lg:col-span-5 block w-full rounded-md border ",
-            input: "w-full px-3 py-2 rounded-md focus-visible:outline-none focus-visible:outline-none "
+            input: "w-full px-3 py-2 rounded-md focus-visible:outline-none "
         },
 
         user_exists: true,
@@ -77,6 +78,10 @@ const store = new Vuex.Store({
 
         setUserName: (state, value) => {
             state.username = value
+        },
+
+        setUserExists: (state, value) => {
+            state.user_exists = value
         },
 
         setPassMatch: (state, value) => {

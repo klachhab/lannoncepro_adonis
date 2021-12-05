@@ -110,7 +110,7 @@ export default {
 
     methods: {
         async getPosts(page){
-            await axios.post(`/api/profile/${ this.username }/posts`, {
+            await axios.post(`/api/${ this.username }/posts`, {
                 page,
                 valid: 1
             })

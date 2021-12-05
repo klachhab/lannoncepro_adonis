@@ -9,7 +9,7 @@
 
             <!-- component -->
 
-            <div v-if="conversations.length" class="w-full flex flex-col relative overflow-hidden border border-gray-500">
+            <div v-if="conversations.length" class="w-full flex flex-col relative overflow-hidden shadow rounded border border-gray-300">
 
                 <div class="w-full md:w-2/4 lg:w-2/5 z-20 flex flex-col absolute inset-y-0 left-0 bg-white transform transition duration-200 ease-in-out"
                      :class="showMessages ? '-translate-x-full' :''"
@@ -85,13 +85,13 @@
                             </div>
                         </div>
 
-                        <div ref="chatbox" class="mx-4 overflow-auto py-2 shadow-inner" @click="showMessages = conversation !== null" v-if="conversation">
+                        <div ref="chatbox" class="p-4 overflow-auto shadow-inner" @click="showMessages = conversation !== null" v-if="conversation">
 
                             <div class="flex items-end" v-for="(message, index) in conversation.messages" :key="index"
                                  :class="message.direction === 'from_seller' ? 'justify-end' : ''"
                             >
                                 <div class="flex flex-col w-1/2 mb-4 rounded-t-lg p-3"
-                                     :class="message.direction === 'from_seller' ? 'rounded-br-lg bg-blue-500' : 'rounded-bl-lg bg-gray-500'"
+                                     :class="message.direction === 'from_seller' ? 'rounded-bl-lg bg-blue-500' : 'rounded-br-lg bg-gray-500'"
                                 >
 
                                     <p class="text-white text-sm" v-html="message.message" ></p>
@@ -111,10 +111,11 @@
 
                     </div>
 
-                    <div class="flex mt-2">
+                    <div class="flex">
                         <textarea ref="msg_input" rows="2" placeholder="Tapez quelques lignes décrivant votre bien" style="resize: none"
-                                  class="mr-2 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                  :class="getInputClass" @input="is_typing"
+                                  class="m-2 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
+                                  :class="getInputClass('default')"
+                                  @input="is_typing"
                                   :disabled="!showMessages"
                                   @click="showMessages = conversation !== null"
                         >
@@ -122,7 +123,7 @@
                         </textarea>
 
                         <a href="#" :class="!typing ? 'btn-disabled bg-blue-300':'bg-blue-500'"
-                           class="flex items-center place-self-start py-2 px-7
+                           class="mr-2 mt-2 flex items-center place-self-start py-2 px-7
                                    text-white rounded-md transition delay-100 ease-in-out
                                    hover:bg-transparent hover:bg-blue-700 focus:bg-blue-700"
                            disabled="!typing"
@@ -193,7 +194,7 @@ export default {
 
         async getConversations(){
 
-            await axios.get('/api/profile/my_profile/chatroom')
+            await axios.get('/api/my_profile/chatroom')
             .then(response => {
                 const data = response.data
                 const unread_conversations = data.filter(conversation => conversation.read === 0).length
@@ -221,7 +222,7 @@ export default {
 
         async getMessages(index){
             const conversation = this.conversations[index]
-            const url = `/api/profile/my_profile/chatroom_messages?api=1&room_id=${conversation.conversation_key}`
+            const url = `/api/my_profile/chatroom_messages?api=1&room_id=${conversation.conversation_key}`
 
             await axios.get(url)
                 .then(response => {

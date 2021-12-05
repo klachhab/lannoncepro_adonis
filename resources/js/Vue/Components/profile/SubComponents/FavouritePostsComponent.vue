@@ -109,7 +109,7 @@ export default {
 
     methods: {
         async getFavourites(page){
-            await axios.post(`/api/profile/my_profile/favourites`, {
+            await axios.post(`/api/my_profile/favourites`, {
                 page,
             })
 

@@ -30,6 +30,7 @@ export default class AuthController {
                 .orWhere('username', auth_field)
                 .firstOrFail()
                 .then(async user => {
+
                     return await Hash.verify(user.password, password)
 
                         .then( async (valid) => {
@@ -124,10 +125,9 @@ export default class AuthController {
             const get_email = await auth.check()
                 .then( async authenticated => {
                     if (!authenticated) {
-                        const is_gest = JSON.parse(request.all().guest) as boolean
                         return {
-                            success: is_gest,
-                            message: !is_gest ? "not_authenticated" : request.all().email
+                            success: request.all().guest,
+                            message: request.all().guest == "" ? "not_authenticated" : request.all().email
                         }
                     }
                     else if (request.all().new_password !== request.all().new_pass_confirmation) {
@@ -166,7 +166,7 @@ export default class AuthController {
 
                                 var hashed = ""
 
-                                if (!JSON.parse(request.all().guest)) {
+                                if (!request.all().guest) {
 
                                     hashed = await Hash.make(request.all().new_password)
                                         .then(hashed_pass => {
@@ -177,7 +177,7 @@ export default class AuthController {
 
                                 }
 
-                                return await new VerifyEmail(user, hashed, JSON.parse(request.all().guest))
+                                return await new VerifyEmail(user, hashed, request.all().guest)
                                     .send()
                                     .then(async () => {
 
@@ -273,92 +273,154 @@ export default class AuthController {
     }
 
 
+    public async verify({request, auth, response}: HttpContextContract) {
+
+        return await User.query()
+            .where('verification_code', request.qs().key)
+            .firstOrFail()
+            .then(async user => {
+                user.verification_code = null
+                user.email_verified = true
+
+                if (await auth.check().then(checked => {return checked}) ){
+                    user.password = request.qs().npss
+                }
+
+                return await user.save()
+                    .then(async usr => {
+
+                        if (await auth.check().then(checked => {return checked}) ){
+                            return response.redirect('/mon-profil/infos')
+                        }
+
+                        return auth.login(user)
+                            .then( () => {
+                                return response.redirect('/mon-profil/infos')
+                            })
+
+                    })
+                return user.save()
+                    .then( async () => {
+
+                        return auth.use('web').login(user)
+                            .then( async () => {
+
+                                return await auth.check()
+                                    .then( () => {
+                                        return response.redirect('/')
+                                    })
+                                    .catch( async () => {
+                                        return {
+                                            user: auth.user,
+                                            verified: true,
+                                        }
+                                    })
+
+                            })
+                            .catch( (err: AuthenticationException) => {
+                                return {
+                                    err: err.message,
+                                    verified: false
+                                }
+                            })
+
+                    })
+                    .catch(err => {
+                        return {
+                            error: err.code
+                        }
+                    })
+
+
+            })
+            .catch(err => {
+                return {
+                    error: err.code
+                }
+            })
+    }
+
+
     public async update_password({auth, request, response}: HttpContextContract) {
 
-        const errors = {
-            pass_null: request.all().password !== null,
-            length:  request.all().password.trim().length >= 8,
-            match_ok: request.all().password_confirmation === request.all().password
-        }
-
-        if (!errors.pass_null){
+        if (!request.all().password){
             return {
                 success: false,
                 message: "pass_null"
             }
         }
 
-        if (!errors.length){
+        if (request.all().password.length < 8){
             return {
                 success: false,
                 message: "length_ko"
             }
         }
 
-        if (!errors.match_ok){
+        if (request.all().password_confirmation !== request.all().password){
             return {
                 success: false,
                 message: "no_match"
             }
         }
 
-        return await auth.check()
+        const logged_in = await auth.check()
             .then( async authenticated => {
-
-                if (authenticated) {
-                    return response.redirect('/mon-profil')
-                }
-
-                else {
-                    return await User.query()
-                        .where('verification_code', request.all().verification_code)
-                        .firstOrFail()
-                        .then( async user => {
-
-                            user.password = await Hash.make(request.all().password)
-                            user.verification_code = null
-
-                            return user.save()
-                                .then(() => {
-
-                                    return auth.attempt(user.email, request.all().password)
-                                        .then( () => {
-                                            return {
-                                                success: true
-                                            }
-                                        })
-                                        .catch( (error) => {
-                                            return {
-                                                method: 'AuthController@update_password_login_attemption',
-                                                success: false,
-                                                message: error.message
-                                            }
-                                        })
-
-
-                                })
-
-                                .catch( (error) => {
-                                    return {
-                                        method: 'AuthController@update_password_user_save',
-                                        success: false,
-                                        message: error.message
-                                    }
-                                })
-
-                        })
-
-                }
-
-
+                return authenticated
             })
-            .catch( (error: AuthenticationException) => {
-                return {
-                    method: 'AuthController@update_password_authExce',
-                    success: false,
-                    message: error.message
-                }
+            .catch( err => {
+                console.log(err.message)
             })
+
+        const user_response = logged_in ?
+            {
+                success: true,
+                response: auth.user as User
+            } :
+            await User.query()
+                .where('verification_code', request.all().verification_code)
+                .firstOrFail()
+                .then(usr => {
+                    return {
+                        success: true,
+                        response: usr
+                    }
+                })
+                .catch( err => {
+                    return {
+                        success: false,
+                        response: err.message
+                    }
+                })
+
+        if (user_response.success){
+            const user = user_response.response
+
+            user.password = await Hash.make(request.all().password)
+            user.verification_code = null
+
+            return user.save()
+                .then( user => {
+                    return {
+                        success: true,
+                        response: user
+                    }
+                })
+                .catch( err => {
+                    return {
+                        success: false,
+                        response: err.message
+                    }
+                })
+        }
+
+        else {
+            return {
+                success: false,
+                response: user_response.response
+            }
+        }
+
     }
 
 }

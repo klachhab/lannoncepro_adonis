@@ -45,6 +45,9 @@ Route.group(() => {
         Route.put('/update-password',  'AuthController.update_password')
             .as('update_password')
 
+        Route.get('/verify', 'AuthController.verify')
+            .as('verify')
+
     })
         .prefix('auth')
         .as('auth')
@@ -58,9 +61,6 @@ Route.group(() => {
         .middleware('auth:web,api')
         .where('any', '.*')
         .as('my_profile')
-
-    Route.get('/verify', 'UsersController.verify')
-        .as('verify')
 
     // Posts -------------------------------------
     Route.resource('annonces', 'Post/PostsController')
@@ -150,7 +150,8 @@ Route.group(() => {
             .as('profile.is_unique')
 
 
-    }).as("profile").prefix('/profile')
+    }).as("profile")
+        // .prefix('/profile')
 
     // Posts ----------------------------------------------------------------------
     Route.group(() => {

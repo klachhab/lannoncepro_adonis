@@ -60,7 +60,8 @@ export default class ConversationsController {
             .preload('messages')
 
             .preload('post', post => {
-                post.select('id','slug', 'title', 'createdAt')
+                post.select('id','slug', 'title', 'createdAt', 'userId')
+                    .preload('user')
             })
             .firstOrFail()
 
@@ -84,6 +85,8 @@ export default class ConversationsController {
                     error: err.message
                 }
             })
+
+        // return chatroom
 
         if (request.qs().api){
             return chatroom

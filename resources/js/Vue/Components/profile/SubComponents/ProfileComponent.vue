@@ -129,6 +129,36 @@
 
         </div>
 
+        <!-- Preferences -->
+        <div class="flex-1 w-full py-4 px-8 mt-6 rounded bg-white">
+
+            <span class="text-2xl font-light mb-5">Préferences</span>
+
+            <hr class="w-full border-gray-300 my-5">
+
+            <div class="flex flex-col justify-center gap-2 mb-4">
+
+                <label class="inline-flex items-center">
+                    <input type="checkbox"
+                           v-model="profile_form.can_receive_news"
+                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
+                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
+                    >
+                    <span class="ml-2">Recevoir les nouveautés et les offres speciales</span>
+                </label>
+
+                <label class="inline-flex items-center">
+                    <input type="checkbox"
+                           v-model="profile_form.allow_reviews"
+                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
+                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
+                    >
+                    <span class="ml-2">Autoriser les commentaires sur mes annonces</span>
+                </label>
+
+            </div>
+        </div>
+
         <!-- Update password -->
         <div class="flex-1 w-full py-4 px-8 mt-6 rounded bg-white">
 
@@ -238,36 +268,6 @@
 
         </div>
 
-
-        <!-- Preferences -->
-        <div class="flex-1 w-full py-4 px-8 mt-6 rounded bg-white">
-
-            <span class="text-2xl font-light mb-5">Préferences</span>
-
-            <hr class="w-full border-gray-300 my-5">
-
-            <div class="flex flex-col justify-center gap-2 mb-4">
-
-                <label class="inline-flex items-center">
-                    <input type="checkbox"
-                           v-model="profile_form.can_receive_news"
-                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
-                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                    <span class="ml-2">Recevoir les nouveautés et les offres speciales</span>
-                </label>
-
-                <label class="inline-flex items-center">
-                    <input type="checkbox"
-                           v-model="profile_form.allow_reviews"
-                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
-                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                    <span class="ml-2">Autoriser les commentaires sur mes annonces</span>
-                </label>
-
-            </div>
-        </div>
 
         <!-- Submit Button -->
         <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
@@ -382,7 +382,7 @@ export default {
 
 
         async getUserInfos() {
-            await axios.post(`/api/profile/${this.username}`)
+            await axios.post(`/api/${this.username}`)
                 .then(response => {
 
                     if (response.data.success) {
@@ -435,6 +435,7 @@ export default {
             }
         },
 
+
         async getDepartment(department) {
             this.department.name = department.name
             this.department.code = department.code
@@ -444,6 +445,7 @@ export default {
             this.cities = []
             this.city_name = null
         },
+
 
         async getCities($event) {
             const value = $event.target.value.trim()
@@ -471,7 +473,7 @@ export default {
         async updateUserInfos() {
 
             this.updating_infos = true
-            const url = `/api/profile/profile/${this.profile_form.username}`
+            const url = `/api/profile/${this.profile_form.username}`
             const form = new FormData
 
             form.append('title', this.profile_form.title)
@@ -524,12 +526,41 @@ export default {
         async updatePassword() {
             const form = new FormData
 
-            form.append('new_password', this.profile_form.new_password)
-            form.append('new_pass_confirmation', this.profile_form.new_pass_confirmation)
+            form.append('password', this.profile_form.new_password)
+            form.append('password_confirmation', this.profile_form.new_pass_confirmation)
 
             this.updating_pass = true
 
-            await axios.post(`/auth/reset-password`, form)
+            axios.put('/auth/update-password', form)
+                .then(response => {
+
+                    const data = response.data
+
+                    var message = ""
+                    switch (data.message) {
+                        case "length_ko" : message = "Le mot de passe doit contenir au minimum 8 caractères (espace non inclu)"; break;
+                        case "no_match" : message = "Les 2 mots de passe ne sont pas identiques"; break;
+                        case "pass_null" : message = "Merci de saisir un mot de passe"; break;
+                        default : message = "Mot de passe mis à jour avec succès"
+                    }
+
+                    this.$swal({
+                        icon: data.success ? "success" : "error",
+                        title: data.success ? null :"Erreur",
+                        text: message,
+                    }).then( () => {
+
+                        this.updating_pass = false
+                    })
+
+
+                })
+                .catch(err => {
+                    console.log(err.message)
+                })
+
+
+            /*await axios.post(`/auth/reset-password`, form)
                 .then(response => {
 
                     console.log(response.data)
@@ -571,7 +602,7 @@ export default {
                     }).then( () => {
                         this.updating_pass = false
                     })
-                })
+                })*/
 
         },
     },

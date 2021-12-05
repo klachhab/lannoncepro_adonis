@@ -1,6 +1,5 @@
 <script>
 import {mapGetters, mapMutations, mapState} from "vuex";
-import Swal from "sweetalert2";
 
 export default {
     props: ['code'],
@@ -96,7 +95,7 @@ export default {
 
                     var message = ""
                     switch (data.message) {
-                        case "length_ko" : message = "Le mot de passe doit contenir au minimum 8 caractères"; break;
+                        case "length_ko" : message = "Le mot de passe doit contenir au minimum 8 caractères (espace non inclu)"; break;
                         case "no_match" : message = "Les 2 mots de passe ne sont pas identiques"; break;
                         case "pass_null" : message = "Merci de saisir un mot de passe"; break;
                         default : message = "Mot de passe mis à jour avec succès"
@@ -106,30 +105,14 @@ export default {
                         icon: data.success ? "success" : "error",
                         title: data.success ? null :"Erreur",
                         text: message,
-                    }).then( () => {
-                        if (data.success) {
-                            window.location.replace('/mon-profil')
-                        }
-                        else this.request_sent = false
                     })
-
-                    if (response.data.success) {
-                        this.$swal({
-                            icon: 'success',
-                            title: "Mot de passe modifier avec succès"
-                        })
-                        .then( () => {
-
-                        })
-                    }
-
-
 
                     this.request_sent = false
                 })
                 .catch(err => {
                     console.log(err.message)
                 })
+            this.request_sent = false
 
         },
 
