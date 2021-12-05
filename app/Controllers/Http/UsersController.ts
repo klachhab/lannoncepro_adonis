@@ -366,19 +366,9 @@ export default class UsersController {
 
 
     // For API ==========================
-    public async user_posts({auth, params, request}: HttpContextContract){
+    public async user_posts({ params, request}: HttpContextContract){
 
-        const username = await auth.check()
-            .then( checked => {
-
-                if (checked){
-                    const user = auth.user as User
-                    return user.username
-                }
-                else return params.username
-            })
-
-        return await User.query().where('username', username)
+        return await User.query().where('username', params.username)
             .withCount('posts', posts => {
                 posts.where('is_valid', 1)
             })

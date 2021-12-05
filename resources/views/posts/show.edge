@@ -89,9 +89,12 @@
                         <div class="flex flex-col ml-5">
 
                             <div class="place-self-start tooltip mb-1" data-tip="Voir le profil">
-                                <a href="" class="text-left text-base font-semibold hover:text-blue-600">
+
+                                <a href="{{my_post ? '/mon-profil' : '/profil/' + post.user.username}}" class="text-left text-base font-semibold hover:text-blue-600">
                                     {{my_post ? 'Moi' : post.user.name}}
                                 </a>
+
+                                {{--  /profil/velva.rosenbaum15 --}}
                             </div>
 
                             <span class="text-sm text-gray-500">
