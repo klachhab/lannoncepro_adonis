@@ -13,6 +13,7 @@ const store = new Vuex.Store({
         messages_count: 0,
 
         username: "",
+        isMyProfile: false,
 
         input_class: {
             container: "items-center grid-cols-none lg:flex-none my-10",
@@ -75,6 +76,10 @@ const store = new Vuex.Store({
             state.messages_count = value
         },
 
+
+        setIsMyProfile: (state, value) => {
+            state.isMyProfile = value
+        },
 
         setUserName: (state, value) => {
             state.username = value

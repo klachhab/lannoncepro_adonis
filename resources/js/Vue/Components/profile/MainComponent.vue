@@ -1,6 +1,6 @@
 
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 
 export default {
     name: "MainComponent",
@@ -55,10 +55,11 @@ export default {
     },
 
     created() {
-        this.$store.commit('update_message_count', Number.parseInt(this.unread_messages_count))
-        this.$store.commit('setUserName', this.username)
+        this.update_message_count(Number.parseInt(this.unread_messages_count))
+        this.setUserName(this.username)
+        this.setIsMyProfile(this.username === this.my_username)
 
-        if (this.is_my_profile && !window.location.pathname.includes('mon-profil')){
+        if (this.isMyProfile && !window.location.pathname.includes('mon-profil')){
             this.$router.push({
                 name: "ads",
             })
@@ -68,14 +69,16 @@ export default {
 
     computed: {
         ...mapState([
-            'container', 'messages_count'
+            'container', 'messages_count', 'isMyProfile'
         ]),
 
-        is_my_profile(){
-            return this.my_username === this.username
-        },
-
     },
+
+    methods: {
+        ...mapMutations([
+            'setIsMyProfile', 'update_message_count', 'setUserName'
+        ]),
+    }
 
 
 }

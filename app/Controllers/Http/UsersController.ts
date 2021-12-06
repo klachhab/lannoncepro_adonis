@@ -303,6 +303,7 @@ export default class UsersController {
             })
     }
 
+
     public async destroy({params}: HttpContextContract) {
         return await User.query()
             .where('username', params.id)
@@ -366,7 +367,7 @@ export default class UsersController {
 
 
     // For API ==========================
-    public async user_posts({ params, request}: HttpContextContract){
+    public async user_posts({params, request}: HttpContextContract){
 
         return await User.query().where('username', params.username)
             .withCount('posts', posts => {
@@ -377,20 +378,21 @@ export default class UsersController {
             .firstOrFail()
             .then(async user => {
 
-                const posts = await user.related('posts')
+                return await user.related('posts')
                     .query()
                     .where('is_valid', request.all().valid)
                     .preload('city')
+                    .preload('user', user => {
+                        user.select('username')
+                    })
                     .preload('images', images => {
                         images
                             .select('path')
                             .firstOrFail()
                     })
-                    .select('id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId')
+                    .select('id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId', 'userId')
                     .paginate(request.all().page, 5)
 
-
-                return posts
 
             })
             .catch((error: Exception) => {

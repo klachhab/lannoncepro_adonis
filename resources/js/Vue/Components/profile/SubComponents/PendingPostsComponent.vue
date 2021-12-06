@@ -130,22 +130,40 @@ export default {
         },
 
         async removePost(index){
+            this.$swal({
+                text: "Étes-vous sûr de vouloir supprimer cette annonce ?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui',
+                cancelButtonText: 'Non',
+            }).then( async result => {
 
-            const post = this.posts[index]
+                if (result.isConfirmed) {
 
-            await axios.delete(`/api/annonces/annonce/${post.slug}`)
-                .then( response => {
-                    const data = response.data
+                    const post = this.posts[index]
 
-                    if (data.success){
-                        this.posts.splice(index, 1)
-                        this.getPosts(this.meta.current_page)
-                    }
-                    else {
-                        console.log(data.result)
-                    }
-                })
+                    await axios.delete(`/api/annonces/annonce/${post.slug}`)
+                        .then( response => {
+                            const data = response.data
 
+                            if (data.success){
+                                this.posts.splice(index, 1)
+                                this.getPosts(this.meta.current_page)
+                            }
+                            else {
+                                this.$swal({
+                                    title: 'Erreur',
+                                    text: "Une erreur est survenue lors de la suppression de votre annonce.",
+                                    icon: 'error',
+                                })
+                                    .then( () => {
+                                        console.log(data.result)
+                                    })
+
+                            }
+                        })
+                }
+            })
 
         },
 

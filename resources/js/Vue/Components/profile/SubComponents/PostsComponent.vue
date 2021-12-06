@@ -44,7 +44,7 @@
                             </span>
                         </div>
 
-                        <div v-if="is_me === 'true'" class="flex items-center w-full mt-2 text-gray-500">
+                        <div v-if="isMyProfile" class="flex items-center w-full mt-2 text-gray-500">
                             <a href="#" class="transition duration-300 ease-in-out hover:text-red-500"
                                @click.prevent="removePost(index)"
                             >
@@ -73,14 +73,13 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 import {
     TPagination,
 } from 'vue-tailwind/dist/components'
 
 export default {
     name: "PostsComponent",
-    props: ['is_me'],
     components: {
         TPagination
     },
@@ -99,18 +98,26 @@ export default {
 
     computed: {
         ...mapState([
-            'username'
+            'username', 'isMyProfile'
         ]),
 
     },
 
     mounted() {
         this.getPosts(this.meta.current_page)
+
+        // if (JSON.parse(this.is_me)){
+        //     this.setIsMyProfile(true)
+        // }
     },
 
     methods: {
+        ...mapMutations([
+            'setIsMyProfile'
+        ]),
+
         async getPosts(page){
-            console.log(`/api/${ this.username }/posts`)
+
             await axios.post(`/api/${ this.username }/posts`, {
                 page,
                 valid: 1
@@ -133,20 +140,40 @@ export default {
 
         async removePost(index){
 
-            const post = this.posts[index]
+            this.$swal({
+                text: "Étes-vous sûr de vouloir supprimer cette annonce ?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui',
+                cancelButtonText: 'Non',
+            }).then( async result => {
 
-            await axios.delete(`/api/annonces/annonce/${post.slug}`)
-                .then( response => {
-                    const data = response.data
+                if (result.isConfirmed) {
 
-                    if (data.success){
-                        this.posts.splice(index, 1)
-                        this.getPosts(this.meta.current_page)
-                    }
-                    else {
-                        console.log(data.result)
-                    }
-                })
+                    const post = this.posts[index]
+
+                    await axios.delete(`/api/annonces/annonce/${post.slug}`)
+                        .then( response => {
+                            const data = response.data
+
+                            if (data.success){
+                                this.posts.splice(index, 1)
+                                this.getPosts(this.meta.current_page)
+                            }
+                            else {
+                                this.$swal({
+                                    title: 'Erreur',
+                                    text: "Une erreur est survenue lors de la suppression de votre annonce.",
+                                    icon: 'error',
+                                })
+                                    .then( () => {
+                                        console.log(data.result)
+                                    })
+
+                            }
+                        })
+                }
+            })
 
 
         },
