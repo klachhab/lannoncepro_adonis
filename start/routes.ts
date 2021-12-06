@@ -53,9 +53,10 @@ Route.group(() => {
         .as('auth')
 
     // Profile -------------------------------------
-    Route.resource('profil', 'UsersController')
-        .except(['create', 'edit', "update"])
-        .as('profile')
+    // Route.resource('profil', 'UsersController')
+    //     // .except(['create', 'edit', "update", 'destroy'])
+    //     .only(['store'])
+    //     .as('profile')
 
     Route.get('mon-profil/:any?', 'UsersController.show')
         .middleware('auth:web,api')
