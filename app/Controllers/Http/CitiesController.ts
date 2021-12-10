@@ -15,7 +15,6 @@ export default class CitiesController {
             .firstOrFail()
             .then(async department => {
 
-
                 return await department
                     .related('cities')
                     .query()

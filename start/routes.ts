@@ -53,10 +53,9 @@ Route.group(() => {
         .as('auth')
 
     // Profile -------------------------------------
-    // Route.resource('profil', 'UsersController')
-    //     // .except(['create', 'edit', "update", 'destroy'])
-    //     .only(['store'])
-    //     .as('profile')
+    Route.resource('profil', 'UsersController')
+        .only(['store'])
+        .as('profile')
 
     Route.get('mon-profil/:any?', 'UsersController.show')
         .middleware('auth:web,api')
@@ -104,7 +103,12 @@ Route.group(() => {
             .as('departments.show')
             // .middleware('auth:web,api')
 
-    }).prefix('/departments').as('departments')
+        Route.route('/:code/cts', ['GET', 'POST'],'DepartmentsController.home_cities')
+            .as('departments.home_cities')
+            // .middleware('auth:web,api')
+
+    }).prefix('departments')
+        .as('departments')
 
     // Profile ---------------------------------------------------------------------
     Route.group(() => {
@@ -203,6 +207,8 @@ Route.group(() => {
     Route.post('/category', 'CategoriesController.show')
         .as('category.show')
 
+    Route.post('/categories', 'CategoriesController.index')
+        .as('categories')
 })
     .prefix('/api')
     .as("api")

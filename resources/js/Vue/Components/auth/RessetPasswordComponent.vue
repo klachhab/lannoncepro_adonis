@@ -106,8 +106,12 @@ export default {
                         title: data.success ? null :"Erreur",
                         text: message,
                     })
+                    .then( () => {
+                        this.request_sent = false
+                        window.location.replace('/mon-profil')
+                    })
 
-                    this.request_sent = false
+
                 })
                 .catch(err => {
                     console.log(err.message)

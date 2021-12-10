@@ -13,6 +13,12 @@ import 'animate.css';
 import VueTailwind from 'vue-tailwind'
 import settings from "./Vue/config/tailwind-vue"
 
+import VueTippy from "vue-tippy";
+Vue.use(VueTippy, {
+    directive: "tippy",
+    flipDuration: 0,
+});
+
 
 Vue.use(VueTailwind, settings)
 Vue.use(Vuelidate)

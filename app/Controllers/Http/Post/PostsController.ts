@@ -19,9 +19,10 @@ export default class PostsController {
 
     protected ids: number[]
 
-    public async index({request}: HttpContextContract) {
-        return await Post.filter(request.qs())
+    public index({request}: HttpContextContract) {
+        return Post.filter(request.qs())
             .paginate(request.qs().page, 20)
+
     }
 
     public async create({view}: HttpContextContract) {

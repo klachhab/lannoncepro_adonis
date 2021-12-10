@@ -54,6 +54,53 @@ export default class DepartmentsController {
             })
     }
 
+
+    public async home_cities({request, params}: HttpContextContract) {
+
+        return await Department.query()
+            // .preload('cities', cities => {
+            //     cities
+            //         .withCount('posts')
+            //         .select('id', 'name', 'code')
+            //     // .limit(14)
+            // })
+
+            .where('code', params.code)
+            .firstOrFail()
+            .then( async department => {
+                const cities = await department
+                    .related('cities')
+                    .query()
+                    .withCount('posts', posts => {
+                        posts.where('is_valid', 1)
+                    })
+
+                return {
+                    success: true,
+                    department,
+                    department_posts_count: cities
+                        .map(city => city.$extras.posts_count)
+                        .reduce( (a,b) => a + b, 0)
+                    ,
+                    cities: cities
+                        .sort((a,b) => {
+                            return b.$extras.posts_count - a.$extras.posts_count
+                        })
+                        .slice(0, 14)
+                }
+
+            })
+            .catch(e => {
+                return {
+                    success: false,
+                    error: e.message
+                }
+            })
+
+    }
+
+
+
     public async edit({}: HttpContextContract) {
     }
 

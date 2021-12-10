@@ -7,16 +7,45 @@
         <div class="max-h-full">
 
             <!-- Header -->
-            <div class="w-full flex justify-content-center h-72 overflow-hidden">
+            <div class="relative w-full flex justify-center h-72 overflow-hidden">
 
                 <img class="absolute object-cover object-top h-72 w-full z-0" src="/images/bg/home.jpg" alt="">
 
-                <div class=" absolute w-full bg-gradient-to-r from-blue-300 to-blue-900 z-10 h-72 opacity-90"></div>
+                <div class="absolute w-full bg-gradient-to-r from-blue-300 to-blue-900 z-10 h-72 opacity-90"></div>
 
-                <div class="flex justify-content-center mx-auto max-w-sm self-center w-full bg-white z-20
-                h-12 rounded ring-8 ring-blue-800 ring-opacity-20"
-                     :class="maxWidth.search_input"
-                >
+                <div class="flex flex-col self-center items-center mx-auto max-w-sm z-20 w-full" :class="maxWidth.search_input">
+
+                    <div class="relative flex justify-between w-full bg-white h-12 rounded ring-8 ring-blue-800 ring-opacity-20 "
+
+                    >
+
+                    </div>
+
+                    <div class="flex grid md:grid-cols-3 grid-cols-1 gap-2 w-full mt-2">
+
+                        <div class="flex flex-col items-center gap-2 w-full bg-white rounded border-r border-gray-300 py-2">
+
+                            <div class="flex justify-center items-center flex-between w-full p-2 cursor-pointer border-l-4 border-white hover:border-blue-500 transition-all duration-200 ease-in-out">
+
+                                <span class="flex-1">Category 1</span>
+
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                     class="h-6 w-6 stroke-current text-gray-400"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+
+                            </div>
+
+
+                        </div>
+
+                        <div class="h-12 w-full bg-white md:col-span-2 rounded-r">
+
+                        </div>
+
+
+                    </div>
 
                 </div>
             </div>
@@ -76,9 +105,11 @@
                          xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 613 585"
                     >
-                        <path v-for="dep in mapFrance" :key="dep.id" :data-tip="dep.name"
-                              class="hover:text-green-200 cursor-pointer tooltip"
-                              @click="getDepName(dep.id, dep.name)"
+                        <path v-for="dep in mapFrance" :key="dep.id" :content="dep.name"
+                              v-tippy='{followCursor : "initial", animation:"fade", delay: 0, arrow : true}'
+                              :class="dep.id === selectedDep ? 'text-green-400' : 'hover:text-green-400'"
+                              class="cursor-pointer focus:outline-none"
+                              @click="getCities(dep.id)"
                               :id="dep.id"
                               :name="dep.name"
                               :d="dep.d"
@@ -87,20 +118,49 @@
                     </svg>
 
 
-                    <div v-if="selectedDep != null">
-                        <div class="flex justify-between">
+                    <div v-if="cities.length">
+                        <div class="flex justify-between items-center">
+
                             <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
-                                @{{ selectedDep }}
+                                @{{ department.name }}
+{{--                                : @{{ department.posts_count }} Annonces--}}
                             </span>
-                            <div class="text-white p-1 text-red-500 rounded-full cursor-pointer"
-                                 v-if="selectedDep != null"
-                                 @click="selectedDep = null"
+
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                 class="h-5 w-5 p-1 stroke-current text-white rounded-full bg-red-500 cursor-pointer"
+                                 @click="cities = []"
                             >
-                                X
-                            </div>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+
                         </div>
 
                         <hr class="mt-2 w-full h-0.5 bg-gray-50"/>
+
+{{--                        /annonces?ct=${city.code}--}}
+                        <div class="flex grid grid-cols-2 mt-5">
+                            <div :data-tip="`${city.meta.posts_count} Annonces`"
+                                 class="tooltip flex items-center justify-center p-2" v-for="city in cities"
+                            >
+
+                                <a :href="`/annonces?cty=${city.code}`"
+                                   class="hover:border-b hover:border-gray-400 transition duration-200 ease-in-out p-1"
+                                >
+                                    @{{ city.name }}
+                                </a>
+
+                            </div>
+
+                            <div class="flex items-center justify-center p-2">
+
+                                <a :href="`/annonces?dpt=${department.code}`"
+                                   class="hover:border-b hover:border-gray-400 transition duration-200 ease-in-out p-1"
+                                >
+                                    Toutes ...
+                                </a>
+
+                            </div>
+                        </div>
                     </div>
 
                 </div>

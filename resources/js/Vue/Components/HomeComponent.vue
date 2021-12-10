@@ -21,15 +21,6 @@ export default {
                 container: "max-w-xs xl:max-w-7xl lg:max-w-4xl md:max-w-2xl sm:mas-w-xl",
             },
 
-            slider_data: [
-                {name: 'khalid', age: 29},
-                {name: 'youssef', age: 30},
-                {name: 'annas', age: 24},
-                {name: 'ali', age: 29},
-                {name: 'issam', age: 29},
-                {name: 'simo', age: 28},
-            ],
-
             swiperOption: {
                 slidesPerView: 3,
                 spaceBetween: 30,
@@ -67,9 +58,18 @@ export default {
             mapFrance: {
                 ...France
             },
+            department: {
+                name: null,
+                code: null,
+                posts_count: 0
+            },
             selectedDep: null,
 
             isMobile: false,
+
+            categories: [],
+            cities: [],
+            department_posts_count: null,
         }
     },
 
@@ -85,11 +85,30 @@ export default {
     methods: {
     //    Top cities
         getDepName(id, depName){
-            // axios.get('https://geo.api.gouv.fr/departements', {})
-            // .then(respo => {
-            //     console.log(respo.data)
-            // })
-            this.selectedDep = depName
+            this.department_name = depName
+            this.selectedDep = id
+        },
+
+        async getCities(dep_code){
+            this.selectedDep = dep_code
+
+            await axios.post(`/api/departments/${dep_code}/cts`)
+            .then( response => {
+                const department = response.data.department
+                this.cities = response.data.cities
+
+                this.department.name = department.name
+                this.department.code = department.code
+                this.department.posts_count = response.data.department_posts_count
+
+            })
+        },
+
+        async getCategories(){
+            return axios.post('/api/categories')
+                .then( response => {
+                    const categories = response.data
+                })
         }
     },
 }
