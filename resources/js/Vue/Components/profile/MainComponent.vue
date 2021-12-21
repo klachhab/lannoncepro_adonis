@@ -5,7 +5,7 @@ import {mapMutations, mapState} from "vuex";
 export default {
     name: "MainComponent",
 
-    props: ['unread_messages_count', 'username', 'my_username', 'is_online'],
+    props: [ 'username', 'my_username', 'is_online'],
 
     data() {
         return {
@@ -55,7 +55,6 @@ export default {
     },
 
     created() {
-        this.update_message_count(Number.parseInt(this.unread_messages_count))
         this.setUserName(this.username)
         this.setIsMyProfile(this.username === this.my_username)
 
@@ -87,7 +86,7 @@ export default {
 <style scoped>
 
 #container {
-    background-image: url('/images/bg/login_bg.png');
+    background-image: url("/images/bg/login_bg.png");
     background-size: cover;
 }
 

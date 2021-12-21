@@ -5,7 +5,6 @@
     @set('authenticated', await auth.check().then(checked => {return checked}))
 
     <user-profile inline-template id="container"
-                  unread_messages_count="{{ unread_messages_count }}"
                   username="{{ user.username }}"
                   my_username="{{ my_username }}"
                   is_online="{{ user.is_online }}"

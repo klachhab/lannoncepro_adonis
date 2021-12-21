@@ -2,7 +2,6 @@ import {BaseModelFilter} from '@ioc:Adonis/Addons/LucidFilter'
 import {ModelQueryBuilderContract} from '@ioc:Adonis/Lucid/Orm'
 import Post from 'App/Models/Post/Post'
 import Database from "@ioc:Adonis/Lucid/Database";
-import City from "App/Models/City";
 
 export default class PostFilter extends BaseModelFilter {
     public $query: ModelQueryBuilderContract<typeof Post, Post>
@@ -35,7 +34,7 @@ export default class PostFilter extends BaseModelFilter {
 
     public q(title: string) {
         this.post
-            .andWhere('title', 'Like', `${title}%`)
+            .where('title', 'Like', `${title}%`)
     }
 
     public cty(city_code: string) {

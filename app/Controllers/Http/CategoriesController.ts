@@ -15,7 +15,7 @@ export default class CategoriesController {
             .doesntHave('parent')
             .where('slug', request.all().slug)
             .preload('subs', subs => {
-                subs.select('name', 'id', 'slug')
+                subs.select('name', 'id', 'slug', 'categoryId')
             })
             .select()
             .firstOrFail()

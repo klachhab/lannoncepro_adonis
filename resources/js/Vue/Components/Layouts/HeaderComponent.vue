@@ -32,9 +32,8 @@
                             </button>
 
 
-                            <div class="origin-top-right absolute right-0 w-56 rounded shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50
-                                                transition duration-300 ease-in-out"
-                                 :class="show_profile_menu ? '' : 'opacity-0 invisible'"
+                            <div class="origin-top-right absolute right-0 w-56 rounded shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50"
+                                 :class="show_profile_menu ? '' : 'hidden'"
                             >
                                 <!-- Menu List -->
                                 <div class="py-1" role="menu" aria-orientation="vertical"
@@ -115,12 +114,12 @@
 
                     <div class="flex items-center mr-8" v-else>
                         <div class="flex items-baseline space-x-4">
-                            <a href="/auth/register" class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
-                                Register
+                            <a href="/auth/register" class="hover:text-blue-600 text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
+                                S'inscrire
                             </a>
 
-                            <a href="/auth/login" class="text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
-                                Login
+                            <a href="/auth/login" class="hover:text-blue-600 text-gray-800 dark:hover:text-white py-2 rounded-md text-md font-medium">
+                                Se connnecter
                             </a>
 
                         </div>
@@ -157,10 +156,10 @@
 import {ChevronDownIcon, MenuIcon, ChatIcon, CogIcon, HeartIcon,
     LogoutIcon, NewspaperIcon, PlusSmIcon
 } from "@vue-hero-icons/outline"
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 
 export default {
-    props: ['check', 'user', 'unread_messages_count'],
+    props: ['check', 'user'],
     name: "HeaderComponent",
     components: {
         ChevronDownIcon, MenuIcon, ChatIcon,
@@ -177,18 +176,21 @@ export default {
     },
 
     mounted() {
-        this.$store.commit('update_message_count', Number.parseInt(this.unread_messages_count))
+
+        this.getMessagesCount()
     },
 
     computed: {
         ...mapState([
             'messages_count'
         ]),
-
-
     },
 
     methods: {
+        ...mapMutations([
+            'update_message_count'
+        ]),
+
         async logout() {
             const logout = await axios.post('/auth/logout')
             .then(() => {
@@ -201,6 +203,18 @@ export default {
             })
 
             console.log(logout)
+        },
+
+        async getMessagesCount() {
+            await axios.post('/api/messages-count')
+                .then( result => {
+                    const success = result.data.success
+                    const unread_messages = result.data.unread_messages
+
+                    if (success) {
+                        this.update_message_count(unread_messages)
+                    }
+                })
         }
     },
 }

@@ -83,6 +83,12 @@ Route.group(() => {
 // API Routes
 Route.group(() => {
 
+    Route.post('/messages-count', 'HomeController.messagesCount')
+        .as('messagesCount')
+
+    Route.get('/filter-home', 'HomeController.filterHome')
+        .as('filterHome')
+
     // cities ----------------------------------------------------------------
 
     Route.post('cities/:dep_code', 'CitiesController.index')
@@ -103,7 +109,11 @@ Route.group(() => {
             .as('departments.show')
             // .middleware('auth:web,api')
 
-        Route.route('/:code/cts', ['GET', 'POST'],'DepartmentsController.home_cities')
+        // Route.get('/search/:query', 'DepartmentsController.search')
+        //     .as('departments.search')
+            // .middleware('auth:web,api')
+
+        Route.route('/:query/cts', ['GET', 'POST'],'DepartmentsController.home_cities')
             .as('departments.home_cities')
             // .middleware('auth:web,api')
 
@@ -207,7 +217,7 @@ Route.group(() => {
     Route.post('/category', 'CategoriesController.show')
         .as('category.show')
 
-    Route.post('/categories', 'CategoriesController.index')
+    Route.route('/categories', ['GET', 'POST'],'CategoriesController.index')
         .as('categories')
 })
     .prefix('/api')

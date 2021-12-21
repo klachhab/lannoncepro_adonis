@@ -223,6 +223,7 @@ export default class UsersController {
                 const conversations = await user
                     .related('conversations')
                     .query()
+                    .where('read', false)
                     .select('read')
 
                 if (params.username) {
@@ -249,9 +250,7 @@ export default class UsersController {
                                 'blocked', 'membre_depuis', 'username', 'is_online'
                             ],
                         }),
-                        unread_messages_count: conversations
-                            .filter(conversation => !conversation.read)
-                            .length,
+                        unread_messages_count: conversations.length,
 
                         my_username
                     })

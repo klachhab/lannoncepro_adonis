@@ -11,7 +11,25 @@ export default class DepartmentsController {
 
     }
 
-    public async create({}: HttpContextContract) {
+    public async search({params}: HttpContextContract) {
+        return Department.query()
+            .has('cities')
+            .where('name', "like", `${ params.query }%`)
+            .orWhere('code', params.query)
+            .select('name', 'code')
+            .firstOrFail()
+            .then( dep => {
+                return {
+                    success: true,
+                    response: dep
+                }
+            })
+            .catch( (err) => {
+                return {
+                    success: false,
+                    response: err
+                }
+            });
     }
 
     public async store({request}: HttpContextContract) {
@@ -55,7 +73,7 @@ export default class DepartmentsController {
     }
 
 
-    public async home_cities({request, params}: HttpContextContract) {
+    public async home_cities({params}: HttpContextContract) {
 
         return await Department.query()
             // .preload('cities', cities => {
@@ -65,7 +83,8 @@ export default class DepartmentsController {
             //     // .limit(14)
             // })
 
-            .where('code', params.code)
+            .where('code', params.query)
+            .orWhere('name', "like", `${ params.query }%`)
             .firstOrFail()
             .then( async department => {
                 const cities = await department
