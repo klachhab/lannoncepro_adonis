@@ -168,29 +168,30 @@
             <!-- ! Categories ! -->
 
 
-            <!-- Top cities -->
-
             <div v-if="isMobile" class="px-8 py-4 mx-auto bg-white rounded shadow-md dark:bg-gray-800 mt-10 w-full"
+
                  :class="maxWidth.container"
             >
                 <span class="text-md md:text-lg font-semibold text-gray-600 dark:text-gray-400">
                     Top 15 catégories
                 </span>
             </div>
+            <!-- Top cities -->
 
 
             <div v-else class="shadow-md p-10 mx-auto my-10 h-full w-full"
                  :class="maxWidth.container"
             >
                 <div class="flex justify-center grid grid-cols-2">
+
                     <svg class="fill-current text-map"
                          xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 613 585"
                     >
                         <path v-for="dep in mapFrance" :key="dep.id" :content="dep.name + '\n(' + dep.id + ')'"
                               v-tippy='{followCursor : true, animation:"fade", delay: 0, arrow : true}'
-                              :class="dep.id === department.code ? 'text-green-400' : 'hover:text-green-400'"
-                              class="cursor-pointer focus:outline-none"
+                              :class="( dep.id === department.code || found_departments.includes(dep.id) ) ? 'text-green-400' : 'hover:text-green-400'"
+                              class="cursor-pointer focus:outline-none border border-gray-400"
                               @click="getCities(dep.id)"
                               :id="dep.id"
                               :name="dep.name"
@@ -220,7 +221,7 @@
 
 
                                     <input v-model="search_department" type="text"
-                                           @input="searchDpartment"
+                                           @input="searchDepartment"
                                            @keyup.enter="selectDpartment"
                                            placeholder="Nom ou Code du département..."
                                            class="w-full focus-visible:outline-none
@@ -235,7 +236,7 @@
 
                             <svg v-if="department.selected" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                  class="h-5 w-5 p-1 stroke-current text-white rounded-full bg-red-500 cursor-pointer"
-                                 @click="cities = []; department.name = null; department.code = null; department.selected = false"
+                                 @click="cities = []; department = {name: null,code: null,selected: false}; searchDepartment()"
                             >
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>

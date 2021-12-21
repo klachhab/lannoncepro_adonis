@@ -79,6 +79,8 @@ export default {
             cities: [],
             department_posts_count: null,
             search_department: null,
+            found_departments:[],
+
 
             show_menu: false,
             show_sub_menu: false,
@@ -115,75 +117,6 @@ export default {
 
     methods: {
     //    Top cities
-        getDepName(id, depName){
-            this.department_name = depName
-            this.department.code = id
-        },
-
-        async getCities(dep_code){
-            this.selectedDep = dep_code
-
-            await axios.post(`/api/departments/${dep_code}/cts`)
-                .then( response => {
-                    const department = response.data.department
-                    this.cities = response.data.cities
-
-                    this.department = {
-                        name: department.name,
-                        code: department.code,
-                        posts_count: response.data.department_posts_count,
-                        selected: true,
-                    }
-
-                    this.search_department = null
-                })
-        },
-
-
-        async searchDpartment($event){
-            $event.target.value = $event.target.value.charAt(0).toUpperCase()
-
-            if (this.search_department) {
-                this.search_department.charAt(0).toUpperCase()
-
-                return await axios.get(`/api/departments/${this.search_department}/cts`)
-                    .then( response => {
-                        const success = response.data.success
-
-                        if (success) {
-                            const department = response.data.department
-
-                            this.department.name = department.name;
-                            this.department.code = department.code;
-                            this.department.posts_count = response.data.department_posts_count;
-
-                        }
-                        else {
-                            this.department.name = null
-                            this.department.code = null
-                        }
-
-                    })
-            }
-
-            else {
-                this.department.name = null
-                this.department.code = null
-            }
-        },
-
-
-        selectDpartment($event){
-            if (this.department.code) {
-                this.department.selected = true
-                this.search_department = null
-                this.getCities(this.department.code)
-            } else {
-                alert("Aucune ville n'a été trouvée. Merci de réessayer.")
-            }
-        },
-
-
         async getCategories(){
             if (!this.show_menu) {
                 this.search_form.category = {
@@ -269,6 +202,94 @@ export default {
             //         this.filtered_count = response.data
             //     })
         },
+
+        // ==========================================
+
+        getDepName(id, depName){
+            this.department_name = depName
+            this.department.code = id
+        },
+
+        async getCities(dep_code){
+            this.selectedDep = dep_code
+
+            await axios.post(`/api/departments/${dep_code}/cts`)
+                .then( response => {
+
+                    const department = response.data.departments[0]
+                    const cities = department.cities
+                    const posts_count = cities
+                        .map(city => city.meta.posts_count)
+                        .reduce( (a,b) => a + b, 0)
+
+                    // console.log(
+                    //     cities.sort((a,b) => {
+                    //         return b.meta.posts_count - a.meta.posts_count
+                    //     })
+                    //         .slice(0, 14)
+                    // )
+
+                    this.cities = cities.sort((a,b) => {
+                        return b.meta.posts_count - a.meta.posts_count
+                    }).slice(0, 14)
+
+                    this.department = {
+                        name: department.name,
+                        code: department.code,
+                        posts_count: posts_count,
+                        selected: true,
+                    }
+
+                    this.search_department = null
+                    this.found_departments = []
+                })
+        },
+
+
+        async searchDepartment(){
+
+            if (this.search_department === '') {
+                this.found_departments = []
+                return
+            }
+
+            if (this.search_department) {
+                return await axios.get(`/api/departments/${this.search_department}/cts`)
+                    .then( response => {
+                        const success = response.data.success
+
+                        if (success) {
+                            const departments = response.data.departments
+
+                            this.found_departments = departments.map(department => department.code)
+                        }
+                        else {
+                            this.department.name = null
+                            this.department.code = null
+                        }
+
+                    })
+            }
+
+            else {
+                this.department.name = null
+                this.department.code = null
+            }
+        },
+
+
+        selectDpartment($event){
+            console.log(this.found_departments)
+            if (this.found_departments.length === 1) {
+                this.department.selected = true
+                this.search_department = null
+                // this.getCities(this.found_departments[0].code)
+            }
+            // else {
+            //     alert("Aucune ville n'a été trouvée. Merci de réessayer.")
+            // }
+        },
+
     },
 }
 </script>

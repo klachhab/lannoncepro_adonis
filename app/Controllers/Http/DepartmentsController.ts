@@ -76,36 +76,33 @@ export default class DepartmentsController {
     public async home_cities({params}: HttpContextContract) {
 
         return await Department.query()
-            // .preload('cities', cities => {
-            //     cities
-            //         .withCount('posts')
-            //         .select('id', 'name', 'code')
-            //     // .limit(14)
-            // })
+            .preload('cities', cities => {
+                cities
+                    .withCount('posts')
+                    .select('id', 'name', 'code')
+                // .limit(14)
+            })
 
             .where('code', params.query)
             .orWhere('name', "like", `${ params.query }%`)
-            .firstOrFail()
-            .then( async department => {
-                const cities = await department
-                    .related('cities')
-                    .query()
-                    .withCount('posts', posts => {
-                        posts.where('is_valid', 1)
-                    })
+            // .firstOrFail()
+            .then( async departments => {
+                // const cities = departments
+                //     .map(department => department.cities)
 
                 return {
                     success: true,
-                    department,
-                    department_posts_count: cities
-                        .map(city => city.$extras.posts_count)
-                        .reduce( (a,b) => a + b, 0)
-                    ,
-                    cities: cities
-                        .sort((a,b) => {
-                            return b.$extras.posts_count - a.$extras.posts_count
-                        })
-                        .slice(0, 14)
+                    departments,
+                    // cities,
+                    // department_posts_count: cities
+                    //     .map(city => city.$extras.posts_count)
+                    //     .reduce( (a,b) => a + b, 0),
+
+                    // cities: cities
+                    //     .sort((a,b) => {
+                    //         return b.$extras.posts_count - a.$extras.posts_count
+                    //     })
+                    //     .slice(0, 14)
                 }
 
             })
