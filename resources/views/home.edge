@@ -50,7 +50,7 @@
                         >
 
                             <input v-model="search_form.q" type="text"
-                                   @change="filterPosts('q', search_form.q )"
+                                   @chenge="filterPosts('q', search_form.q )"
                                    placeholder="Que cherchez vous ?"
                                    class="w-full focus-visible:outline-none py-3 bg-transparent text-md text-gray-600"
                             >
@@ -188,12 +188,12 @@
                          xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 613 585"
                     >
-                        <path v-for="dep in mapFrance" :key="dep.id" :content="dep.name + '\n(' + dep.id + ')'"
+                        <path v-for="dep in mapFrance" :key="dep.code" :content="dep.name + '\n(' + dep.code + ')'"
                               v-tippy='{followCursor : true, animation:"fade", delay: 0, arrow : true}'
-                              :class="( dep.id === department.code || found_departments.includes(dep.id) ) ? 'text-green-400' : 'hover:text-green-400'"
+                              :class="( dep.code === department.code || found_departments.map(el => el.code).includes(dep.code) ) ? 'text-green-400' : 'hover:text-green-400'"
                               class="cursor-pointer focus:outline-none border border-gray-400"
-                              @click="getCities(dep.id)"
-                              :id="dep.id"
+                              @click="getCities(dep.code)"
+                              :id="dep.code"
                               :name="dep.name"
                               :d="dep.d"
                         >
@@ -202,44 +202,43 @@
 
 
                     <div>
-                        <div class="flex items-center justify-between items-center">
+                        <div class="flex items-center w-full">
 
-                            <div class="flex items-center relative w-full">
+                            <div v-if="department.selected" class="flex w-full items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                     class="h-5 w-5 stroke-current text-gray-500 mr-1 cursor-pointer"
+                                     @click="cities = []; department = {name: null,code: null,selected: false}; searchDepartment()"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+
 
                                 <span class="text-md md:text-lg font-semibold dark:text-gray-400 "
-                                      :class="!department.selected ? 'invisible': ''"
+                                      :class="department.selected ? '': 'invisible'"
                                 >
-                                    @{{ department.name ?? '&nbsp;' }}
-                                </span>
-
-                                <div v-if="!department.selected" class="flex absolute w-full items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                         class="h-5 w-5 stroke-current text-gray-500 mr-1"
-                                    >
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-
-
-                                    <input v-model="search_department" type="text"
-                                           @input="searchDepartment"
-                                           @keyup.enter="selectDpartment"
-                                           placeholder="Nom ou Code du département..."
-                                           class="w-full focus-visible:outline-none
-                                       transition duration-100 ease-in-out first-letter:uppercase
-                                       bg-transparent text-md md:text-lg text-gray-600"
-                                    >
-
-                                </div>
+                                        @{{ department.name ?? '&nbsp;' }}
+                                    </span>
 
                             </div>
 
+                            <div v-else class="flex w-full items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                     class="h-5 w-5 stroke-current text-gray-500 mr-1"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
 
-                            <svg v-if="department.selected" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                 class="h-5 w-5 p-1 stroke-current text-white rounded-full bg-red-500 cursor-pointer"
-                                 @click="cities = []; department = {name: null,code: null,selected: false}; searchDepartment()"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+
+                                <input v-model="search_department" type="text"
+                                       @input="searchDepartment"
+                                       @keyup.enter="selectDepartment"
+                                       placeholder="Nom ou Code du département..."
+                                       class="w-full focus-visible:outline-none
+                                       transition duration-100 ease-in-out first-letter:uppercase
+                                       bg-transparent text-md md:text-lg text-gray-600"
+                                >
+
+                            </div>
 
                         </div>
 

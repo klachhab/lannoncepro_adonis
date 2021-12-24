@@ -1,63 +1,61 @@
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
 import Category from "App/Models/Category";
 import User from "App/Models/User";
-import {Exception} from "@poppinss/utils";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import Post from "App/Models/Post/Post";
 
 export default class HomeController {
 
-    public async index ({view}: HttpContextContract) {
+    public async index({view}: HttpContextContract) {
         const sub_categories = await Category.query()
-            .has('parent')
-            .preload('parent', parent => {
-                parent.select('name', 'id')
-            })
-            .withCount('posts', posts => {
-                posts.where('is_valid', 1)
-            })
-            .select('id', 'name', 'slug')
-            .limit(15)
+                .has('parent')
+                .preload('parent', parent => {
+                    parent.select('name', 'id')
+                })
+                .withCount('posts', posts => {
+                    posts.where('is_valid', 1)
+                })
+                .select('id', 'name', 'slug')
+                .limit(15)
 
-        return view.render('home',{
-            sub_categories: sub_categories.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
-            // cities: cities.sort( (a,b) => b.$extras.posts_count - a.$extras.posts_count),
+        return view.render('home', {
+            sub_categories: sub_categories.sort((a, b) => b.$extras.posts_count - a.$extras.posts_count),
         })
     }
 
-    public async messagesCount( {auth}: HttpContextContract) {
+    public async messagesCount({auth}: HttpContextContract) {
 
         return await auth.check()
-            .then(async checked => {
+                .then(async checked => {
 
-                if (checked) {
+                    if (checked) {
 
-                    const user = auth.user as User
+                        const user = auth.user as User
 
-                    const conversations = await user
-                        .related('conversations')
-                        .query()
-                        .where('read', false)
-                        .select('read')
+                        const conversations = await user
+                                .related('conversations')
+                                .query()
+                                .where('read', false)
+                                .select('read')
 
+                        return {
+                            success: true,
+                            unread_messages: conversations.length
+                        }
+
+                    }
                     return {
-                        success: true,
-                        unread_messages: conversations.length
+                        success: false,
                     }
 
-                }
-                return {
-                    success: false,
-                }
 
-
-            })
-            .catch((error: AuthenticationException) => {
-                return {
-                    success: false,
-                    error: error.message
-                }
-            })
+                })
+                .catch((error: AuthenticationException) => {
+                    return {
+                        success: false,
+                        error: error.message
+                    }
+                })
 
     }
 

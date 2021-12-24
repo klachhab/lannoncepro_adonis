@@ -7,7 +7,6 @@ export default class Posts extends BaseSchema {
         this.schema.createTable(this.tableName, (table) => {
             table.increments('id')
             table.string('slug', 255).nullable()
-            // table.enum('reason', ['sell', 'buy']).defaultTo('sell')
 
             // Relations ================================================
             table
@@ -28,6 +27,7 @@ export default class Posts extends BaseSchema {
             table.string('title', 255).notNullable()
             table.text('description').notNullable()
             table.enum('condition', ['new', 'used']).notNullable()
+            table.enum('reason', ['sell', 'buy']).defaultTo('sell')
             table.float('price', 11, 2).nullable()
             table.boolean('negotiable').defaultTo(false)
             table.float('lat', 11, 2).nullable()

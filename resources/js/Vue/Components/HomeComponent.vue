@@ -1,12 +1,11 @@
 <script>
 
-import {TInput, TModal} from "vue-tailwind/dist/components"
+import { TInput, TModal } from "vue-tailwind/dist/components"
 
-import {Swiper, SwiperSlide} from 'vue-awesome-swiper'
+import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
 import 'swiper/css/swiper.css'
 
-import {France} from "../../france";
-import {mapState} from "vuex";
+import { France } from "../../france";
 
 export default {
     components: {
@@ -129,7 +128,14 @@ export default {
                         this.show_menu = true
                     })
             }
-            else this.show_menu = false
+            else {
+                this.show_menu = false
+                this.show_sub_menu = false
+                this.selected_category = {
+                    slug: null,
+                    name: null
+                }
+            }
         },
 
 
@@ -154,6 +160,7 @@ export default {
         },
 
         selectCategory(category, parent){
+            this.show_menu = !this.show_menu
             if (parent) {
                 this.search_form.parent_category = {
                     slug: category.slug,
@@ -176,7 +183,6 @@ export default {
                     name: null,
                 };
             }
-            this.show_menu = false
         },
 
 
@@ -259,9 +265,19 @@ export default {
                         const success = response.data.success
 
                         if (success) {
+                            this.found_departments = []
                             const departments = response.data.departments
 
-                            this.found_departments = departments.map(department => department.code)
+                            for ( const departmentKey in departments ) {
+                                this.found_departments.push({
+                                    name: departments[departmentKey].name,
+                                    code: departments[departmentKey].code
+                                })
+                            }
+                            // if ( this.found_departments.length === 1 ) {
+                            //     // this.search_department = this.found_departments[0].name
+                            //     this.getCities(this.found_departments[0].code)
+                            // }
                         }
                         else {
                             this.department.name = null
@@ -277,17 +293,12 @@ export default {
             }
         },
 
-
-        selectDpartment($event){
-            console.log(this.found_departments)
+        selectDepartment(){
             if (this.found_departments.length === 1) {
                 this.department.selected = true
                 this.search_department = null
-                // this.getCities(this.found_departments[0].code)
+                this.getCities(this.found_departments[0].code)
             }
-            // else {
-            //     alert("Aucune ville n'a été trouvée. Merci de réessayer.")
-            // }
         },
 
     },

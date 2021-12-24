@@ -3,9 +3,12 @@ import {
     BaseModel,
     BelongsTo,
     belongsTo,
-    column, computed,
+    column,
+    computed,
     HasMany,
-    hasMany, ManyToMany, manyToMany
+    hasMany,
+    ManyToMany,
+    manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
 import Category from "App/Models/Category";
 import User from "App/Models/User";
@@ -20,8 +23,6 @@ import PostFilter from "App/Models/Filters/PostFilter";
 import Conversation from "App/Models/Conversation";
 
 export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
-
-    public static $filter = () => PostFilter
 
     public serializeExtras = true
 
@@ -45,6 +46,9 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     @column()
     public condition: string
+
+    @column()
+    public reason: string
 
     @column({serializeAs: null})
     public price: number
@@ -70,7 +74,6 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     @column()
     public featured: boolean
 
-
     @column({serializeAs: null})
     public userId: number
 
@@ -91,43 +94,6 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     @column.dateTime({serializeAs: null})
     public deletedAt: DateTime
-// Accessors ===================================================
-    @computed()
-    public get creation_date(){
-        return this.createdAt ? this.createdAt
-            .toFormat("dd/LL/yyyy 'à' HH:mm", {locale: 'fr'})
-            : null
-    }
-
-    @computed()
-    public get prix(){
-        return this.price ? this.price.toLocaleString('fr', {
-            minimumFractionDigits: 2,
-        }) + ' €' : null
-    }
-
-    @computed()
-    public get reviews_avg(){
-        const revs_rating_avg = this.reviews && this.reviews.length ?
-            this.reviews.map(revs => revs.$extras.pivot_rating)
-                .reduce( (a,b) => a + b) / this.reviews.length : 0
-
-        return revs_rating_avg
-            .toLocaleString('fr', {
-                maximumFractionDigits: 1,
-            })
-    }
-
-    // @computed()
-    // public get primary_image(){
-    //     return this.images?.length ? this.images[0].path : null
-    // }
-
-    @computed()
-    public get has_unread_message(){
-        return  this.conversations ? this.conversations
-            .map(conversation => conversation.read).includes(0): null
-    }
 
 // Relationships -------------------------------------
     @belongsTo(() => Category)
@@ -142,15 +108,16 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     @belongsTo(() => DeliveryMode)
     public deliveryMode: BelongsTo<typeof DeliveryMode>
 
-    // -----------------------------------------------
+    // @computed()
+    // public get primary_image(){
+    //     return this.images?.length ? this.images[0].path : null
+    // }
 
     @hasMany(() => PostGallery)
     public images: HasMany<typeof PostGallery>
 
     @hasMany(() => Conversation)
     public conversations: HasMany<typeof Conversation>
-
-    // -----------------------------------------------
 
     @manyToMany(() => User, {
         pivotTable: "favourites",
@@ -180,5 +147,44 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
         },
     })
     public reports: ManyToMany<typeof User>
+
+    // -----------------------------------------------
+
+// Accessors ===================================================
+    @computed()
+    public get creation_date() {
+        return this.createdAt ? this.createdAt
+                        .toFormat("dd/LL/yyyy 'à' HH:mm", {locale: 'fr'})
+                : null
+    }
+
+    @computed()
+    public get prix() {
+        return this.price ? this.price.toLocaleString('fr', {
+            minimumFractionDigits: 2,
+        }) + ' €' : null
+    }
+
+    // -----------------------------------------------
+
+    @computed()
+    public get reviews_avg() {
+        const revs_rating_avg = this.reviews && this.reviews.length ?
+                this.reviews.map(revs => revs.$extras.pivot_rating)
+                        .reduce((a, b) => a + b) / this.reviews.length : 0
+
+        return revs_rating_avg
+                .toLocaleString('fr', {
+                    maximumFractionDigits: 1,
+                })
+    }
+
+    @computed()
+    public get has_unread_message() {
+        return this.conversations ? this.conversations
+                .map(conversation => conversation.read).includes(Boolean( 0 )) : null
+    }
+
+    public static $filter = () => PostFilter
 
 }
