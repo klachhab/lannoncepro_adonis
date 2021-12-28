@@ -280,16 +280,14 @@ export default {
             form.append('delivery_mode_id', this.form.delivery_mode)
             form.append('category_id', this.category_id)
 
-            if (this.form.video_link){
+            if (this.form.video_type){
                 form.append('video_type', this.form.video_type)
                 form.append('video_link',this.form.video_type === "iframe" ? this.videoLink : this.form.video_link)
             }
 
-            if (this.form.photos.length){
-                this.form.photos.forEach( photo => {
-                    form.append('images[]', photo)
-                })
-            }
+            this.form.photos.forEach( photo => {
+                form.append('photos[]', photo)
+            })
 
 
 
@@ -318,16 +316,16 @@ export default {
                     this.saving = false
                 })
                 .catch( error => {
-                    // this.saving = false
 
                     this.$swal({
                         icon: "error",
                         title: "Erreur",
                         text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
-                            `Merci de contacter notre support.`
-                        // + `${error}`
+                            `Merci de contacter notre support.\n`
+                        + `${error}`
                     }).then( () => {
-                        window.location.replace('/')
+                        this.saving = false
+                        // window.location.replace('/')
                     })
                 })
 

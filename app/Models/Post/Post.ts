@@ -108,7 +108,7 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     // }
 
     @hasMany(() => PostGallery)
-    public images: HasMany<typeof PostGallery>
+    public pictures: HasMany<typeof PostGallery>
 
     @hasMany(() => Conversation)
     public conversations: HasMany<typeof Conversation>

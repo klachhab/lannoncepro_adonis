@@ -14,6 +14,7 @@ import ReportType from "App/Models/Post/ReportType";
 import Conversation from "App/Models/Conversation";
 import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
 import City from "App/Models/City";
+import Application from "@ioc:Adonis/Core/Application";
 
 export default class PostsController {
 
@@ -76,7 +77,6 @@ export default class PostsController {
 
 
     public async store({request, auth}: HttpContextContract) {
-
         return await auth.check()
             .then(async authenticated => {
                 if ( !authenticated ){
@@ -160,7 +160,7 @@ export default class PostsController {
                     const ct = get_city.response as City
                     request.all().city_id = ct.id
                 }
-                // return request.all()
+                // return request.files('photos')
 
                 return await request.validate(PostValidator)
                     .then(async (data: Object) => {
@@ -168,6 +168,60 @@ export default class PostsController {
                         return await user.related('posts')
                             .create(data)
                             .then( async post => {
+                                const video = request.file('video_link')
+                                const pics = request.files('photos')
+                                const public_path = Application.publicPath('/uploads')
+
+                                if ( video ) {
+                                    await video.move(`${ public_path }/${ post.id }-${ post.slug }`, {
+                                        name: `video.${ video.extname }`
+                                    })
+                                        .then( () => {
+                                            post.videoLink = `/uploads/${ post.id }-${ post.slug }/${video.clientName}`
+                                            post.save()
+                                                .catch( err => {
+                                                    return {
+                                                        success: false,
+                                                        message: err.message,
+                                                    }
+                                                })
+                                        })
+                                        .catch( err => {
+                                            return {
+                                                success: false,
+                                                message: err.message,
+                                            }
+                                        })
+
+                                }
+
+                                if ( pics.length ) {
+                                    for ( let pic of pics ) {
+                                        var file_path = `${public_path}/${ post.id }-${ post.slug }/pics`
+                                        await pic.move(`${ file_path }`, {
+                                            name: pic.clientName
+                                        })
+                                            .then( async () => {
+                                                await post.related('pictures')
+                                                    .create({
+                                                        path: `/uploads/${ post.id }-${ post.slug }/pics/${pic.clientName}`
+                                                    })
+                                                    .catch( err => {
+                                                        return {
+                                                            success: false,
+                                                            message: err.message,
+                                                        }
+                                                    })
+                                            })
+                                            .catch( err => {
+                                                return {
+                                                    success: false,
+                                                    message: err.message,
+                                                }
+                                            })
+                                    }
+                                }
+
                                 await post.load('user')
                                 await post.load('city')
 

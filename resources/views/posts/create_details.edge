@@ -255,7 +255,7 @@
                                 </svg>
 
                                 <span class="text-sm select-none">
-                                    Ajouter
+                                    @{{ form.video_link ? 'Modifier' : 'Ajouter' }}
                                 </span>
 
                                 <input type="file" max="5" class="hidden" @change="addVideo" accept="video/mp4">
