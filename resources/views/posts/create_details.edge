@@ -5,7 +5,6 @@
 
     <create-post-details inline-template
                          category_id="{{ category.id }}"
-                         user_city="{{ user_city }}"
                          style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
 
         <div class="grid grid-cols-1 max-h-full">
@@ -52,7 +51,6 @@
                            class="flex flex-none items-center justify-center text-blue-500">
 
                             <svg viewBox="0 0 3 3" xmlns="http://www.w3.org/2000/svg"
-                                 xmlns:xlink="http://www.w3.org/1999/xlink"
                                  height=".75em" class="fill-current text-blue-500 mr-2"
                             >
                                 <g id="pencil" fill-rule="nonzero">
@@ -69,96 +67,108 @@
 
 
                     <!---------------------------------- Reason -------------------------------------->
-                    <!-- <div class="flex items-center grid grid-cols-3 my-10">
+                     <div class="flex items-center grid lg:grid-cols-7 mt-10 mb-7">
 
-                        <span>
-                            Type de l'annonce<span class="text-red-400">*</span>
+                        <span class="self-start" :class="input_class.label">
+                            Je souhaite
                         </span>
 
-                        <div class="flex col-span-2 items-center w-full">
+                        <div class="flex items-center w-full">
                             <label class="inline-flex items-center mr-5">
+
                                 <input type="radio" v-model="form.reason" value="sell"
-                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50" checked>
-                                <span class="ml-2">Vente</span>
+                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                       checked >
+
+                                <span class="ml-2">Vendre</span>
+
                             </label>
                             <label class="inline-flex items-center">
+
                                 <input type="radio" v-model="form.reason" value="buy"
-                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
-                                <span class="ml-2">Achat</span>
+                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                >
+                                <span class="ml-2">Acheter</span>
+
                             </label>
-                        </div>
-
-                    </div>-->
-                    <!---------------------------------- ! Reason ! ---------------------------------->
-
-                    <!---------------------------------- Title -------------------------------------->
-                    <div class="flex items-center grid grid-cols-3 mb-7 mt-10">
-
-                        <span>
-                            Titre<span class="text-red-400">*</span>
-                        </span>
-
-                        <div class="flex col-span-2 items-center w-full">
-                            <input class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                   type="text" placeholder="Ex. iPhone 12, Samsung S12 ..."
-                                   v-model="form.title"
-                            >
                         </div>
 
                     </div>
+                    <!---------------------------------- ! Reason ! ---------------------------------->
+
+                    <!---------------------------------- Title -------------------------------------->
+                    <div class="flex grid lg:grid-cols-7 mb-7" :class="input_class.container">
+                        <span :class="input_class.label">
+                            Titre<span class="text-red-400">*</span>
+                        </span>
+
+                        <input type="text" placeholder="Ex. iPhone 12, Samsung S12 ..."
+                               class="lg:col-span-5"
+                               :class="getInputClass('default')"
+                               v-model="form.title"
+                        />
+                    </div>
+
                     <!---------------------------------- ! Title ! ---------------------------------->
 
                     <!---------------------------------- Description -------------------------------------->
-                    <div class="flex grid grid-cols-3 mb-7">
+                    <div class="flex grid lg:grid-cols-7 mb-7" :class="input_class.container">
 
-                        <span>
+                        <span class="lg:col-span-2 self-start">
                             Déscription<span class="text-red-400">*</span>
                         </span>
 
-                        <div class="flex col-span-2 items-center w-full">
-                            <textarea
-                                    class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                    rows="8" placeholder="Tapez quelques lignes décrivant votre bien"
-                                    v-model="form.description"></textarea>
-                        </div>
+                        <textarea placeholder="Tapez quelques lignes décrivant votre bien"
+                                  rows="8"
+                                  class="lg:col-span-5"
+                                  :class="getInputClass('default')"
+                                  v-model="form.description"
+                        ></textarea>
 
                     </div>
                     <!---------------------------------- ! Description ! ---------------------------------->
 
                     <!---------------------------------- Price -------------------------------------->
-                    <div class="flex justify-items-stretch items-center grid grid-cols-3 mb-7">
 
-                        <span>
-                            Prix<span class="text-red-400">*</span>
+                    <div class="flex grid lg:grid-cols-7 mb-7" :class="input_class.container">
+                        <span :class="input_class.label">
+                            Prix
                         </span>
 
-                        <div class="flex justify-center items-center w-full grid grid-cols-2 col-span-2">
-
-                            <input class="my-7 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 col-span-2 md:col-span-1"
-                                   type="number" min="0"
+                        <div class="flex lg:col-span-2 items-center px-3 py-2 transition duration-100 ease-in-out rounded-md border"
+                             :class="focus_price_class"
+                        >
+                            <input type="text" step="0.01" placeholder="0,00"
+                                   class="w-full focus-visible:outline-none appearance-none"
+                                   @focus="selected = 'price'"
+                                   @blur="selected = null"
                                    v-model="form.price"
-                            >
+                            />
 
-                            <label class="justify-self-center items-center w-full ml-12">
-                                <input type="checkbox" v-model="form.negotiable"
-                                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
-                                <span class="ml-2">Négociable</span>
-                            </label>
-
+                            <span class="text-gray-400 mx-2 select-none">
+                                €
+                            </span>
                         </div>
 
 
+                        <label class="justify-self-center items-center lg:col-span-2 w-full ml-12">
+                            <input type="checkbox"
+                                   v-model="form.negotiable"
+                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2">Négociable</span>
+                        </label>
                     </div>
                     <!---------------------------------- ! Price ! ---------------------------------->
 
                     <!---------------------------------- Condition -------------------------------------->
-                    <div class="flex items-center grid grid-cols-3 my-7">
+                    <div class="flex grid lg:grid-cols-7 mb-7 mt-10" :class="input_class.container">
 
-                        <span>
+                        <span :class="input_class.label">
                             Condition<span class="text-red-400">*</span>
                         </span>
 
-                        <div class="flex col-span-2 items-center w-full">
+                        <div class="flex items-center w-full">
+
                             <label class="inline-flex items-center mr-5">
                                 <input type="radio" v-model="form.condition" value="new"
                                        class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
@@ -170,47 +180,44 @@
                                        class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
                                 <span class="ml-2">Utilisé</span>
                             </label>
+
                         </div>
 
                     </div>
                     <!---------------------------------- ! Condition ! ---------------------------------->
 
                     <!---------------------------------- Delivery Mode -------------------------------------->
-                    <div class="flex items-center grid grid-cols-3 mb-7 mt-10">
-
-                        <span>
+                    <div class="flex grid lg:grid-cols-7 mb-7 mt-10" :class="input_class.container">
+                        <span  :class="input_class.label">
                             Mode de livraison<span class="text-red-400">*</span>
                         </span>
 
-                        <div class="flex col-span-2 items-center w-full">
-                            <select class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                    v-model="form.delivery_mode"
-                            >
-                                <option disabled value="null">Selectionnez...</option>
+                        <select placeholder="Ex. iPhone 12, Samsung S12 ..."
+                               class="lg:col-span-5"
+                               :class="getInputClass('default')"
+                               v-model="form.delivery_mode"
+                        >
+                            <option disabled value="null">Selectionnez...</option>
 
-                                @each(delivery_mode in delivery_modes)
+                            @each(delivery_mode in delivery_modes)
 
-                                <option value="{{ delivery_mode.id }}">{{ delivery_mode.mode }}</option>
+                            <option value="{{ delivery_mode.id }}">{{ delivery_mode.mode }}</option>
 
-                                @end
-
-                            </select>
-                        </div>
-
+                            @end
+                        </select>
                     </div>
                     <!---------------------------------- ! Delivery Mode ! ---------------------------------->
 
                     <!---------------------------------- Add video -------------------------------------->
-                    <div class="flex grid grid-cols-3 mb-7 mt-10">
+                    <div class="flex grid lg:grid-cols-7 mb-7 mt-10 grid-cols-none lg:flex-none my-10">
 
-                        <span class="flex pt-2">
+                        <span class="flex mt-1 self-start" :class="input_class.label">
                             Ajouter une vidéo
 
                             <a href="#" class="ml-2 mt-1" v-if="form.video_type"
                                @click.prevent="form.video_type = null; form.video_link = null">
 
                                 <svg width="1em" height="1.14em" viewBox="0 0 50 57" xmlns="http://www.w3.org/2000/svg"
-                                     xmlns:xlink="http://www.w3.org/1999/xlink"
                                      class="fill-current text-red-600"
                                 >
                                     <g id="pencil" fill-rule="nonzero">
@@ -220,50 +227,55 @@
                                 </svg>
 
                             </a>
-
                         </span>
 
-                        <div class="flex col-span-2 w-full grid grid-cols-1">
-                            <select class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                    v-model="form.video_type" @change="resetVideo"
+                        <div class="flex lg:col-span-5 grid grid-cols-1">
+
+                            <select type="text" class="w-full mb-3" :class="getInputClass('default')"
+                                    v-model="form.video_type" @change="form.video_link = null"
                             >
                                 <option disabled value="null">Selectionnez...</option>
                                 <option value="iframe">Lien Youtube, Dailymotion ou Vimeo</option>
                                 <option value="local">Depuis votre appareil</option>
-
                             </select>
 
-                            <input class="mt-3 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                   type="text" v-model="form.video_link"
+                            {{-- v-if="form.video_type === 'iframe' && !form.video_link" --}}
+                            <input type="text" placeholder="Ex. https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+                                   class="mb-3" :class="getInputClass('default')"
                                    v-if="form.video_type === 'iframe'"
-                                   placeholder="Ex. https://www.youtube.com/watch?v=aqz-KE-bpKQ"
-                            >
+                                   v-model="form.video_link"
+                            />
 
-                            <div class="flex justify-center items-center w-full mt-3 py-5 border-gray-400 border-2 rounded"
-                                 :class="form.video_link ? 'h-64' : 'h-12'"
+                            <label class="flex justify-center items-center border border-1 h-24 w-full rounded-md border-gray-300 text-gray-300 cursor-pointer mb-3"
                                  v-else-if="form.video_type === 'local'"
                             >
-                                <label class="flex justify-center w-full text-gray-400 cursor-pointer"
-                                >
-                                    <svg width="1em" viewBox="0 0 101 101" xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink"
-                                         class="fill-current text-gray-400 mr-2"
-                                    >
-                                        <path d="M98.8958333,44.1875 L56.8125,44.1875 L56.8125,2.10416667 C56.8125,0.941614583 55.8708854,0 54.7083333,0 L46.2916667,0 C45.1291146,0 44.1875,0.941614583 44.1875,2.10416667 L44.1875,44.1875 L2.10416667,44.1875 C0.941614583,44.1875 0,45.1291146 0,46.2916667 L0,54.7083333 C0,55.8708854 0.941614583,56.8125 2.10416667,56.8125 L44.1875,56.8125 L44.1875,98.8958333 C44.1875,100.058385 45.1291146,101 46.2916667,101 L54.7083333,101 C55.8708854,101 56.8125,100.058385 56.8125,98.8958333 L56.8125,56.8125 L98.8958333,56.8125 C100.058385,56.8125 101,55.8708854 101,54.7083333 L101,46.2916667 C101,45.1291146 100.058385,44.1875 98.8958333,44.1875 Z" id="Path"></path>
 
-                                    </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
 
-                                    <p>Ajouter</p>
+                                <span class="text-sm select-none">
+                                    Ajouter
+                                </span>
 
-                                    <form ref="localVideo" >
-                                        <input type="file" max="5" class="hidden" @change="addVideo" accept="video/mp4">
-                                    </form>
-                                </label>
+                                <input type="file" max="5" class="hidden" @change="addVideo" accept="video/mp4">
+
+                            </label>
+
+                            {{-- Video preview --}}
+                            <div class="w-full" v-if="form.video_link">
+
+                                <iframe :src="videoLink" class="w-full aspect-h-9 h-80" v-if="form.video_type === 'iframe'"></iframe>
+
+                                <video-player v-else-if="form.video_type === 'local'" class="video-player-box w-full"
+                                              ref="videoPlayer"
+                                              :options="videoPlayerOptions"
+                                              :playsinline="true"></video-player>
                             </div>
-
                         </div>
 
                     </div>
+
                     <!---------------------------------- ! Add video ! ---------------------------------->
 
                     <!---------------------------------- Add images -------------------------------------->
@@ -279,7 +291,6 @@
                                    v-if="form.photos_urls.length < 5"
                             >
                                 <svg width="1em" viewBox="0 0 384 384" xmlns="http://www.w3.org/2000/svg"
-                                     xmlns:xlink="http://www.w3.org/1999/xlink"
                                      class="fill-current text-white mr-2"
                                 >
                                     <g >
@@ -336,62 +347,64 @@
 
 
                     <!---------------------------------- Add city -------------------------------------->
-                    <div class="flex grid grid-cols-3 mb-7 mt-10">
-
-                        <span class="flex pt-2">
+                    <div class="flex grid lg:grid-cols-7 mb-7 mt-10" :class="input_class.container">
+                        <span class="self-start mt-1" :class="input_class.label">
                             Ville<span class="text-red-400">*</span>
                         </span>
 
-                        <div class="flex col-span-2 w-full grid grid-cols-1">
-
-                            <select class="mt-1 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                    v-model="same_city"
+                        <div class="flex col-span-5 w-full grid grid-cols-1">
+                            <select class="lg:col-span-5 mb-3"
                                     @change="isSameCity"
+                                    :class="getInputClass('default')"
+                                    v-model="form.city.same"
                             >
-                                <option value="same">Même ville</option>
-                                <option value="not_same">Autre ville</option>
+                                <option :value="true">Ma ville</option>
+                                <option :value="false">Autre ville</option>
 
                             </select>
 
-                            <select class="mt-4 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                    @change="getCities"
-                                    v-model="selectedDep"
-                                    v-if="same_city === 'not_same'"
-                            >
-                                <option value="null" disabled selected>
-                                    Département...
-                                </option>
+                            <div v-if="!form.city.same" class="relative lg:col-span-5">
 
-                                @each(department in departments)
+                                <input type="text" placeholder="Ex: Paris"
+                                       class="w-full"
+                                       :class="getInputClass('default')"
+                                       @input="searchAddress"
+                                       data-dropdown-toggle="adresses"
+                                       v-model="selected_address"
+                                />
 
-                                <option value="{{ department.code }}">{{ department.code }} - {{ department.name }}</option>
+                                <div class="flex flex-col w-full bg-white rounded-md shadow mt-1 h-48 overflow-auto border border-gray-100"
+                                     id="adresses"
+                                     v-if="foundAdresses.show_list"
+                                     @focusout="foundAdresses.show_list = false"
+                                >
 
-                                @end
+                                    <svg v-if="foundAdresses.loading" class="motion-reduce:hidden animate-spin self-center my-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
 
-                            </select>
+                                    <div class="flex flex-col w-full py-2 justify-center cursor-pointer hover:bg-blue-500 p-2 group"
+                                         v-for="address in foundAdresses.list"
+                                         @click="selectAddress(address)"
+                                    >
+                                        <span class="group-hover:text-white">@{{ address.properties.label }}</span>
+                                        <span class="text-xs text-gray-500 group-hover:text-white">@{{ address.properties.context }}</span>
+                                    </div>
 
-                            <select class="mt-4 block w-full rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300"
-                                    v-model="form.city_id"
-                                    v-if="selectedDep && same_city === 'not_same'"
-                            >
-
-                                <option value="null" disabled selected>Ville</option>
-                                <option v-for="city in cities" :value="city.id">@{{ city.name }}</option>
-
-
-
-                            </select>
-
+                                </div>
+                            </div>
                         </div>
-
                     </div>
-                    <!---------------------------------- ! Add video ! ---------------------------------->
+
+                    <!---------------------------------- ! Add City ! ---------------------------------->
 
 
                     <hr class="w-full mb-7 mt-3 border-0.5 border-gray-300">
 
 
                     <!------------------------------------ Accept rules and condiitions ------------------------------------>
+
                     <div class="grid grid-cols-1 flex self-start justify-center w-full">
 
                         <label class="flex w-full grid grid-cols-12 ">
@@ -404,10 +417,10 @@
 
                             <p class="col-span-11 text-gray-500">
                                 J'ai lu et j'accepte
-                                <a href="#" class="font-semibold text-gray-900">les conditions générales et la politique de
+                                <a href="#" @click.prevent class="font-semibold text-gray-900">les conditions générales et la politique de
                                     confidentialité</a>
                                 de
-                                <a href="#" class="font-semibold text-gray-900">LannoncePro.fr</a>
+                                <a href="#" @click.prevent class="font-semibold text-gray-900">LannoncePro.fr</a>
                             </p>
                         </label>
 
@@ -424,6 +437,7 @@
                         </button>
 
                     </div>
+
                     <!---------------------------------- ! Accept rules and condiitions ! ---------------------------------->
 
 

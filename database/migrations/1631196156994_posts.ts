@@ -30,8 +30,11 @@ export default class Posts extends BaseSchema {
             table.enum('reason', ['sell', 'buy']).defaultTo('sell')
             table.float('price', 11, 2).nullable()
             table.boolean('negotiable').defaultTo(false)
-            table.float('lat', 11, 2).nullable()
-            table.float('lon', 11, 2).nullable()
+
+            table.string('address').nullable() // for Pros only
+            // table.double('lon').nullable() // lon < lat
+            // table.double('lat').nullable() // for Pros only
+
             table.enum('video_type', ['iframe', 'local']).nullable()
             table.string('video_link').nullable()
 

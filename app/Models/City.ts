@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import {
   BaseModel, column,
   BelongsTo, belongsTo,
@@ -22,14 +21,14 @@ export default class City extends BaseModel {
   @column()
   public code: string
 
+  @column()
+  public longitude: number
+
+  @column()
+  public latitude: number
+
   @column({ serializeAs: null })
   public departmentId: number
-
-  @column.dateTime({ autoCreate: true, serializeAs: null })
-  public createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
-  public updatedAt: DateTime
 
 
 // Relationships -------------------------------------

@@ -38,6 +38,7 @@
                             <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                  class="h-6 w-6 stroke-current text-gray-500 hover:text-blue-500 mx-2 cursor-pointer"
                                  @click.prevent="getCategories"
+                                 aria-haspopup="listbox"
                             >
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -63,10 +64,11 @@
 
                     <!-- Categories mega menu -->
                     <div class="absolute flex grid md:grid-cols-6 grid-cols-1 gap-2 w-full mt-14" v-if="show_menu"
-                         @blur="show_menu = false"
+                         @blur="show_menu = false" tabindex="-1" role="listbox"
                     >
 
                         <div class="col-span-2 flex flex-col items-center gap-2 w-full bg-white rounded border border-gray-200 shadow py-2 h-full overflow-auto z-50">
+
 
                             <div class="flex justify-center items-center flex-between w-full p-2 cursor-pointer border-l-4 border-white transition-all duration-200 ease-in-out"
                                  v-for="(category, index) in categories" :key="index"

@@ -57,7 +57,7 @@ Route.group(() => {
         .only(['store'])
         .as('profile')
 
-    Route.get('mon-profil/:any?', 'UsersController.show')
+    Route.get('/mon-profil/:any?', 'UsersController.show')
         .middleware('auth:web,api')
         .where('any', '.*')
         .as('my_profile')
@@ -127,7 +127,7 @@ Route.group(() => {
             .except(['show'])
             .middleware({
                 update: 'auth:api,web',
-                destroy: 'auth:api,web',
+                destroy: 'admin',
             })
 
 
@@ -144,11 +144,9 @@ Route.group(() => {
             .as('profile_favourites')
             .middleware('auth:web,api')
 
-
-
         Route.post('/:username', 'UsersController.show')
             .as('profile.show.api')
-            // .middleware('auth:web,api')
+            .middleware('admin')
 
         Route.post('/:username/posts', 'UsersController.user_posts')
             .as('profile.posts')
@@ -166,7 +164,7 @@ Route.group(() => {
 
 
     }).as("profile")
-        // .prefix('/profile')
+        .prefix('/profile')
 
     // Posts ----------------------------------------------------------------------
     Route.group(() => {
@@ -214,11 +212,13 @@ Route.group(() => {
     }).prefix('annonces').as("posts_actions")
 
     // Category -------------------------------------------------------------------
-    Route.post('/category', 'CategoriesController.show')
+    Route.post('category', 'CategoriesController.show')
         .as('category.show')
+        .middleware('auth:api,web')
 
-    Route.route('/categories', ['GET', 'POST'],'CategoriesController.index')
+    Route.route('categories', ['GET', 'POST'],'CategoriesController.index')
         .as('categories')
+        .middleware('auth:api,web')
 })
-    .prefix('/api')
+    .prefix('api')
     .as("api")

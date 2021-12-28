@@ -12,7 +12,7 @@ export default class CategoriesController {
 
     public async show({request}: HttpContextContract) {
         const category = await Category.query()
-            .doesntHave('parent')
+            .has('subs')
             .where('slug', request.all().slug)
             .preload('subs', subs => {
                 subs.select('name', 'id', 'slug', 'categoryId')

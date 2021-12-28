@@ -57,12 +57,6 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     public negotiable: boolean
 
     @column()
-    public lat: number
-
-    @column()
-    public lon: number
-
-    @column()
     public videoLink: string | null
 
     @column()

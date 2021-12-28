@@ -1,32 +1,48 @@
-<template>
-
-</template>
-
 <script>
+
+import { mapGetters, mapState } from "vuex";
+
+
 export default {
     name: "CreateDetailsComponent",
-    props: ['category_id', 'user_city'],
+    props: ['category_id'],
 
+    components: {
+    },
     data(){
         return {
             container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
-
+            selected: null,
             form: {
                 reason: 'sell',
                 title: null,
                 description: null,
                 condition: 'new',
-                price: 0,
+                price: null,
                 negotiable: false,
                 delivery_mode: null,
 
-                city_id: Number.parseInt(this.user_city),
 
                 video_type: null,
                 video_link: null,
 
                 photos: [],
                 photos_urls: [],
+
+                city: {
+                    same: true,
+                    name: null,
+                    code: null,
+                    // lon < lat
+                    geo_coordinates: {
+                        longitude: null,
+                        latitude: null,
+                    },
+                    department: {
+                        name: null,
+                        code: null,
+                    },
+                }
             },
 
             same_city: 'same',
@@ -50,10 +66,27 @@ export default {
                 }],
             },
 
+            foundAdresses: {
+                list: [],
+                show_list: false,
+                loading: false,
+            },
+
+            selected_address: null
+
         }
     },
 
     computed: {
+        ...mapState([
+            'username', 'input_class', 'password_match', 'select_class'
+        ]),
+
+        ...mapGetters([
+            "getPasswordMatchClass",
+            "getInputClass",
+        ]),
+
         videoLink() {
             return this.form.video_link.includes('youtube') ?
                 this.form.video_link.replace('/watch?v=', '/embed/') :
@@ -71,16 +104,28 @@ export default {
                 return description.replace(/\n/g, '<br/>')
             }
             return null
-        }
+        },
+
+        focus_price_class() {
+            return this.selected === 'price' ? this.select_class.focused : this.select_class.unfocused
+        },
     },
 
     methods: {
 
-        isSameCity(value){
-            if (value === 'not_same'){
-                this.form.city_id = null
-                this.selectedDep = null
+        isSameCity(){
+
+
+            this.selected_address = null
+
+            this.form.city.name = null
+            this.form.city.code = null
+
+            this.form.city.department = {
+                name: null,
+                code: null,
             }
+
         },
 
         async getCities(){
@@ -91,90 +136,13 @@ export default {
                 .then( resp => {
                     if (!resp.data.success){
                         alert('Une erreur est survenu lors de la récupération de la liste des villes')
+                        return
                     }
-                    this.cities = resp.data.cities
-                    return resp.data.cities
+                    this.cities = resp.data.department.cities
                 })
                 .catch( err => {
                     return err
                 })
-        },
-
-
-        async save(){
-            // console.log(this.form.video_link)
-            // return
-
-            this.saving = true
-            const form = new FormData
-
-            form.append('title', this.form.title)
-            form.append('description', this.description)
-            form.append('condition', this.form.condition)
-            form.append('price', this.form.price)
-            form.append('negotiable', this.form.negotiable)
-            form.append('delivery_mode_id', this.form.delivery_mode)
-            form.append('category_id', Number.parseInt(this.category_id))
-
-            form.append('same_city', this.same_city)
-
-            form.append('video_type', this.form.video_type)
-
-            if (this.form.video_link){
-                form.append('video_link',this.form.video_type === "iframe" ? this.videoLink : this.form.video_link)
-            }
-
-            if (this.same_city === 'not_same'){
-                form.append("city_id", this.form.city_id)
-            }
-
-            if (this.form.photos.length){
-                this.form.photos.forEach( photo => {
-                    form.append('images[]', photo)
-                })
-            }
-
-            await axios.post('/api/annonces', form, {
-                onUploadProgress: (progressEvent => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                    console.log(`${percentCompleted}%`)
-                }),
-            })
-                .then( response => {
-                    this.saving = false
-                    console.log(response.data)
-
-                    if (response.data.success){
-                        window.location.replace(`/annonces/${response.data.post.slug}`)
-                    }
-
-                    else  {
-                        this.$swal({
-                            icon: "error",
-                            title: "Erreur",
-                            text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
-                                `Merci de contacter notre support.`
-                            // + `${response.data}`
-                        }).then( () => {
-                            window.location.replace('/')
-                        })
-                        // this.saving = false
-                    }
-                })
-                .catch( error => {
-                    // this.saving = false
-
-                    this.$swal({
-                        icon: "error",
-                        title: "Erreur",
-                        text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
-                            `Merci de contacter notre support.`
-                        // + `${error}`
-                    }).then( () => {
-                        window.location.replace('/')
-                    })
-                })
-
         },
 
 
@@ -232,6 +200,137 @@ export default {
             }
 
             this.form.video_link = null
+        },
+
+
+
+
+        // Search address -------------------------------
+        async searchAddress($event){
+
+            const value = $event.target.value
+
+            if ( value === '' ){
+                this.foundAdresses.list = []
+                this.foundAdresses.show_list = false
+                return
+            }
+
+            this.foundAdresses.show_list = true
+            this.foundAdresses.loading = true
+
+            // type=street | locality | municipality | housenumber
+            await axios.get(`https://api-adresse.data.gouv.fr/search/?q=${ value }&type=municipality&limit=10`)
+                .then( resp => {
+                    this.foundAdresses.list = resp.data.features
+                })
+                .catch( () => {
+                    this.foundAdresses.list = []
+                    this.foundAdresses.show_list = false
+                })
+
+            this.foundAdresses.loading = false
+        },
+
+
+        selectAddress(address) {
+            const contextArr = address.properties.context.split(', ')
+
+            this.selected_address = address.properties.label
+            this.foundAdresses.show_list = false
+            this.foundAdresses.list = []
+
+
+            this.form.city.name = address.properties.city
+            this.form.city.code = address.properties.citycode
+
+            this.form.city.geo_coordinates = {
+                longitude: address.geometry.coordinates[0],
+                latitude: address.geometry.coordinates[1],
+            }
+
+            this.form.city.department = {
+                code: contextArr[0],
+                name: contextArr[1],
+            }
+        },
+
+        // Submit -------------------------------------------
+
+        async save(){
+
+            this.saving = true
+            const form = new FormData
+            const city = this.form.city
+            const geometry = this.form.city.geo_coordinates
+
+            form.append('same_city', city.same)
+            form.append('city_code', city.code)
+            form.append('city_name', city.name)
+            form.append('longitude', geometry.longitude)
+            form.append('latitude', geometry.latitude)
+            form.append('department_code', city.department.code)
+
+            form.append('title', this.form.title)
+            form.append('reason', this.form.reason)
+            form.append('description', this.description)
+            form.append('condition', this.form.condition)
+            form.append('price', this.form.price)
+            form.append('negotiable', this.form.negotiable)
+            form.append('delivery_mode_id', this.form.delivery_mode)
+            form.append('category_id', this.category_id)
+
+            if (this.form.video_link){
+                form.append('video_type', this.form.video_type)
+                form.append('video_link',this.form.video_type === "iframe" ? this.videoLink : this.form.video_link)
+            }
+
+            if (this.form.photos.length){
+                this.form.photos.forEach( photo => {
+                    form.append('images[]', photo)
+                })
+            }
+
+
+
+            await axios.post('/api/annonces/annonce', form, {
+                // onUploadProgress: (progressEvent => {
+                //     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                //     console.log(`${percentCompleted}%`)
+                // }),
+            })
+                .then( response => {
+                    console.log(response.data)
+
+                    /*if (!response.data.success){
+                        // window.location.replace(`/annonces/${response.data.post.slug}`)
+                        this.$swal({
+                            icon: "error",
+                            title: "Erreur",
+                            text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
+                                `Merci de contacter notre support.`
+                            + `${response.data}`
+                        }).then( () => {
+                            // window.location.replace('/')
+                        })
+                    }*/
+
+                    this.saving = false
+                })
+                .catch( error => {
+                    // this.saving = false
+
+                    this.$swal({
+                        icon: "error",
+                        title: "Erreur",
+                        text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
+                            `Merci de contacter notre support.`
+                        // + `${error}`
+                    }).then( () => {
+                        window.location.replace('/')
+                    })
+                })
+
         },
 
     },

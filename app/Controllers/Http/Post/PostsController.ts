@@ -1,19 +1,19 @@
-import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
-import Application from "@ioc:Adonis/Core/Application";
 import PostGallery from "App/Models/Post/PostGallery";
 import PostValidator from "App/Validators/Post/PostValidator";
-import {Exception} from "@poppinss/utils";
-import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
+import { Exception } from "@poppinss/utils";
+import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
 import User from "App/Models/User";
 import Category from "App/Models/Category";
 import DeliveryMode from "App/Models/Post/DeliveryMode";
 import Department from "App/Models/Department";
-import {AuthenticationException} from "@adonisjs/auth/build/standalone";
-import {DateTime} from "luxon";
+import { AuthenticationException } from "@adonisjs/auth/build/standalone";
+import { DateTime } from "luxon";
 import ReportType from "App/Models/Post/ReportType";
 import Conversation from "App/Models/Conversation";
 import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
+import City from "App/Models/City";
 
 export default class PostsController {
 
@@ -30,15 +30,17 @@ export default class PostsController {
 
         return view.render("posts/create", {
             categories: await Category.query()
-                .doesntHave('parent')
+                .has('subs')
                 .select('name', 'slug', 'id')
         })
     }
 
-    public async details({request, view, auth}: HttpContextContract) {
+    public async details({request, view}: HttpContextContract) {
+        // return request.all()
 
         const category = await Category.query()
             .where('slug', request.all().sub_category)
+            // .has('parent')
             .preload('parent', parent => {
                 parent.select('name')
             })
@@ -57,173 +59,142 @@ export default class PostsController {
             .select('id', 'mode')
 
         // return {
-        //     category: category.id,
+        //     category,
         //     delivery_modes
         // }
 
         return view.render('posts/create_details', {
             category,
             delivery_modes,
-            departments: await Department.query().select('code', 'name'),
-            user_city: auth.user?.cityId
+        }).catch(err => {
+            return {
+                err
+            }
         })
     }
+
 
 
     public async store({request, auth}: HttpContextContract) {
 
         return await auth.check()
-            .then( async checked => {
-
-                if ( !checked){
+            .then(async authenticated => {
+                if ( !authenticated ){
                     return {
                         success: false,
                         message: 'not_auth',
                     }
                 }
 
-                else {
+            // -----------------------------------------
+                const user = auth.user as User
+                await user.load('city', city => {
+                    city.preload('department')
+                })
 
-                    return await request.validate(PostValidator)
-                        .then(async (response: Object) => {
+                const city_code = JSON.parse(request.all().same_city) ? user.city.code : request.all().city_code
+                const department_code = JSON.parse(request.all().same_city) ? user.city.department.code : request.all().department_code
 
-                            return await auth.check()
-                                .then( async checked => {
-                                    if (checked) {
-                                        return auth.user?.related('posts')
-                                            .create(response)
-                                            .then( async post => {
+                const get_city = await Department
+                    .query()
+                    .where('code', department_code)
+                    .firstOrFail()
+                    .then( async dep => {
 
-                                                const path = Application.publicPath('uploads/posts/' + post.slug)
-
-                                                // Upload Images =========================================
-                                                const images = request.files('images')
-
-                                                if (images.length) {
-                                                    images.forEach(image => {
-                                                        image.move(path)
-                                                            .then(async () => {
-                                                                post.related('images').create({
-                                                                    path: '/uploads/posts/' + post.slug + "/" + image.clientName
-                                                                })
-                                                            })
-                                                            .catch((err: Exception) => {
-                                                                return {
-                                                                    success: false,
-                                                                    message: err.code,
-                                                                }
-                                                            })
-
-                                                    })
-
-                                                }
-                                                // Finished Upload Images =========================================
-
-
-                                                // Upload Video =========================================
-
-                                                if (request.all().video_type != 'null') {
-                                                    post.video_type = request.all().video_type
-
-                                                    if (request.all().video_type === "local") {
-                                                        const video = request.file('video_link')
-                                                        if (video) {
-
-                                                            await video.move(path)
-                                                                .then(() => {
-                                                                    post.video_link = '/uploads/posts/' + post.slug + "/" + video.clientName
-                                                                })
-                                                                .catch(err => {
-                                                                    return {
-                                                                        success: false,
-                                                                        message: `saving_video_error : ${err.code}`,
-                                                                    }
-                                                                })
-
-                                                        } else {
-                                                            return {
-                                                                success: false,
-                                                                message: `saving_video_error : no_video`,
-                                                            }
-                                                        }
-                                                    } else if (request.all().video_type === "iframe") {
-
-                                                        if (request.all().video_link) {
-                                                            post.video_link = request.all().video_link
-                                                        } else {
-                                                            post.video_type = null
-                                                            return {
-                                                                success: false,
-                                                                message: `Add_video_link`,
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                // Finish uploading Video ===============================
-
-                                                if (request.all().same_city === 'same'){
-                                                    // @ts-ignore
-                                                    post.cityId = auth.user?.cityId
-                                                    post.save()
-                                                }
-
-                                                else {
-                                                    post.cityId = request.all().city_id
-                                                }
-
-
-                                                return post.save()
-
-                                                    .then( () => {
-                                                        return {
-                                                            success: true,
-                                                            post,
-                                                        }
-                                                    })
-                                                    .catch( err => {
-                                                        return {
-                                                            success: false,
-                                                            message: `saving_city_error : ${ err.code }`,
-                                                        }
-                                                    })
-                                            })
-                                            .catch((err: Exception) => {
-                                                return {
-                                                    success: false,
-                                                    message: err.code,
-                                                }
-                                            })
-                                    }
-                                    else {
+                        const city = await dep.related('cities')
+                            .query()
+                            .where('code', city_code)
+                            .firstOrFail()
+                            .then( ct => {
+                                return ct
+                            })
+                            .catch( async () => {
+                                return await dep.related( 'cities' )
+                                    .firstOrCreate(
+                                    { code: city_code },
+                                    {
+                                        code: request.all().city_code,
+                                        name: request.all().city_name,
+                                        longitude: request.all().longitude,
+                                        latitude: request.all().latitude
+                                    })
+                                    .catch( err => {
                                         return {
                                             success: false,
-                                            message: 'not_auth',
+                                            model: 'new_city',
+                                            response: err.message,
+                                        } as {
+                                            success: boolean,
+                                            model: string,
+                                            response: string,
                                         }
-                                    }
-                                })
-                                .catch( (err: AuthenticationException) => {
-                                    return {
-                                        success: false,
-                                        message: err.message,
-                                    }
-                                })
+                                    })
+                            })
+
+                        return {
+                            success: true,
+                            response: city
+                        } as {
+                            success: boolean,
+                            response: City,
+                        }
+
+                    })
+                    .catch( err => {
+                        return {
+                            success: false,
+                            model: 'dep',
+                            response: err.message,
+                        } as {
+                            success: boolean,
+                            model: string,
+                            response: string,
+                        }
+                    })
 
 
-
-                        })
-
-                        .catch((err: ValidationException) => {
-                            return {
-                                success: false,
-                                message: err.messages.errors,
-                            }
-                        })
-
+                if ( !get_city.success ){
+                    return get_city
                 }
+                else {
+                    const ct = get_city.response as City
+                    request.all().city_id = ct.id
+                }
+                // return request.all()
+
+                return await request.validate(PostValidator)
+                    .then(async (data: Object) => {
+                        // return data
+                        return await user.related('posts')
+                            .create(data)
+                            .then( async post => {
+                                await post.load('user')
+                                await post.load('city')
+
+                                return post
+                            })
+                            .catch( err => {
+                                return {
+                                    success: false,
+                                    message: err.message,
+                                }
+                            })
+
+                    })
+                    .catch((err: ValidationException) => {
+                        return {
+                            success: false,
+                            message: err.messages.errors,
+                        }
+                    })
 
             })
-
+            .catch( () => {
+                return {
+                    success: true,
+                    response: "not_auth",
+                }
+            })
 
     }
 
@@ -588,7 +559,7 @@ export default class PostsController {
                         .sort( (a,b) => {
                             return b.$extras.pivot_created_at - a.$extras.pivot_created_at
                         })
-                    const reviews = []
+                    const reviews = [] as Array<object>
 
                     for (let i = 0; i < sorted.length; i++) {
                         var review = sorted[i]

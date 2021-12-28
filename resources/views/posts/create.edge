@@ -21,7 +21,7 @@
                 <div class="col-span-2 lg:col-span-1 flex self-start justify-center grid grid-cols-1 p-10 w-full bg-white rounded shadow-md">
 
                     <span class="text-2xl">Ajouter une annonce</span>
-                    <span class="text-2xl text-blue-400">En 30 seconds</span>
+                    <span class="text-2xl text-blue-600">En 30 seconds</span>
 
                     <hr class="w-full border-0.5 border-gray-200 mt-2">
                     <p class="mt-5 text-base ">
@@ -44,16 +44,14 @@
 
                         @each(category in categories)
                             <div class="py-4 flex items-center cursor-pointer transition-all delay-150 ease-in-out"
-                                 :class="category == '{{ category.slug }}' ? 'text-blue-400' : 'hover:text-blue-400'"
-                                 @mouseover="hovered_category = '{{ category.slug }}'"
-                                 @mouseout="hovered_category = null"
+                                 :class="category == '{{ category.slug }}' ? 'text-blue-600' : 'hover:text-blue-600'"
                                  @click="getSubs('{{ category.slug }}')"
 
                             >
                                 <span class="flex flex-none w-16 items-center justify-center">icon</span>
                                 <span class="flex-grow ml-2">{{ category.name }}</span>
-                                <span class="flex flex-none w-16 items-center justify-end transition-opacity delay-150 ease-in-out"
-                                      :class="hovered_category == '{{ category.slug }}' || category == '{{ category.slug }}'  ? 'opacity-100' : 'opacity-0'"
+                                <span class="flex flex-none w-16 items-center justify-end transition-opacity delay-150 ease-in-out opacity-0"
+                                      :class="category == '{{ category.slug }}'  ? 'opacity-100' : 'hover:opacity-100'"
 
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -77,11 +75,8 @@
                     <div class="grid grid-cols-1 divide-y divide-gray-200 mx-5">
 
                         <div class="py-4 flex items-center cursor-pointer transition-all delay-150 ease-in-out"
-                             :class="sub_category === sub.slug ? 'text-blue-400' : 'hover:text-blue-400'"
+                             :class="sub_category === sub.slug ? 'text-blue-600' : 'hover:text-blue-600'"
                              v-for="sub in sub_categories"
-
-                             @mouseover="hovered_sub_category = sub.slug"
-                             @mouseout="hovered_sub_category = null"
                              @click="sub_category = sub.slug"
                         >
                             <span class="flex-grow ml-2">@{{ sub.name }}</span>

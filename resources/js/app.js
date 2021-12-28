@@ -29,6 +29,10 @@ Vue.use(VueSweetalert2, {
     cancelButtonColor: '#EF4444',
 });
 
+import VueVideoPlayer from 'vue-video-player'
+import 'video.js/dist/video-js.css'
+
+Vue.use(VueVideoPlayer)
 
 
 // Layouts
