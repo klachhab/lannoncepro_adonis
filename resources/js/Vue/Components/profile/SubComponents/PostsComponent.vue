@@ -8,64 +8,73 @@
             <hr class="w-full border-gray-300 my-5">
 
             <!-- component -->
-            <div class="mb-5">
+            <div v-if="posts.length">
+                <div class="mb-5">
 
-                <div class="flex mb-3 p-3 rounded-md shadow"
-                     v-for="(post, index) in posts"
-                >
-
-                    <img :src="post.primary_image" alt="tailwind logo"
-                         class="rounded-lg w-32 h-32 mr-5"
+                    <div class="flex mb-3 p-3 rounded-md shadow"
+                         v-for="(post, index) in posts"
                     >
 
-                    <div class="w-full md:w-2/3 bg-white flex flex-col">
-                        <a :href="`/annonces/${ post.slug }`" target="_blank" class="font-bold text-gray-800 md:text-xl text-md">
-                            {{ post.title }}
-                        </a>
-                        <p class="text-green-500 mt-2">
+                        <img :src="post.primary_image" alt="tailwind logo"
+                             class="rounded-lg w-32 h-32 mr-5"
+                        >
+
+                        <div class="w-full md:w-2/3 bg-white flex flex-col">
+                            <a :href="`/annonces/${ post.slug }`" target="_blank"
+                               class="font-bold text-gray-800 md:text-xl text-md">
+                                {{ post.title }}
+                            </a>
+                            <p class="text-green-500 mt-2">
                             <span class="text-2xl font-semibold">
                                 {{ post.prix }}
                             </span>
-                            <small class="text-lg font-normal" v-if="post.negotiable">
-                                (négociable)
-                            </small>
-                        </p>
+                                <small class="text-lg font-normal" v-if="post.negotiable">
+                                    (négociable)
+                                </small>
+                            </p>
 
-                        <div class="flex items-stretch w-full mt-2">
+                            <div class="flex items-stretch w-full mt-2">
                             <span class="text-sm text-gray-400 font-light mr-4">
                                 <i class="far fa-clock"></i>
                                 {{ post.creation_date }}
                             </span>
-                            <span class="flex text-sm text-gray-400 font-light">
+                                <span class="flex text-sm text-gray-400 font-light">
                                 <i class="fas fa-map-marker-alt mr-2 mt-1"></i>
-                                <a :href="`/annonces/?cty=${ post.city.code }`" class="hover:text-blue-600 transition-all duration-200 ease-in-out">
+                                <a :href="`/annonces/?cty=${ post.city.code }`"
+                                   class="hover:text-blue-600 transition-all duration-200 ease-in-out">
                                     {{ post.city.name }}
                                 </a>
                             </span>
-                        </div>
+                            </div>
 
-                        <div v-if="isMyProfile" class="flex items-center w-full mt-2 text-gray-500">
-                            <a href="#" class="transition duration-300 ease-in-out hover:text-red-500"
-                               @click.prevent="removePost(index)"
-                            >
-                                <i class="fas fa-trash text-red-500 mr-2"></i>
-                                <span class="font-normal"
+                            <div v-if="isMyProfile" class="flex items-center w-full mt-2 text-gray-500">
+                                <a href="#" class="transition duration-300 ease-in-out hover:text-red-500"
+                                   @click.prevent="removePost(index)"
                                 >
+                                    <i class="fas fa-trash text-red-500 mr-2"></i>
+                                    <span class="font-normal"
+                                    >
                                     Supprimer
                                 </span>
-                            </a>
+                                </a>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
+                <t-pagination v-if="meta.last_page > 1"
+                              :total-items="meta.total"
+                              :per-page="meta.per_page"
+                              v-model="meta.current_page"
+                              @change="getPosts"
+                />
             </div>
-
-            <t-pagination v-if="posts.length && meta.last_page > 1"
-                :total-items="meta.total"
-                :per-page="meta.per_page"
-                v-model="meta.current_page"
-                @change="getPosts"
-            />
+            <div v-else class="flex justify-center items-center mt-7 mb-4">
+                <span class="text-2xl text-gray-400 text-center select-none">
+                    Vous n'avez aucune annonce publiée
+                </span>
+            </div>
 
         </div>
     </div>
@@ -118,7 +127,7 @@ export default {
 
         async getPosts(page){
 
-            await axios.post(`/api/${ this.username }/posts`, {
+            await axios.post(`/api/profile/${ this.username }/posts`, {
                 page,
                 valid: 1
             })
@@ -134,6 +143,9 @@ export default {
                     }
                     this.posts = response.data.data
 
+                })
+                .catch(err => {
+                    console.log(err.message)
                 })
 
         },

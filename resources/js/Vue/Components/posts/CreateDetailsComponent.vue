@@ -66,7 +66,7 @@ export default {
                 }],
             },
 
-            foundAdresses: {
+            foundAddresses: {
                 list: [],
                 show_list: false,
                 loading: false,
@@ -211,25 +211,25 @@ export default {
             const value = $event.target.value
 
             if ( value === '' ){
-                this.foundAdresses.list = []
-                this.foundAdresses.show_list = false
+                this.foundAddresses.list = []
+                this.foundAddresses.show_list = false
                 return
             }
 
-            this.foundAdresses.show_list = true
-            this.foundAdresses.loading = true
+            this.foundAddresses.show_list = true
+            this.foundAddresses.loading = true
 
             // type=street | locality | municipality | housenumber
             await axios.get(`https://api-adresse.data.gouv.fr/search/?q=${ value }&type=municipality&limit=10`)
                 .then( resp => {
-                    this.foundAdresses.list = resp.data.features
+                    this.foundAddresses.list = resp.data.features
                 })
                 .catch( () => {
-                    this.foundAdresses.list = []
-                    this.foundAdresses.show_list = false
+                    this.foundAddresses.list = []
+                    this.foundAddresses.show_list = false
                 })
 
-            this.foundAdresses.loading = false
+            this.foundAddresses.loading = false
         },
 
 
@@ -237,8 +237,8 @@ export default {
             const contextArr = address.properties.context.split(', ')
 
             this.selected_address = address.properties.label
-            this.foundAdresses.show_list = false
-            this.foundAdresses.list = []
+            this.foundAddresses.show_list = false
+            this.foundAddresses.list = []
 
 
             this.form.city.name = address.properties.city
@@ -298,22 +298,19 @@ export default {
                 // }),
             })
                 .then( response => {
-                    console.log(response.data)
 
-                    /*if (!response.data.success){
-                        // window.location.replace(`/annonces/${response.data.post.slug}`)
+                    if (!response.data.success){
                         this.$swal({
                             icon: "error",
                             title: "Erreur",
                             text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
                                 `Merci de contacter notre support.`
-                            + `${response.data}`
                         }).then( () => {
-                            // window.location.replace('/')
+                            this.saving = false
                         })
-                    }*/
+                    }
+                    else window.location.replace(`/mon-profil/en-attente`)
 
-                    this.saving = false
                 })
                 .catch( error => {
 

@@ -54,7 +54,7 @@ Route.group(() => {
 
     // Profile -------------------------------------
     Route.resource('profil', 'UsersController')
-        .only(['store'])
+        .only(['store','show'])
         .as('profile')
 
     Route.get('/mon-profil/:any?', 'UsersController.show')
@@ -122,7 +122,7 @@ Route.group(() => {
 
     // Profile ---------------------------------------------------------------------
     Route.group(() => {
-        Route.resource('profile', 'UsersController')
+        Route.resource('p', 'UsersController')
             .apiOnly()
             .except(['show'])
             .middleware({
@@ -146,7 +146,7 @@ Route.group(() => {
 
         Route.post('/:username', 'UsersController.show')
             .as('profile.show.api')
-            .middleware('admin')
+            // .middleware('admin')
 
         Route.post('/:username/posts', 'UsersController.user_posts')
             .as('profile.posts')

@@ -37,7 +37,7 @@ export default {
                     route_name: 'pending_ads'
                 },
                 {
-                    label: "Mes infos",
+                    label: "Paramètres",
                     color: "hover:text-blue-700",
                     mobile_color: "hover:bg-blue-500",
                     route_name: 'profile_infos'
@@ -77,6 +77,10 @@ export default {
         ...mapMutations([
             'setIsMyProfile', 'update_message_count', 'setUserName'
         ]),
+
+        async deleteAccount(){
+
+        }
     }
 
 

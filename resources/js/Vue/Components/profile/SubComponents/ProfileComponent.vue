@@ -4,84 +4,104 @@
         <!-- Infos -->
         <div class="flex-1 py-4 px-8 w-full rounded bg-white">
 
-            <span class="text-2xl font-light mb-5">Mes infos</span>
+            <div class="flex justify-between items-center"
+                 :class="show_infos ? 'mb-5' : '' "
+            >
+                <span class="text-2xl font-light">Mes infos</span>
 
-            <hr class="w-full border-gray-300 my-5">
-
-
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-                <span :class="input_class.label">
-                    Civilié
-                </span>
-
-                <select class="lg:col-span-5"
-                        :class="getInputClass('default')"
-                        v-model="profile_form.title"
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                     class="h-6 w-6 cursor-pointer transition-all duration-100 ease-in-out"
+                     :class="show_infos ? 'rotate-90' : '' "
+                     @click="show_infos = !show_infos"
                 >
-
-                    <option value="mrs">Mme.</option>
-                    <option value="miss">Mlle.</option>
-                    <option value="mr">Mr.</option>
-
-                </select>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
             </div>
 
 
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-                <span :class="input_class.label">
-                    Nom
-                </span>
-
-                <input type="text" class="lg:col-span-5"
-                       :class="getInputClass('default')"
-                       v-model="profile_form.name"
-                />
-            </div>
-
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-                <span :class="input_class.label">
-                    Nom d'utilisateur
-                </span>
-
-                <input type="text" disabled class="lg:col-span-5 " :class="getInputClass('default')" :value="profile_form.username" />
-            </div>
-
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-                <span :class="input_class.label">
-                    Adresse e-mail
-                </span>
-                <input disabled type="email" class="lg:col-span-5 " :class="getInputClass('default')" :value="profile_form.email" />
-
-            </div>
-
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-
-                <span :class="input_class.label">
-                    Téléphone
-                </span>
-                <input type="text" class="lg:col-span-5 "
-                       :class="getInputClass('default')" v-model="profile_form.phone" />
-            </div>
+            <div v-if="show_infos">
+                <hr class="w-full border-gray-300 my-5">
 
 
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-                <span :class="input_class.label">
-                    Département
-                </span>
-                <div :class="focus_dep_class" @blur.self="departments = []" tabindex="-1">
+                <!-- Civilié -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <span :class="input_class.label">
+                        Civilié
+                    </span>
 
-                    <input type="text" :class="select_class.input"
-                           v-model="department.name"
-                           @focus="selected_input = 'dep'"
-                           @blur="blur_element('departments')"
-                           @input="getDepartments"
+                    <select class="lg:col-span-5"
+                            :class="getInputClass('default')"
+                            v-model="profile_form.title"
+                    >
+
+                        <option value="mrs">Mme.</option>
+                        <option value="miss">Mlle.</option>
+                        <option value="mr">Mr.</option>
+
+                    </select>
+                </div>
+
+                <!-- Nom -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <span :class="input_class.label">
+                        Nom
+                    </span>
+
+                    <input type="text" class="lg:col-span-5"
+                           :class="getInputClass('default')"
+                           v-model="profile_form.name"
                     />
+                </div>
 
-                    <div v-if="departments.length" @blur="departments = []" tabindex="0"
-                         class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
+                <!-- Nom d'utilisateur -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <span :class="input_class.label">
+                        Nom d'utilisateur
+                    </span>
 
-                        <div class="w-full flex flex-col overflow-auto"
-                             :class=" departments.length < 4 ? `h-${ departments.length * 8 }`:'h-32'">
+                    <input type="text" disabled class="lg:col-span-5 " :class="getInputClass('default')"
+                           :value="profile_form.username"/>
+                </div>
+
+                <!-- Adresse e-mail -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <span :class="input_class.label">
+                        Adresse e-mail
+                    </span>
+                    <input disabled type="email" class="lg:col-span-5 " :class="getInputClass('default')"
+                           :value="profile_form.email"/>
+
+                </div>
+
+                <!-- Téléphone -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+
+                    <span :class="input_class.label">
+                        Téléphone
+                    </span>
+                    <input type="text" class="lg:col-span-5 "
+                           :class="getInputClass('default')" v-model="profile_form.phone"/>
+                </div>
+
+                <!-- Département -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <span :class="input_class.label">
+                        Département
+                    </span>
+                    <div :class="focus_dep_class" @blur.self="departments = []" tabindex="-1">
+
+                        <input type="text" :class="select_class.input"
+                               v-model="department.name"
+                               @focus="selected_input = 'dep'"
+                               @blur="blur_element('departments')"
+                               @input="getDepartments"
+                        />
+
+                        <div v-if="departments.length" @blur="departments = []" tabindex="0"
+                             class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
+
+                            <div class="w-full flex flex-col overflow-auto"
+                                 :class=" departments.length < 4 ? `h-${ departments.length * 8 }`:'h-32'">
                         <span
                             class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
                             v-for="(department,index) in departments" :key="index"
@@ -89,31 +109,31 @@
                         >
                             {{ department.name }}
                         </span>
+                            </div>
                         </div>
+
                     </div>
-
                 </div>
-            </div>
 
+                <!-- Ville -->
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <span :class="input_class.label">
+                        Ville
+                    </span>
+                    <div :class="focus_city_class">
 
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-                <span :class="input_class.label">
-                    Ville
-                </span>
-                <div :class="focus_city_class">
+                        <input type="text" :class="select_class.input"
+                               v-model="city_name"
+                               @focus="selected_input = 'city'"
+                               @blur="blur_element('cities')"
+                               @input="getCities"
+                        />
 
-                    <input type="text" :class="select_class.input"
-                           v-model="city_name"
-                           @focus="selected_input = 'city'"
-                           @blur="blur_element('cities')"
-                           @input="getCities"
-                    />
+                        <div v-if="cities.length" @blur="cities = []" tabindex="1"
+                             class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
 
-                    <div v-if="cities.length" @blur="cities = []" tabindex="1"
-                         class="absolute left-0 top-11 w-full mx-auto p-1.5 z-50 bg-white shadow-md rounded-md border border-gray-200">
-
-                        <div class="w-full flex flex-col overflow-auto"
-                             :class="cities.length < 4 ? `h-${ cities.length * 8 }`:'h-32'">
+                            <div class="w-full flex flex-col overflow-auto"
+                                 :class="cities.length < 4 ? `h-${ cities.length * 8 }`:'h-32'">
                             <span
                                 class="py-1 px-1.5 mx-1.5 select-none cursor-pointer rounded transition-colors duration-100 ease-in-out hover:text-white hover:bg-blue-500"
                                 v-for="(city,index) in cities" :key="index"
@@ -121,42 +141,54 @@
                             >
                                 {{ city.name }}
                             </span>
+                            </div>
                         </div>
+
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="lg:grid lg:grid-cols-7 grid-cols-none lg:flex-none my-10">
+                    <span :class="input_class.label" class="mt-1">
+                        Préferences
+                    </span>
+
+                    <div class="flex flex-col justify-center gap-2 mb-4 col-span-5">
+
+                        <label class="inline-flex items-center">
+                            <input type="checkbox"
+                                   v-model="profile_form.can_receive_news"
+                                   class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
+                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
+                            >
+                            <span class="ml-2">Recevoir les nouveautés et les offres speciales</span>
+                        </label>
+
+                        <label class="inline-flex items-center">
+                            <input type="checkbox"
+                                   v-model="profile_form.allow_reviews"
+                                   class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
+                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
+                            >
+                            <span class="ml-2">Autoriser les commentaires sur mes annonces</span>
+                        </label>
+
                     </div>
 
                 </div>
+                <!-- ! Preferences ! -->
+
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                    <a href="#"
+                       class="p-2.5 text-center lg:col-span-2 text-white rounded-md bg-green-500 hover:bg-green-600"
+                       @click.prevent="updateUserInfos"
+                    >
+
+                        <span>Enregistrer</span>
+                    </a>
+                </div>
             </div>
 
-        </div>
-
-        <!-- Preferences -->
-        <div class="flex-1 w-full py-4 px-8 mt-6 rounded bg-white">
-
-            <span class="text-2xl font-light mb-5">Préferences</span>
-
-            <hr class="w-full border-gray-300 my-5">
-
-            <div class="flex flex-col justify-center gap-2 mb-4">
-
-                <label class="inline-flex items-center">
-                    <input type="checkbox"
-                           v-model="profile_form.can_receive_news"
-                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
-                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                    <span class="ml-2">Recevoir les nouveautés et les offres speciales</span>
-                </label>
-
-                <label class="inline-flex items-center">
-                    <input type="checkbox"
-                           v-model="profile_form.allow_reviews"
-                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300
-                           focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                    <span class="ml-2">Autoriser les commentaires sur mes annonces</span>
-                </label>
-
-            </div>
         </div>
 
         <!-- Update password -->
@@ -167,7 +199,7 @@
             <hr class="w-full border-gray-300 my-5">
 
 
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
+            <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
                 <span :class="input_class.label">
                     Nouveau mot de passe
                 </span>
@@ -185,13 +217,14 @@
                     <svg v-if="hide.password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
                          @click="hide.password = false"
-                         stroke="currentColor" >
+                         stroke="currentColor">
 
                         <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
                               stroke-linejoin="round" stroke-width="2"></path>
 
-                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                     </svg>
 
                     <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -209,7 +242,7 @@
             </div>
 
 
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
+            <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
                 <span :class="input_class.label">
                     Confirmation
                 </span>
@@ -224,16 +257,18 @@
                            @blur="selected_input = null"
                     />
 
-                    <svg v-if="hide.password_confirmation" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    <svg v-if="hide.password_confirmation" xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24"
                          class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
                          @click="hide.password_confirmation = false"
-                         stroke="currentColor" >
+                         stroke="currentColor">
 
                         <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
                               stroke-linejoin="round" stroke-width="2"></path>
 
-                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                     </svg>
 
                     <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -250,41 +285,29 @@
             </div>
 
 
-
-            <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
+            <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
                 <button :disabled="!profile_form.new_pass_confirmation || !password_match"
-                   class="p-2.5 text-center lg:col-span-2 text-white rounded-md
+                        class="p-2.5 text-center lg:col-span-2 text-white rounded-md
                     bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:hover:bg-green-300
                     disabled:cursor-default"
-                   @click="updatePassword"
+                        @click="updatePassword"
                 >
                     <span v-if="updating_pass">
                         <i class="fas fa-spinner fa-pulse"></i>
                     </span>
 
-                        <span v-else>Enregistrer</span>
-                    </button>
+                    <span v-else>Enregistrer</span>
+                </button>
             </div>
 
         </div>
 
 
-        <!-- Submit Button -->
-        <div class="lg:grid lg:grid-cols-7 " :class="input_class.container">
-            <a href="#"
-               class="p-2.5 text-center lg:col-span-2 text-white rounded-md bg-green-500 hover:bg-green-600"
-               @click.prevent="updateUserInfos"
-            >
-
-                <span>Enregistrer</span>
-            </a>
-        </div>
-
     </div>
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
     name: "ProfileComponent",
@@ -325,7 +348,9 @@ export default {
             },
 
             updating_infos: false,
-            updating_pass: false
+            updating_pass: false,
+
+            show_infos: true,
         }
     },
 
@@ -382,7 +407,7 @@ export default {
 
 
         async getUserInfos() {
-            await axios.post(`/api/${this.username}`)
+            await axios.post(`/api/profile/${this.username}`)
                 .then(response => {
 
                     if (response.data.success) {
@@ -473,7 +498,7 @@ export default {
         async updateUserInfos() {
 
             this.updating_infos = true
-            const url = `/api/profile/${this.profile_form.username}`
+            const url = `/api/profile/p/${this.profile_form.username}`
             const form = new FormData
 
             form.append('title', this.profile_form.title)
@@ -489,14 +514,7 @@ export default {
                     if (response.data.success) {
                         this.$swal({
                             icon: "success",
-                            title: "Félicitation",
                             text: 'Vos informations ont été mises à jour avec succès'
-                        }).then(() => {
-                            window.scrollTo({
-                                top: 0,
-                                behavior: "smooth"
-                            })
-                            this.updating_infos = false
                         })
 
                     } else {
@@ -505,7 +523,6 @@ export default {
                             title: "Erreur",
                             text: 'Une erreur est survenue lors de la modification de vos information.\n' +
                                 `Merci de contacter notre support.`
-                            // + `\n${response.data.error}`
                         })
                     }
 
@@ -516,9 +533,10 @@ export default {
                         title: "Erreur",
                         text: 'Une erreur est survenue lors de la modification de vos information.\n' +
                             `Merci de contacter notre support.`
-                        // + `\n${error.message}`
                     })
                 })
+
+            this.updating_infos = false
 
         },
 
@@ -550,6 +568,8 @@ export default {
                         text: message,
                     }).then( () => {
 
+                        this.profile_form.new_password = null
+                        this.profile_form.new_pass_confirmation = null
                         this.updating_pass = false
                     })
 

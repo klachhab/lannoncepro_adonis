@@ -2,11 +2,11 @@ import Factory from '@ioc:Adonis/Lucid/Factory'
 import User from "App/Models/User";
 import {string} from '@ioc:Adonis/Core/Helpers'
 import Post from "App/Models/Post/Post";
-import PostGallery from "App/Models/Post/PostGallery";
+import PostPic from "App/Models/Post/PostPic";
 import {CATEGORY_IDS, CITIES_IDS, DELIVERY_MODE_IDS, USER_IDS} from "./get_ids";
 
 export const GalleryFactory = Factory
-        .define( PostGallery, ( {faker} ) => {
+        .define( PostPic, ( {faker} ) => {
             return {
                 path: faker.random.image()
             }

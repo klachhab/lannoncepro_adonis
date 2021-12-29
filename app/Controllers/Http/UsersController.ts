@@ -316,7 +316,7 @@ export default class UsersController {
             .catch((err: Exception) => {
                 return {
                     success: false,
-                    result: err.code
+                    result: err.message
                 }
             })
     }
@@ -384,13 +384,26 @@ export default class UsersController {
                     .preload('user', user => {
                         user.select('username')
                     })
-                    .preload('images', images => {
+                    .preload('pictures', images => {
                         images
                             .select('path')
                             .firstOrFail()
+                            .catch((error: Exception) => {
+                                return {
+                                    success: false,
+                                    error: error.message
+                                }
+                            })
                     })
                     .select('id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId', 'userId')
                     .paginate(request.all().page, 5)
+
+                    .catch((error: Exception) => {
+                        return {
+                            success: false,
+                            error: error.message
+                        }
+                    })
 
 
             })
@@ -432,6 +445,7 @@ export default class UsersController {
 
 
     }
+
 
     public async user_favourites({auth, request}: HttpContextContract){
 

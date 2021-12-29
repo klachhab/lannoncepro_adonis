@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from "App/Models/Post/Post";
-import PostGallery from "App/Models/Post/PostGallery";
+import PostPic from "App/Models/Post/PostPic";
 import PostValidator from "App/Validators/Post/PostValidator";
 import { Exception } from "@poppinss/utils";
 import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
@@ -160,7 +160,7 @@ export default class PostsController {
                     const ct = get_city.response as City
                     request.all().city_id = ct.id
                 }
-                // return request.files('photos')
+
 
                 return await request.validate(PostValidator)
                     .then(async (data: Object) => {
@@ -168,31 +168,49 @@ export default class PostsController {
                         return await user.related('posts')
                             .create(data)
                             .then( async post => {
-                                const video = request.file('video_link')
+
                                 const pics = request.files('photos')
                                 const public_path = Application.publicPath('/uploads')
 
-                                if ( video ) {
-                                    await video.move(`${ public_path }/${ post.id }-${ post.slug }`, {
-                                        name: `video.${ video.extname }`
-                                    })
-                                        .then( () => {
-                                            post.videoLink = `/uploads/${ post.id }-${ post.slug }/${video.clientName}`
-                                            post.save()
+                                if ( request.all().video_type ) {
+
+                                    if ( request.all().video_type == 'iframe' && typeof request.all().video_link == 'string') {
+                                        post.videoLink = request.all().video_link
+                                        post.save()
+                                            .catch( err => {
+                                                return {
+                                                    success: false,
+                                                    message: err.message,
+                                                }
+                                            } )
+                                    }
+
+                                    else {
+                                        const video = request.file('video_link')
+
+                                        if ( request.all().video_type == 'local' && video ) {
+                                            await video.move( `${public_path}/${post.id}-${post.slug}`, {
+                                                name: `video.${video.extname}`
+                                            } )
+                                                .then( () => {
+                                                    post.videoLink = `/uploads/${post.id}-${post.slug}/${video.clientName}`
+                                                    post.save()
+                                                        .catch( err => {
+                                                            return {
+                                                                success: false,
+                                                                message: err.message,
+                                                            }
+                                                        } )
+                                                } )
                                                 .catch( err => {
                                                     return {
                                                         success: false,
                                                         message: err.message,
                                                     }
-                                                })
-                                        })
-                                        .catch( err => {
-                                            return {
-                                                success: false,
-                                                message: err.message,
-                                            }
-                                        })
+                                                } )
+                                        }
 
+                                    }
                                 }
 
                                 if ( pics.length ) {
@@ -225,7 +243,11 @@ export default class PostsController {
                                 await post.load('user')
                                 await post.load('city')
 
-                                return post
+                                return {
+                                    success: true,
+                                    message: post,
+                                }
+
                             })
                             .catch( err => {
                                 return {
@@ -261,7 +283,7 @@ export default class PostsController {
             .preload('deliveryMode', delivery => {
                 delivery.select('mode')
             })
-            .preload('images', image => {
+            .preload('pictures', image => {
                 image.select('path')
             })
             .preload('reviews', reviews => {
@@ -412,7 +434,7 @@ export default class PostsController {
                         // await post.related('reports').detach()
                         // await post.related('reviews').detach()
 
-                        await PostGallery.query().where('post_id', post.id)
+                        await PostPic.query().where('post_id', post.id)
                             .then((images) => {
                                 images.forEach((image) => {
                                     image.delete()
@@ -466,11 +488,11 @@ export default class PostsController {
                                 })
                             })*/
 
-                        await PostGallery.onlyTrashed().where('post_id', post.id)
+                        await PostPic.onlyTrashed().where('post_id', post.id)
                             .then((images) => {
                                 images.forEach((image) => {
                                     image.restore()
-                                    post.preload('images')
+                                    post.preload('pictures')
                                 })
                             })
 

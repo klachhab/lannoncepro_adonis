@@ -58,7 +58,9 @@ export default class PostValidator {
             rules.unsigned(),
         ] ),
 
-        negotiable: schema.boolean()
+        negotiable: schema.boolean(),
+
+        video_type: schema.enum.optional( ['iframe', 'local'] ),
     } )
 
     public messages = {
@@ -87,6 +89,7 @@ export default class PostValidator {
         'delivery_mode_id.required': "Merci d'indiquer le mode de livraison",
         'delivery_mode_id.exists': "Le mode de livraison que vous avez indiquer n'est pas correcte",
 
+        'video_type.enum': "Le type de vidéo que vous avez indiquer n'est pas valide",
 
     }
 

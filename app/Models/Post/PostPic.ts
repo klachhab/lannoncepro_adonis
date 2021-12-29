@@ -4,7 +4,9 @@ import Post from "App/Models/Post/Post";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
-export default class PostGallery extends compose(BaseModel, SoftDeletes) {
+export default class PostPic extends compose(BaseModel, SoftDeletes) {
+
+
   @column({ isPrimary: true })
   public id: number
 

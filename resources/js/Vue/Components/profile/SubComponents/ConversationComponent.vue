@@ -194,7 +194,7 @@ export default {
 
         async getConversations(){
 
-            await axios.get('/api/my_profile/chatroom')
+            await axios.get('/api/profile/my_profile/chatroom')
             .then(response => {
                 const data = response.data
                 const unread_conversations = data.filter(conversation => conversation.read === 0).length
@@ -222,7 +222,7 @@ export default {
 
         async getMessages(index){
             const conversation = this.conversations[index]
-            const url = `/api/my_profile/chatroom_messages?api=1&room_id=${conversation.conversation_key}`
+            const url = `/api/profile/my_profile/chatroom_messages?api=1&room_id=${conversation.conversation_key}`
 
             await axios.get(url)
                 .then(response => {

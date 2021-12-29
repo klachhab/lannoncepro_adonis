@@ -14,13 +14,13 @@ import Category from "App/Models/Category";
 import User from "App/Models/User";
 import City from "App/Models/City";
 import DeliveryMode from "App/Models/Post/DeliveryMode";
-import PostGallery from "App/Models/Post/PostGallery";
 import {slugify} from "@ioc:Adonis/Addons/LucidSlugify";
 import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import {Filterable} from '@ioc:Adonis/Addons/LucidFilter';
 import PostFilter from "App/Models/Filters/PostFilter";
 import Conversation from "App/Models/Conversation";
+import PostPic from "App/Models/Post/PostPic";
 
 export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
@@ -107,8 +107,8 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     //     return this.images?.length ? this.images[0].path : null
     // }
 
-    @hasMany(() => PostGallery)
-    public pictures: HasMany<typeof PostGallery>
+    @hasMany(() => PostPic)
+    public pictures: HasMany<typeof PostPic>
 
     @hasMany(() => Conversation)
     public conversations: HasMany<typeof Conversation>
