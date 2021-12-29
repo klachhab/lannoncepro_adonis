@@ -142,9 +142,18 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @afterDelete()
     public static async deleteRelated(user: User) {
         const posts = await user.related('posts').query()
-        posts.forEach( (post: Post) => {
-            post.delete()
-        })
+
+        for ( let postsKey in posts ) {
+            var post = posts[postsKey]
+
+            await post.delete()
+                .catch( err => {
+                    return {
+                        success: false,
+                        result: err.message
+                    }
+                } )
+        }
     }
 
 

@@ -1,6 +1,6 @@
 import {DateTime} from 'luxon'
 import {
-    BaseModel,
+    BaseModel, beforeDelete,
     BelongsTo,
     belongsTo,
     column,
@@ -25,6 +25,8 @@ import PostPic from "App/Models/Post/PostPic";
 export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
     public serializeExtras = true
+    public static $filter = () => PostFilter
+
 
     @column({isPrimary: true})
     public id: number
@@ -179,6 +181,64 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
                 .map(conversation => conversation.read).includes(Boolean( 0 )) : null
     }
 
-    public static $filter = () => PostFilter
+    // Hooks -------------------------------------
+
+    @beforeDelete()
+    public static async deleteRelations(post: Post){
+        const conversations = await post.related('conversations').query()
+        const pictures = await post.related('pictures').query()
+        const reports = await post.related('reports').query()
+        const reviews = await post.related('reviews').query()
+
+        for ( let conversationsKey in conversations ) {
+            var conversation = conversations[conversationsKey]
+
+            await conversation.delete()
+                .catch( err => {
+                    return {
+                        success: false,
+                        result: err.message
+                    }
+                } )
+
+        }
+
+        for ( let picturesKey in pictures ) {
+            var picture = pictures[picturesKey]
+
+            await picture.delete()
+                .catch( err => {
+                    return {
+                        success: false,
+                        result: err.message
+                    }
+                } )
+
+        }
+
+        for ( let reportsKey in reports ) {
+            var report = reports[reportsKey]
+
+            await report.delete()
+                .catch( err => {
+                    return {
+                        success: false,
+                        result: err.message
+                    }
+                } )
+        }
+
+        for ( let reviewsKey in reviews ) {
+            var review = reviews[reviewsKey]
+
+            await review.delete()
+                .catch( err => {
+                    return {
+                        success: false,
+                        result: err.message
+                    }
+                } )
+        }
+    }
 
 }

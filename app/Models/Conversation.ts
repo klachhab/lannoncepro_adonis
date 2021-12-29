@@ -1,11 +1,22 @@
 import { DateTime } from 'luxon'
-import {BaseModel, beforeCreate, BelongsTo, belongsTo, column, computed, HasMany, hasMany} from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  beforeCreate,
+  BelongsTo,
+  belongsTo,
+  column,
+  computed,
+  HasMany,
+  hasMany
+} from '@ioc:Adonis/Lucid/Orm'
 import randomstring from "randomstring"
 import Message from "App/Models/Message";
 import Post from "App/Models/Post/Post";
+import { compose } from "@poppinss/utils/build/src/Helpers";
+import { SoftDeletes } from "@ioc:Adonis/Addons/LucidSoftDeletes";
 
 
-export default class Conversation extends BaseModel {
+export default class Conversation extends compose(BaseModel, SoftDeletes) {
   @column({ isPrimary: true })
   public id: number
 

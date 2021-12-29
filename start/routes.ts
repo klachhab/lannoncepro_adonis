@@ -73,7 +73,7 @@ Route.group(() => {
         .middleware('auth:web')
 
     // Conversations -------------------------------------
-    Route.get('chatroom', 'ConversationsController.show')
+    Route.get('chatroom/:room_id', 'ConversationsController.show')
         .as('chatroom')
         .middleware('guest')
 

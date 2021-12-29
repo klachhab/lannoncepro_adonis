@@ -28,7 +28,7 @@ export default class ConversationsController {
             .preload('conversations', conversations => {
                 conversations.preload('messages')
             })
-            .preload('images', images => {
+            .preload('pictures', images => {
                 images.select('path')
                     .firstOrFail()
                     .then(image => {
@@ -53,10 +53,9 @@ export default class ConversationsController {
     }
 
 
-    public async show({request, view}: HttpContextContract) {
+    public async show({request, params, view}: HttpContextContract) {
         const chatroom = await Conversation.query()
-            .where('conversation_key', request.qs().room_id)
-
+            .where('conversation_key', params.room_id)
             .preload('messages')
 
             .preload('post', post => {

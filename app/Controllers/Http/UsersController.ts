@@ -438,7 +438,7 @@ export default class UsersController {
     }
 
 
-    public async user_conversations({auth, request}: HttpContextContract){
+    public async user_conversations({auth}: HttpContextContract){
 
         return auth.check()
             .then( async checked => {
