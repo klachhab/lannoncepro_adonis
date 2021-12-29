@@ -78,7 +78,32 @@ export default {
             'setIsMyProfile', 'update_message_count', 'setUserName'
         ]),
 
-        async deleteAccount(){
+        deleteAccount(){
+
+            this.$swal({
+                icon: "warning",
+                title: "Supprimer votre compte",
+                text: 'Êtes-vous sûr de vouloir supprimer votre compte.',
+                showCancelButton: true,
+                confirmButtonText: 'Confirmer',
+                cancelButtonText: `Annuler`,
+            }).then( async result => {
+
+                if ( result.isConfirmed ){
+                    await axios.delete(`/api/profile/p/${ this.username }`)
+                        .then(response => {
+                            console.log(response.data)
+
+                            this.$swal('Votre compte a été supprimé', '', 'success')
+                                .then( () => {
+                                    window.location.replace('/')
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err.message)
+                        })
+                }
+            })
 
         }
     }

@@ -127,7 +127,7 @@ Route.group(() => {
             .except(['show'])
             .middleware({
                 update: 'auth:api,web',
-                destroy: 'admin',
+                destroy: 'auth:api,web',
             })
 
 

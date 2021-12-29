@@ -303,17 +303,38 @@ export default class UsersController {
     }
 
 
-    public async destroy({params}: HttpContextContract) {
+    public async destroy({params, auth}: HttpContextContract) {
         return await User.query()
             .where('username', params.id)
             .firstOrFail()
             .then(async user => {
-                await user.delete()
-                return {
-                    success: true,
+                if ( await auth.check()){
+                    await auth
+                        .logout()
+                        .catch((err: AuthenticationException) => {
+                            return {
+                                success: false,
+                                result: err.message
+                            }
+                        })
                 }
+
+                await user.delete()
+                    .then( () => {
+                        return {
+                            user,
+                            success: true,
+                        }
+                    })
+                    .catch( err => {
+                        return {
+                            success: false,
+                            result: err.message
+                        }
+                    })
+
             })
-            .catch((err: Exception) => {
+            .catch( err => {
                 return {
                     success: false,
                     result: err.message
