@@ -1,5 +1,5 @@
 <script>
-import {mapState} from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default {
     name: "ChatroomComponent",
@@ -18,12 +18,16 @@ export default {
         ...mapState([
             'container'
         ]),
+        ...mapGetters([
+            'getInputClass'
+        ])
 
     },
 
     mounted() {
         this.getMessages()
         this.scrollToBottom()
+
     },
 
     methods: {
@@ -37,7 +41,7 @@ export default {
 
         async getMessages(){
 
-            await axios.get(`/chatroom?room_id=${ this.conversation_key }&api=1`)
+            await axios.get(`/chatroom/${ this.conversation_key }?api=1`)
                 .then(response => {
                     this.messages = response.data.messages
 
@@ -52,7 +56,7 @@ export default {
         async send_message() {
 
             const form = new FormData
-            form.append('message', this.message_form)
+            form.append('message', this.message_form.replace(/\n/g, '<br/>'))
             form.append('from_email', this.from_email)
             form.append('direction', 'from_user')
 
@@ -61,7 +65,9 @@ export default {
 
                     if (response.data.success) {
                         this.typing = false
-                        this.$refs.msg_input.value = ""
+
+                        this.message_form = ""
+
                         this.messages.push(response.data.message)
 
                         this.scrollToBottom()
@@ -77,11 +83,15 @@ export default {
                         })
                     }
                 })
+            .catch(err => {
+                console.log(err.message)
+            })
 
         },
 
+
         is_typing($event){
-            this.message_form = $event.target.value.replace(/\n/g, '<br/>')
+            // this.message_form = $event.target.value.replace(/\n/g, '<br/>')
 
             this.typing = $event.target.value !== ""
             if ($event.target.value !== "") {

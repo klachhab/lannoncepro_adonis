@@ -60,7 +60,9 @@ export default class ConversationsController {
 
             .preload('post', post => {
                 post.select('id','slug', 'title', 'createdAt', 'userId')
-                    .preload('user')
+                    .preload('user', user => {
+                        user.select('id', 'name', 'username', 'createdAt')
+                    })
             })
             .firstOrFail()
 
@@ -72,7 +74,10 @@ export default class ConversationsController {
                     .then( conversation => {
                         return {
                             success: true,
-                            conversation
+                            response: conversation
+                        } as {
+                            success: boolean,
+                            response: Conversation
                         }
                     })
 
@@ -81,18 +86,22 @@ export default class ConversationsController {
             .catch( err => {
                 return {
                     success: false,
-                    error: err.message
+                    response: err.message
+                } as {
+                    success: boolean,
+                    response: string
                 }
             })
 
-        // return chatroom
+        const conversation = chatroom.response as Conversation
+        // return conversation
 
         if (request.qs().api){
-            return chatroom
+            return conversation
         }
 
         return view.render('chatroom', {
-            chatroom
+            conversation
         })
     }
 
