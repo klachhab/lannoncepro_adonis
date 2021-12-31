@@ -136,7 +136,7 @@ Route.group(() => {
             .middleware('auth:web,api')
 
 
-        Route.get('my_profile/chatroom_messages', 'ConversationsController.show')
+        Route.get('my_profile/chatroom_messages/:room_id', 'ConversationsController.show')
             .as('profile_conversation_messages')
             .middleware('auth:web,api')
 

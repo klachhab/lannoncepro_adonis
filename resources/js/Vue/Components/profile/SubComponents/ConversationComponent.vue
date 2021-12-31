@@ -222,13 +222,14 @@ export default {
 
         async getMessages(index){
             const conversation = this.conversations[index]
-            const url = `/api/profile/my_profile/chatroom_messages?api=1&room_id=${conversation.conversation_key}`
+            const url = `/api/profile/my_profile/chatroom_messages/${conversation.conversation_key}?api=1`
 
             await axios.get(url)
                 .then(response => {
+                    
                     this.scrollToBottom()
-                    const success = response.data.success
-                    this.conversation = response.data.conversation
+
+                    this.conversation = response.data
                     this.$refs.msg_input.value = ""
 
                     conversation.read = 1
