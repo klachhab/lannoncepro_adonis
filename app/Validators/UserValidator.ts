@@ -52,13 +52,13 @@ export default class UserValidator {
             rules.unique({table: 'users', column: 'phone'}),
         ]),
 
-        city_id: schema.string({}, [
+        city_id: schema.number( [
             rules.exists({table: 'cities', column: 'id'})
         ]),
 
-        department_code: schema.string({}, [
-            rules.exists({table: 'departments', column: 'code'})
-        ]),
+        // department_code: schema.string({}, [
+        //     rules.exists({table: 'departments', column: 'code'})
+        // ]),
 
         // avatar: schema.file({
         // 	size: '2mb',

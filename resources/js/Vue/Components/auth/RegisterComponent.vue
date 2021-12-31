@@ -6,10 +6,6 @@ import {
 } from "vuelidate/lib/validators";
 
 
-const is_title = value => {
-    const titles = ['miss', 'mrs', 'mr']
-    return titles.includes(value)
-}
 const accepted = value => {
     return value === true
 }
@@ -29,15 +25,32 @@ export default {
                 username: "",
                 phone: "",
                 email: "",
-                city_id: "",
-                city_name: "",
+
                 password: "",
                 password_confirmation: "",
 
                 department_code: "",
                 department_name: "",
                 conditions: false,
+
+                city: {
+                    name: null,
+                    code: null,
+                    // lon < lat
+                    geo_coordinates: {
+                        longitude: null,
+                        latitude: null,
+                    },
+                    department: {
+                        name: null,
+                        code: null,
+                    },
+                }
             },
+
+            errors: {},
+            errorFields: [],
+            // Form ------------------------------------------
 
             hide: {
                 password: true,
@@ -49,8 +62,11 @@ export default {
             departments: [],
             cities: [],
 
-            errors: {},
-            errorFields: [],
+            foundCities: {
+                list: [],
+                show_list: false,
+                loading: false,
+            },
 
             field_class: {
                 has_err: "border-red-300 focus:border-red-300 ring-red-200 ring ring-opacity-50 focus:ring-red-200 focus:ring focus:ring-opacity-50",
@@ -102,78 +118,6 @@ export default {
         ...mapMutations([
             'setErrorFields'
         ]),
-
-        blurInput($event, field){
-
-            const element = $event.target
-            const defaultClasses = this.getInputClass('default').split(" ")
-            const errorClasses = this.getInputClass('error').split(" ")
-
-            if (this.errorFields.includes(field)) {
-                element.classList.remove(...errorClasses)
-                element.classList.add(...defaultClasses)
-                const fieldIndex = this.errorFields.indexOf(field)
-                this.errorFields.slice(fieldIndex, 1)
-            }
-        },
-
-        showAlert(){
-            this.$swal({
-                icon: 'success',
-                title: "Votre compte a bien été créé.",
-                html: "<p class='mb-3'>Merci de vérifier votre boite e-mail afin de confirmer votre compte</p>",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false,
-                showConfirmButton: false,
-
-            });
-        },
-
-        async newUser(){
-
-            this.saving = true
-
-            const form = new FormData()
-
-            form.append('title', this.form.title)
-
-            form.append('name', this.form.name)
-            form.append('username', this.form.username)
-            form.append('email', this.form.email)
-            form.append('password', this.form.password)
-            form.append('password_confirmation', this.form.password_confirmation)
-            form.append('phone', this.form.phone)
-            form.append('city_id', this.form.city_id)
-
-            await axios.post('/api/profile/profile', form)
-                .then(async response => {
-                    const success = response.data.success
-                    const data = response.data
-
-                    this.saving = false
-                    this.errors = {}
-
-                    if (success) {
-                        this.showAlert()
-                    }
-                    else {
-                        const errors = data.error.errors
-                        this.errorFields = errors.map(err => err.field)
-
-                        for (let errorKey in errors) {
-                            const error = errors[errorKey]
-                            this.errors[error.field] = error.message
-                        }
-                    }
-
-                })
-                .catch(err => {
-                    console.log(err)
-                })
-
-        },
-
 
         async getDepartments($event) {
             const element = $event.target
@@ -233,12 +177,134 @@ export default {
         },
 
         async getCity(city) {
-            console.log(city)
+
             this.form.city_id = city.id
             this.form.city_name = city.name
             this.cities = []
         },
 
+        
+        // Save user ======================
+        async newUser(){
+
+            this.saving = true
+
+            const form = new FormData()
+            const city = this.form.city
+            const geometry = this.form.city.geo_coordinates
+
+            form.append('title', this.form.title)
+
+            form.append('name', this.form.name)
+            form.append('username', this.form.username)
+            form.append('email', this.form.email)
+            form.append('password', this.form.password)
+            form.append('password_confirmation', this.form.password_confirmation)
+            form.append('phone', this.form.phone)
+
+            form.append('city_code', city.code)
+            form.append('city_name', city.name)
+            form.append('longitude', geometry.longitude)
+            form.append('latitude', geometry.latitude)
+            form.append('department_code', city.department.code)
+
+            await axios.post('/profil', form)
+                .then(async response => {
+
+                    this.saving = false
+                    this.errors = {}
+                    this.errorFields = []
+
+                    const success = response.data.success
+                    const data = response.data
+
+                    // return
+
+                    if (success) {
+                        this.$swal({
+                            icon: 'success',
+                            title: "Votre compte a bien été créé.",
+                            html: "<p class='mb-3'>Merci de vérifier votre boite e-mail afin de confirmer votre compte</p>",
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+
+                        })
+                            .then( () => {
+                                window.location.replace('/')
+                            });
+                    }
+                    else {
+
+                        if ( data.errors ) {
+                            this.errors = data.errors
+                            this.errorFields = data.error_fields
+                        }
+
+                        else {
+                            this.$swal( {
+                                icon: 'error',
+                                text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
+                            } );
+                        }
+                    }
+                    this.saving = false
+
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+
+        },
+
+        // Search address -------------------------------
+        async searchCity($event){
+
+            const value = $event.target.value
+
+            if ( value === '' ){
+                this.foundCities.list = []
+                this.foundCities.show_list = false
+                return
+            }
+
+            this.foundCities.show_list = true
+            this.foundCities.loading = true
+
+            // type=street | locality | municipality | housenumber
+            await axios.get(`https://api-adresse.data.gouv.fr/search/?q=${ value }&type=municipality&limit=10`)
+                .then( resp => {
+                    this.foundCities.list = resp.data.features
+                })
+                .catch( () => {
+                    this.foundCities.list = []
+                })
+
+            this.foundCities.loading = false
+        },
+
+        selectCity(city) {
+
+            const contextArr = city.properties.context.split(', ')
+
+            this.selected_address = city.properties.label
+            this.foundCities.show_list = false
+            this.foundCities.list = []
+
+
+            this.form.city.name = city.properties.city
+            this.form.city.code = city.properties.citycode
+
+            this.form.city.geo_coordinates = {
+                longitude: city.geometry.coordinates[0],
+                latitude: city.geometry.coordinates[1],
+            }
+
+            this.form.city.department = {
+                code: contextArr[0],
+                name: contextArr[1],
+            }
+        },
     },
 }
 </script>

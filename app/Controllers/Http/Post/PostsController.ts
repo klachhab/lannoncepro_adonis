@@ -101,43 +101,37 @@ export default class PostsController {
                     .firstOrFail()
                     .then( async dep => {
 
-                        const city = await dep.related( 'cities' )
-                            .query()
-                            .where( 'code', city_code )
-                            .firstOrFail()
-                            .then( ct => {
-                                return ct
+                        return await dep.related( 'cities' )
+                            .firstOrCreate(
+                                { code: city_code },
+                                {
+                                    code: request.all().city_code,
+                                    name: request.all().city_name,
+                                    longitude: request.all().longitude,
+                                    latitude: request.all().latitude
+                                }
+                            )
+                            .then( async city => {
+                                await city.load('department')
+                                return {
+                                    success: true,
+                                    response: city,
+                                } as {
+                                    success: boolean,
+                                    response: City,
+                                }
                             } )
-                            .catch( async () => {
-                                return await dep.related( 'cities' )
-                                    .firstOrCreate(
-                                        { code: city_code },
-                                        {
-                                            code: request.all().city_code,
-                                            name: request.all().city_name,
-                                            longitude: request.all().longitude,
-                                            latitude: request.all().latitude
-                                        } )
-                                    .catch( err => {
-                                        return {
-                                            success: false,
-                                            model: 'new_city',
-                                            response: err.message,
-                                        } as {
-                                            success: boolean,
-                                            model: string,
-                                            response: string,
-                                        }
-                                    } )
+                            .catch( err => {
+                                return {
+                                    success: false,
+                                    model: 'new_city',
+                                    response: err.message,
+                                } as {
+                                    success: boolean,
+                                    model: string,
+                                    response: string,
+                                }
                             } )
-
-                        return {
-                            success: true,
-                            response: city
-                        } as {
-                            success: boolean,
-                            response: City,
-                        }
 
                     } )
                     .catch( err => {

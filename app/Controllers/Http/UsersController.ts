@@ -1,16 +1,16 @@
-import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from "App/Models/User";
 import Post from "App/Models/Post/Post";
 import UserValidator from "App/Validators/UserValidator";
-import {Exception} from "@poppinss/utils";
-import Application from "@ioc:Adonis/Core/Application";
+import { Exception } from "@poppinss/utils";
 import Department from "App/Models/Department";
-import VerifyEmail from "App/Mailers/VerifyEmail";
-import {ValidationException} from "@adonisjs/validator/build/src/ValidationException";
+import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
-import {AuthenticationException} from "@adonisjs/auth/build/standalone";
-import {EmailTransportException} from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
+import { AuthenticationException } from "@adonisjs/auth/build/standalone";
+import City from "App/Models/City";
+import { EmailTransportException } from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
+import VerifyEmail from "App/Mailers/VerifyEmail";
 
 export default class UsersController {
 
@@ -36,150 +36,190 @@ export default class UsersController {
 
     public async store({request}: HttpContextContract) {
 
+        const get_city = await Department
+            .query()
+            .where( 'code', request.all().department_code )
+            .firstOrFail()
+            .then( async dep => {
 
-        // Sending verification E-mail
-        const sendEmail = async ( user: User) => {
-            return await new VerifyEmail(user)
-                .send()
-                .then( async () => {
+                return await dep.related( 'cities' )
+                    .firstOrCreate(
+                        { code: request.all().city_code },
+                        {
+                            code: request.all().city_code,
+                            name: request.all().city_name,
+                            longitude: request.all().longitude,
+                            latitude: request.all().latitude
+                        }
+                    )
+                    .then( async city => {
 
-                    return {
-                        success: true,
-                        message: "email_sent",
-                    }
+                        return {
+                            success: true,
+                            response: city,
+                        } as {
+                            success: boolean,
+                            response: City,
+                        }
+                    } )
+                    .catch( err => {
+                        return {
+                            success: false,
+                            model: 'new_city',
+                            response: err.message,
+                        } as {
+                            success: boolean,
+                            model: string,
+                            response: string,
+                        }
+                    } )
 
+                /*.query()
+                .where( 'code', request.all().city_code )
+                .firstOrFail()
+                .then( ct => {
+                    return ct
+                } )
+                .catch( async () => {
+                    return await dep.related( 'cities' )
+                        .firstOrCreate(
+                            { code: request.all().city_code },
+                            {
+                                code: request.all().city_code,
+                                name: request.all().city_name,
+                                longitude: request.all().longitude,
+                                latitude: request.all().latitude
+                            } )
+                        .catch( err => {
+                            return {
+                                success: false,
+                                model: 'new_city',
+                                response: err.message,
+                            } as {
+                                success: boolean,
+                                model: string,
+                                response: string,
+                            }
+                        } )
+                } )*/
+
+            } )
+            .catch( err => {
+                return {
+                    success: false,
+                    model: 'dep',
+                    response: err.message,
+                } as {
+                    success: boolean,
+                    model: string,
+                    response: string,
+                }
+            } )
+
+        if ( get_city.success ){
+            const city = get_city.response as City
+            request.all().city_id = city.id
+        }
+        else {
+            return get_city
+        }
+
+        // Store after validation
+        const validated = await request.validate(UserValidator)
+            .then( async (response: Object) => {
+                return {
+                    success: true,
+                    response
+                }
+
+            } )
+            .catch( (err: ValidationException) => {
+                return {
+                    success: false,
+                    response: err.messages,
+                }
+            } )
+
+        // return validated
+
+
+        if ( !validated.success ) {
+            return await User.onlyTrashed()
+                .where( 'email', request.all().email )
+                .firstOrFail()
+                .then( async user => {
+                    return await user.restore()
+                        .then( async usr => {
+                            user.verification_code = Encryption.encrypt( user.email )
+                            user.password = await Hash.make( request.all().password )
+
+                            user.title = request.all().title
+                            user.name = request.all().name
+                            user.username = request.all().username
+                            user.phone = request.all().phone
+                            user.email_verified = false
+                            user.cityId = request.all().city_id
+
+                            return await usr.save()
+                                .then( u => {
+                                    return {
+                                        success: true,
+                                        response: u
+                                    }
+                                })
+                                .catch( err => {
+                                    return {
+                                        success: false,
+                                        response: err.messages,
+                                    }
+                                } )
+
+                        })
+                        .catch( err => {
+                            return {
+                                success: false,
+                                response: err.messages,
+                            }
+                        } )
                 })
-                .catch((err: EmailTransportException) => {
+                .catch( () => {
+                    const error_fields = validated.response.errors.map( err => err.field )
+                    const error_messages = validated.response.errors.map( err => err.message )
+                    const errors = {}
+
+                    for ( const error_fieldsKey in error_fields ) {
+                        errors[ error_fields[error_fieldsKey] ] = error_messages[error_fieldsKey]
+                    }
                     return {
                         success: false,
-                        error: err.message,
-                        type: "email"
+                        errors,
+                        error_fields
+                    }
+                })
+        }
+        else {
+            const data = validated.response as Object
+
+            return await User.create(data)
+                .then( user => {
+                    return {
+                        success: true,
+                        response: user,
+                    }
+                })
+                .catch( err => {
+                    return {
+                        success: false,
+                        response: err.messages,
                     }
                 })
         }
 
-        // Store after validation
-        const store = await request.validate(UserValidator)
-            .then(async (resp: Object) => {
-
-            return await User.create(resp)
-                .then(async (user: User) => {
-
-                    // Upload Avatar : Pending =======================================
-
-                    const avatar = request.file('avatar')
-                    if (avatar) {
-                        const path = `uploads/profiles/${user.username}`
-                        await avatar.move(Application.publicPath(path), {
-                            name: `avatar.${avatar.extname}`,
-                            overwrite: true
-                        }).then(() => {
-                            user.merge({
-                                avatar: `/uploads/profiles/${user.username}/avatar.${avatar.extname}`
-                            }).save()
-                        })
-                    }
-
-
-                    // Sending verification E-mail =======================================
-                    return sendEmail(user)
-
-                    // return await new VerifyEmail(user)
-                    //     .send()
-                    //     .then( async () => {
-                    //
-                    //         return {
-                    //             success: true,
-                    //             message: "email_sent",
-                    //         }
-                    //
-                    //     })
-                    //     .catch((err) => {
-                    //         return {
-                    //             success: false,
-                    //             error: err,
-                    //             type: "email"
-                    //         }
-                    //     })
-
-                })
-                .catch((err: Exception) => {
-                    return {
-                        success: false,
-                        error: err,
-                        type: "user_creation"
-                    }
-                })
-
-        })
-            .catch((err: ValidationException) => {
-                return {
-                    success: false,
-                    error: err.messages,
-                    type: "Validation"
-                }
-            })
-
-
-        return await User.onlyTrashed()
-            .where('email', request.all().email)
-            .firstOrFail()
-            .then(async user => {
-                return user.restore()
-                    .then( async () => {
-
-                        return await Hash.make(request.all().password)
-                            .then( (hashed) => {
-                                user.verification_code = Encryption.encrypt(user.email)
-                                user.password = hashed
-
-                                user.title = request.all().title
-                                user.name = request.all().name
-                                user.username = request.all().username
-                                user.phone = request.all().phone
-                                user.email_verified = false
-                                user.cityId = request.all().city_id
-
-                                return user.save()
-                                    .then(async user => {
-
-                                        // Sending verification E-mail =======================================
-                                        return sendEmail(user)
-
-                                    })
-                                    .catch( err => {
-                                        return {
-                                            success: false,
-                                            error: err,
-                                        }
-                                    })
-
-                            })
-                            .catch(err => {
-                                return {
-                                    success: false,
-                                    error: err,
-                                }
-                            });
-
-                    })
-                    .catch( err => {
-                        return {
-                            success: false,
-                            error: "Restore error : " + err.message
-                        }
-                    })
-            })
-
-            .catch(async () => {
-                return store
-            })
-
     }
 
 
-    public async show({ params, auth, view, response}: HttpContextContract) {
 
+    public async show({ params, auth, view, response}: HttpContextContract) {
         if ( await auth.check().then( logged => { return logged}) ){
             const user = auth.user as User
 
