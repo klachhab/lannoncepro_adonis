@@ -145,7 +145,7 @@
                             <modal-box name="message">
                                 <template #header>
                                     <h4 class="text-xl font-normal">
-                                        Envoyer un message
+                                        Envoyer un message /User Name : @{{ user_name === 'null' }}
                                     </h4>
                                 </template>
 
@@ -154,19 +154,20 @@
 
                                     <div class="flex items-center self-start">
 
-                                        <input ref="name_input" type="text" class="mt-1 block w-full rounded-md placeholder-gray-400"
-                                               :class="field_class.normal"
-                                               placeholder="Nom"
+                                        <input ref="name_input" type="text"
+                                               class="disabled:bg-gray-100 disabled:text-gray-400 disabled:select-none"
+                                               placeholder="Votre nom" :disabled="user_name !== 'null'"
+                                               :class="getInputClass('default')"
                                                v-model="message_form.from_name"
                                         />
 
                                     </div>
 
-                                    <div class="flex items-center self-start mt-4">
-
-                                        <input ref="email_input" type="email" class="mt-1 block w-full rounded-md placeholder-gray-400"
-                                               :class="field_class.normal"
-                                               placeholder="E-mail"
+                                    <div class="flex flex-col items-center self-start mt-4">
+                                        <input ref="email_input" type="email"
+                                               class="disabled:bg-gray-100 disabled:text-gray-400 disabled:select-none"
+                                               placeholder="E-mail" :disabled="user_email !== 'null'"
+                                               :class="getInputClass('default')"
                                                v-model="message_form.from_email"
                                         />
 
@@ -174,14 +175,11 @@
 
 
                                     <label class="block mt-4">
-
-                                        <textarea ref="text_message"
-                                                  class="block rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 w-full"
-                                                  rows="4"
-                                                  placeholder="Commentaire"
+                                        <textarea ref="text_message" placeholder="Commentaire" rows="4"
+                                                  class="resize-none"
+                                                  :class="getInputClass('default')"
                                                   @change="message2html"
-                                        >
-                                        </textarea>
+                                        ></textarea>
 
                                     </label>
 
@@ -269,7 +267,7 @@
                             <modal-box name="report">
                                 <template #header>
                                     <h4 class="text-xl font-normal">
-                                        Signaler un apport
+                                        Signaler un abus
                                     </h4>
                                 </template>
 
@@ -277,8 +275,22 @@
                                 <template #body>
 
                                     <div class="flex items-center self-start">
+                                        <select class="lg:col-span-5"
+                                                :class="getInputClass('default')"
+                                                v-model="report_form.report_ref"
+                                        >
 
-                                        <select class="mt-1 block w-full rounded-md placeholder-gray-400"
+                                            <option value="null" disabled selected>Raison</option>
+
+                                            @each(report_type in report_types)
+
+                                            <option value="{{ report_type.ref }}">{{ report_type.name }}</option>
+
+                                            @end
+
+                                        </select>
+
+<!--                                        <select class="mt-1 block w-full rounded-md placeholder-gray-400"
                                                 :class="field_class.normal"
                                                 v-model="report_form.report_ref">
 
@@ -289,19 +301,18 @@
                                             <option value="{{ report_type.ref }}">{{ report_type.name }}</option>
 
                                             @end
-                                        </select>
+                                        </select>-->
 
                                     </div>
 
                                     <label class="block mt-4">
 
-                                        <textarea
-                                                class="block rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 w-full"
-                                                rows="4"
-                                                v-model="report_form.comment"
-                                                placeholder="Commentaire"
-                                                @change="reportComment2html">
-                                        </textarea>
+                                        <textarea placeholder="Commentaire" rows="4"
+                                                  class="resize-none"
+                                                  :class="getInputClass('default')"
+                                                  v-model="report_form.comment"
+                                                  @change="reportComment2html"
+                                        ></textarea>
 
                                     </label>
 
@@ -315,7 +326,7 @@
                                                 border-transparent border hover:bg-transparent
                                                 hover:text-green-500 hover:border-green-500"
 
-                                                @click="save_report"
+                                                @click="send_report"
                                         >
                                             <span>
                                                 Valider
@@ -497,13 +508,11 @@
                                         </div>
 
                                         <label class="block mt-4">
-
-                                            <textarea
-                                                    class="block rounded-md placeholder-gray-400 border-gray-300 focus:border-blue-400 focus:ring-blue-300 w-full"
-                                                    rows="4"
-                                                    placeholder="Commentaire"
-                                                    @change="reviewComment2html">
-                                            </textarea>
+                                            <textarea ref="text_message" placeholder="Commentaire" rows="4"
+                                                      class="resize-none"
+                                                      :class="getInputClass('default')"
+                                                      @change="reviewComment2html"
+                                            ></textarea>
 
                                         </label>
 

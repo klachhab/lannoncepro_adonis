@@ -1,7 +1,7 @@
 <script>
 import StarRating from 'vue-star-rating'
 import ModalBox from '../Layouts/ModalBox'
-import {mapMutations} from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import 'video.js/dist/video-js.css'
 import {mapState} from "vuex";
 
@@ -81,6 +81,10 @@ export default {
             'container'
         ]),
 
+        ...mapGetters([
+            "getInputClass",
+        ]),
+
         all_reviews(){
             return this.reviews
         },
@@ -95,18 +99,10 @@ export default {
 
     mounted() {
         this.get_reviews()
-
-        if (this.user_name !== 'null') {
-            this.disableInput(this.$refs.name_input)
-        }
-
-        if (this.user_email !== 'null') {
-            this.disableInput(this.$refs.email_input)
-        }
-
     },
 
     methods: {
+
         ...mapMutations([
             'showModal'
         ]),
@@ -273,7 +269,7 @@ export default {
             this.report_form.comment = $event.target.value.replace(/\n/g, '<br/>')
         },
 
-        async save_report(){
+        async send_report(){
             // console.log(this.report_form)
             // return
 
@@ -320,14 +316,6 @@ export default {
             this.message_form.message = $event.target.value.replace(/\n/g, '<br/>')
         },
 
-
-        disableInput(...inputs) {
-            inputs.forEach(input => {
-                input.classList.add('bg-gray-100', 'text-gray-400')
-                input.disabled = true
-            })
-        },
-
         async send_message() {
 
             const form = new FormData
@@ -340,14 +328,16 @@ export default {
             await axios.post(`/api/annonces/${ this.post_slug }/send_message`, form)
                 .then(result => {
 
-                    if (result.data.success) {
+                    const conversation = result.data.conversation
+                    const success = result.data.success
+
+                    if (success) {
 
                         this.$swal({
                             icon: "success",
                             title: "Message envoyé",
                             text: 'Votre message a été envoyé avec succès pour étude'
                         }).then(() => {
-                            const conversation = result.data.conversation
 
                             this.message_form.message = null
                             this.message_form.from_name = conversation.from_name
@@ -370,6 +360,12 @@ export default {
 
 
                 })
+
+                .catch( err => {
+                    return {
+                        error: err.message
+                    }
+                } )
         },
     }
 }

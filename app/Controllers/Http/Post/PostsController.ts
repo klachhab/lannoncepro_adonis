@@ -20,104 +20,104 @@ export default class PostsController {
 
     protected ids: number[]
 
-    public index({request}: HttpContextContract) {
-        return Post.filter(request.qs())
-            .paginate(request.qs().page, 20)
+    public index({ request }: HttpContextContract) {
+        return Post.filter( request.qs() )
+            .paginate( request.qs().page, 20 )
 
     }
 
-    public async create({view}: HttpContextContract) {
+    public async create({ view }: HttpContextContract) {
         // return await Category.query().doesntHave('parent').select('name', 'slug','id')
 
-        return view.render("posts/create", {
+        return view.render( "posts/create", {
             categories: await Category.query()
-                .has('subs')
-                .select('name', 'slug', 'id')
-        })
+                .has( 'subs' )
+                .select( 'name', 'slug', 'id' )
+        } )
     }
 
-    public async details({request, view}: HttpContextContract) {
+    public async details({ request, view }: HttpContextContract) {
         // return request.all()
 
         const category = await Category.query()
-            .where('slug', request.all().sub_category)
+            .where( 'slug', request.all().sub_category )
             // .has('parent')
-            .preload('parent', parent => {
-                parent.select('name')
-            })
-            .select('id', 'name', 'category_id')
+            .preload( 'parent', parent => {
+                parent.select( 'name' )
+            } )
+            .select( 'id', 'name', 'category_id' )
             .firstOrFail()
-            .then(category => {
+            .then( category => {
                 return category
-            })
-            .catch(err => {
+            } )
+            .catch( err => {
                 return {
                     error: err.code
                 }
-            })
+            } )
 
         const delivery_modes = await DeliveryMode.query()
-            .select('id', 'mode')
+            .select( 'id', 'mode' )
 
         // return {
         //     category,
         //     delivery_modes
         // }
 
-        return view.render('posts/create_details', {
+        return view.render( 'posts/create_details', {
             category,
             delivery_modes,
-        }).catch(err => {
+        } ).catch( err => {
             return {
                 err
             }
-        })
+        } )
     }
 
 
 
-    public async store({request, auth}: HttpContextContract) {
+    public async store({ request, auth }: HttpContextContract) {
         return await auth.check()
-            .then(async authenticated => {
-                if ( !authenticated ){
+            .then( async authenticated => {
+                if ( !authenticated ) {
                     return {
                         success: false,
                         message: 'not_auth',
                     }
                 }
 
-            // -----------------------------------------
+                // -----------------------------------------
                 const user = auth.user as User
-                await user.load('city', city => {
-                    city.preload('department')
-                })
+                await user.load( 'city', city => {
+                    city.preload( 'department' )
+                } )
 
-                const city_code = JSON.parse(request.all().same_city) ? user.city.code : request.all().city_code
-                const department_code = JSON.parse(request.all().same_city) ? user.city.department.code : request.all().department_code
+                const city_code = JSON.parse( request.all().same_city ) ? user.city.code : request.all().city_code
+                const department_code = JSON.parse( request.all().same_city ) ? user.city.department.code : request.all().department_code
 
                 const get_city = await Department
                     .query()
-                    .where('code', department_code)
+                    .where( 'code', department_code )
                     .firstOrFail()
                     .then( async dep => {
 
-                        const city = await dep.related('cities')
+                        const city = await dep.related( 'cities' )
                             .query()
-                            .where('code', city_code)
+                            .where( 'code', city_code )
                             .firstOrFail()
                             .then( ct => {
                                 return ct
-                            })
+                            } )
                             .catch( async () => {
                                 return await dep.related( 'cities' )
                                     .firstOrCreate(
-                                    { code: city_code },
-                                    {
-                                        code: request.all().city_code,
-                                        name: request.all().city_name,
-                                        longitude: request.all().longitude,
-                                        latitude: request.all().latitude
-                                    })
+                                        { code: city_code },
+                                        {
+                                            code: request.all().city_code,
+                                            name: request.all().city_name,
+                                            longitude: request.all().longitude,
+                                            latitude: request.all().latitude
+                                        } )
                                     .catch( err => {
                                         return {
                                             success: false,
@@ -128,8 +128,8 @@ export default class PostsController {
                                             model: string,
                                             response: string,
                                         }
-                                    })
-                            })
+                                    } )
+                            } )
 
                         return {
                             success: true,
@@ -139,7 +139,7 @@ export default class PostsController {
                             response: City,
                         }
 
-                    })
+                    } )
                     .catch( err => {
                         return {
                             success: false,
@@ -150,31 +150,30 @@ export default class PostsController {
                             model: string,
                             response: string,
                         }
-                    })
+                    } )
 
 
-                if ( !get_city.success ){
+                if ( !get_city.success ) {
                     return get_city
-                }
-                else {
+                } else {
                     const ct = get_city.response as City
                     request.all().city_id = ct.id
                 }
 
 
-                return await request.validate(PostValidator)
-                    .then(async (data: Object) => {
+                return await request.validate( PostValidator )
+                    .then( async (data: Object) => {
                         // return data
-                        return await user.related('posts')
-                            .create(data)
+                        return await user.related( 'posts' )
+                            .create( data )
                             .then( async post => {
 
-                                const pics = request.files('photos')
-                                const public_path = Application.publicPath('/uploads')
+                                const pics = request.files( 'photos' )
+                                const public_path = Application.publicPath( '/uploads' )
 
                                 if ( request.all().video_type ) {
 
-                                    if ( request.all().video_type == 'iframe' && typeof request.all().video_link == 'string') {
+                                    if ( request.all().video_type == 'iframe' && typeof request.all().video_link == 'string' ) {
                                         post.videoLink = request.all().video_link
                                         post.save()
                                             .catch( err => {
@@ -183,10 +182,8 @@ export default class PostsController {
                                                     message: err.message,
                                                 }
                                             } )
-                                    }
-
-                                    else {
-                                        const video = request.file('video_link')
+                                    } else {
+                                        const video = request.file( 'video_link' )
 
                                         if ( request.all().video_type == 'local' && video ) {
                                             await video.move( `${public_path}/${post.id}-${post.slug}`, {
@@ -215,105 +212,105 @@ export default class PostsController {
 
                                 if ( pics.length ) {
                                     for ( let pic of pics ) {
-                                        var file_path = `${public_path}/${ post.id }-${ post.slug }/pics`
-                                        await pic.move(`${ file_path }`, {
+                                        var file_path = `${public_path}/${post.id}-${post.slug}/pics`
+                                        await pic.move( `${file_path}`, {
                                             name: pic.clientName
-                                        })
+                                        } )
                                             .then( async () => {
-                                                await post.related('pictures')
-                                                    .create({
-                                                        path: `/uploads/${ post.id }-${ post.slug }/pics/${pic.clientName}`
-                                                    })
+                                                await post.related( 'pictures' )
+                                                    .create( {
+                                                        path: `/uploads/${post.id}-${post.slug}/pics/${pic.clientName}`
+                                                    } )
                                                     .catch( err => {
                                                         return {
                                                             success: false,
                                                             message: err.message,
                                                         }
-                                                    })
-                                            })
+                                                    } )
+                                            } )
                                             .catch( err => {
                                                 return {
                                                     success: false,
                                                     message: err.message,
                                                 }
-                                            })
+                                            } )
                                     }
                                 }
 
-                                await post.load('user')
-                                await post.load('city')
+                                await post.load( 'user' )
+                                await post.load( 'city' )
 
                                 return {
                                     success: true,
                                     message: post,
                                 }
 
-                            })
+                            } )
                             .catch( err => {
                                 return {
                                     success: false,
                                     message: err.message,
                                 }
-                            })
+                            } )
 
-                    })
-                    .catch((err: ValidationException) => {
+                    } )
+                    .catch( (err: ValidationException) => {
                         return {
                             success: false,
                             message: err.messages.errors,
                         }
-                    })
+                    } )
 
-            })
+            } )
             .catch( () => {
                 return {
                     success: true,
                     response: "not_auth",
                 }
-            })
+            } )
 
     }
 
 
-    public async show({params, view, auth}: HttpContextContract) {
+    public async show({ params, view, auth }: HttpContextContract) {
         return await Post.query()
-            .where('slug', params.id)
-            .andWhere('is_valid', 1)
+            .where( 'slug', params.id )
+            .andWhere( 'is_valid', 1 )
 
-            .preload('deliveryMode', delivery => {
-                delivery.select('mode')
-            })
-            .preload('pictures', image => {
-                image.select('path')
-            })
-            .preload('reviews', reviews => {
-                reviews.select('name', 'avatar', 'created_at')
-            })
-            .preload('user', user => {
-                user.select('title', 'name', 'phone', 'is_pro', 'username', 'created_at')
-            })
-            .preload('city')
-            .preload('favourites', favourites => {
-                favourites.select('created_at')
-            })
-            .preload('reports', reports => {
+            .preload( 'deliveryMode', delivery => {
+                delivery.select( 'mode' )
+            } )
+            .preload( 'pictures', image => {
+                image.select( 'path' )
+            } )
+            .preload( 'reviews', reviews => {
+                reviews.select( 'name', 'avatar', 'created_at' )
+            } )
+            .preload( 'user', user => {
+                user.select( 'title', 'name', 'phone', 'is_pro', 'username', 'created_at' )
+            } )
+            .preload( 'city' )
+            .preload( 'favourites', favourites => {
+                favourites.select( 'created_at' )
+            } )
+            .preload( 'reports', reports => {
                 reports.select()
-            })
-            .preload('category', category => {
-                category.select('name')
-            })
+            } )
+            .preload( 'category', category => {
+                category.select( 'name' )
+            } )
             .firstOrFail()
 
-            .then(async post => {
+            .then( async post => {
                 const authenticated = await auth.check()
-                    .then(async checked => {
+                    .then( async checked => {
                         return checked;
-                    })
+                    } )
                     .catch( (err: AuthenticationException) => {
                         return {
                             error: err.message
                         }
-                    })
+                    } )
 
                 const user = auth.user as User
 
@@ -323,20 +320,20 @@ export default class PostsController {
                 //     user
                 // }
 
-                const favourites = post.favourites.map(fav => fav.id)
-                const reviews = post.reviews.map(rev => rev.id)
-                const reports = post.reports.map(rep => rep.id)
+                const favourites = post.favourites.map( fav => fav.id )
+                const reviews = post.reviews.map( rev => rev.id )
+                const reports = post.reports.map( rep => rep.id )
 
                 const fav_revs = {
-                    isMyFavourite: authenticated && favourites.includes(user.id),
-                    iHaveRevs: authenticated && reviews.includes(user.id),
-                    iHaveReps: authenticated && reports.includes(user.id),
+                    isMyFavourite: authenticated && favourites.includes( user.id ),
+                    iHaveRevs: authenticated && reviews.includes( user.id ),
+                    iHaveReps: authenticated && reports.includes( user.id ),
                     reviews_avg: post.reviews_avg,
                 }
 
                 const report_types = await ReportType.query()
 
-                if (auth.defaultGuard == "api") {
+                if ( auth.defaultGuard == "api" ) {
                     return {
                         report_types,
                         post: post.id,
@@ -352,126 +349,126 @@ export default class PostsController {
                 //     fav_revs
                 // }
 
-                return view.render('posts/show', {
+                return view.render( 'posts/show', {
                     report_types,
                     post,
                     user_name: authenticated ? user.name : null,
                     user_email: authenticated ? user.email : null,
                     fav_revs
-                })
+                } )
 
-            })
+            } )
 
-            .catch(async (e: Exception) => {
+            .catch( async (e: Exception) => {
                 return {
                     success: false,
                     error: e.message,
                 }
-                return await view.render('errors.not-found')
-            })
+                return await view.render( 'errors.not-found' )
+            } )
     }
 
 
-    public async edit({params, view}: HttpContextContract) {
+    public async edit({ params, view }: HttpContextContract) {
         try {
-            const post = await Post.query().where('slug', params.id).firstOrFail()
-            return {post}
-        } catch (ex) {
-            return await view.render('errors.not-found')
+            const post = await Post.query().where( 'slug', params.id ).firstOrFail()
+            return { post }
+        } catch ( ex ) {
+            return await view.render( 'errors.not-found' )
         }
     }
 
 
-    public async update({request, params}: HttpContextContract) {
+    public async update({ request, params }: HttpContextContract) {
         return await Post.query()
-            .where('slug', params.id)
+            .where( 'slug', params.id )
             .firstOrFail()
-            .then(async post => {
-                return await request.validate(PostValidator)
-                    .then(async (resp: Object) => {
+            .then( async post => {
+                return await request.validate( PostValidator )
+                    .then( async (resp: Object) => {
 
-                        return await post.merge(resp)
+                        return await post.merge( resp )
                             .save()
-                            .then(post => {
+                            .then( post => {
                                 return {
                                     success: true,
                                     post
                                 }
-                            })
-                            .catch((err: Exception) => {
+                            } )
+                            .catch( (err: Exception) => {
                                 return {
                                     success: false,
                                     error: err.code,
                                 }
-                            })
+                            } )
 
-                    })
-                    .catch((err: ValidationException) => {
+                    } )
+                    .catch( (err: ValidationException) => {
                         return {
                             success: false,
                             error: err.messages,
                         }
-                    })
+                    } )
 
-            })
-            .catch((err: Exception) => {
+            } )
+            .catch( (err: Exception) => {
                 return {
                     success: false,
                     message: err.code,
                 }
-            })
+            } )
     }
 
 
-    public async destroy({params}: HttpContextContract) {
+    public async destroy({ params }: HttpContextContract) {
         return await Post.query()
-            .where('slug', params.id)
+            .where( 'slug', params.id )
             .firstOrFail()
-            .then(async post => {
+            .then( async post => {
                 return await post.delete()
-                    .then(async () => {
+                    .then( async () => {
                         // await post.related('favourites').detach()
                         // await post.related('reports').detach()
                         // await post.related('reviews').detach()
 
-                        await PostPic.query().where('post_id', post.id)
-                            .then((images) => {
-                                images.forEach((image) => {
+                        await PostPic.query().where( 'post_id', post.id )
+                            .then( (images) => {
+                                images.forEach( (image) => {
                                     image.delete()
-                                })
-                            })
+                                } )
+                            } )
 
                         return {
                             success: true,
                             result: post
                         }
-                    })
-                    .catch((e: IsAdminOwnerException) => {
+                    } )
+                    .catch( (e: IsAdminOwnerException) => {
                         return {
                             success: false,
                             result: e.message
                         }
-                    })
+                    } )
 
 
-            })
-            .catch((err: Exception) => {
+            } )
+            .catch( (err: Exception) => {
                 return {
                     success: false,
                     result: err.code
                 }
-            })
+            } )
 
     }
 
 
-    public async restore({params}: HttpContextContract) {
+    public async restore({ params }: HttpContextContract) {
         return await Post.onlyTrashed()
-            .where('slug', params.slug)
+            .where( 'slug', params.slug )
             .firstOrFail()
-            .then(async post => {
+            .then( async post => {
                 return await post.restore()
-                    .then(async () => {
+                    .then( async () => {
                         /*await PostReview.onlyTrashed().where('post_id', post.id)
                             .then((reviews) => {
                                 reviews.forEach((review) => {
@@ -488,161 +485,160 @@ export default class PostsController {
                                 })
                             })*/
 
-                        await PostPic.onlyTrashed().where('post_id', post.id)
-                            .then((images) => {
-                                images.forEach((image) => {
+                        await PostPic.onlyTrashed().where( 'post_id', post.id )
+                            .then( (images) => {
+                                images.forEach( (image) => {
                                     image.restore()
-                                    post.preload('pictures')
-                                })
-                            })
+                                    post.preload( 'pictures' )
+                                } )
+                            } )
 
                         return {
                             success: true,
                             result: post
                         }
-                    })
-                    .catch((e: Exception) => {
+                    } )
+                    .catch( (e: Exception) => {
                         return {
                             success: false,
                             result: e.code
                         }
-                    })
-            })
-            .catch((err: Exception) => {
+                    } )
+            } )
+            .catch( (err: Exception) => {
                 return {
                     success: false,
                     result: err.code
                 }
-            })
+            } )
     }
 
 
-    public async forceDelete({params}: HttpContextContract) {
+    public async forceDelete({ params }: HttpContextContract) {
         return await Post.onlyTrashed()
-            .where('slug', params.slug)
+            .where( 'slug', params.slug )
             .firstOrFail()
-            .then(async post => {
+            .then( async post => {
                 return await post.forceDelete()
-                    .then(async () => {
+                    .then( async () => {
                         return {
                             success: true,
                             result: "forceDeleted"
                         }
-                    })
-                    .catch(e => {
+                    } )
+                    .catch( e => {
                         return {
                             success: false,
                             result: e.code
                         }
-                    })
+                    } )
 
 
-            })
-            .catch((err: Exception) => {
+            } )
+            .catch( (err: Exception) => {
                 return {
                     success: false,
                     result: err.code
                 }
-            })
+            } )
     }
 
 
-    public async addToFavourite({params, auth}: HttpContextContract) {
+    public async addToFavourite({ params, auth }: HttpContextContract) {
         return await Post.query()
-            .where('slug', params.slug)
-            .preload('favourites', favourites => {
-                favourites.select('id', 'created_at')
-            })
+            .where( 'slug', params.slug )
+            .preload( 'favourites', favourites => {
+                favourites.select( 'id', 'created_at' )
+            } )
             // .select(['id'])
             .firstOrFail()
-            .then(async post => {
+            .then( async post => {
 
                 return await auth.check()
-                    .then(async checked => {
+                    .then( async checked => {
 
                         const user = auth.user as User
-                        const favourites = post.favourites.map(fav => fav.id)
+                        const favourites = post.favourites.map( fav => fav.id )
 
-                        const isMyFavourite = checked && favourites.includes(user.id)
+                        const isMyFavourite = checked && favourites.includes( user.id )
 
 
-                        if (isMyFavourite){
+                        if ( isMyFavourite ) {
 
-                            return post.related('favourites')
-                                .detach([user.id])
-                                .then(async () => {
+                            return post.related( 'favourites' )
+                                .detach( [ user.id ] )
+                                .then( async () => {
                                     return {
                                         success: true,
                                         result: false
                                     }
-                                })
-                                .catch(err => {
+                                } )
+                                .catch( err => {
                                     return {
                                         success: false,
                                         result: err.code,
                                     }
-                                })
-                        }
-                        else {
-                            return post.related('favourites')
-                                .attach([user.id])
+                                } )
+                        } else {
+                            return post.related( 'favourites' )
+                                .attach( [ user.id ] )
                                 .then( async () => {
                                     return {
                                         success: true,
                                         result: true
                                     }
-                                })
-                                .catch(err => {
+                                } )
+                                .catch( err => {
                                     return {
                                         success: false,
                                         result: err.code,
                                     }
-                                })
+                                } )
                         }
 
-                    })
+                    } )
 
                     .catch( (err: AuthenticationException) => {
-                        console.log(err.message)
+                        console.log( err.message )
                         return false
-                    }) as Boolean
+                    } ) as Boolean
 
-            })
-            .catch(() => {
+            } )
+            .catch( () => {
                 return {
                     success: false,
                     result: 'post_not_fount',
                 }
-            })
+            } )
 
     }
 
 
 
-    public async getAddReview({params, request, auth}: HttpContextContract) {
+    public async getAddReview({ params, request, auth }: HttpContextContract) {
 
-        if (request.method() == "GET"){
+        if ( request.method() == "GET" ) {
 
             return await Post.query()
-                .where('slug', params.slug)
-                .andWhere('is_valid', 1)
-                .preload('reviews', review => {
-                    review.select('id', 'name', 'avatar', 'created_at')
-                })
+                .where( 'slug', params.slug )
+                .andWhere( 'is_valid', 1 )
+                .preload( 'reviews', review => {
+                    review.select( 'id', 'name', 'avatar', 'created_at' )
+                } )
                 .firstOrFail()
-                .then(post => {
+                .then( post => {
                     const sorted = post.reviews
-                        .sort( (a,b) => {
+                        .sort( (a, b) => {
                             return b.$extras.pivot_created_at - a.$extras.pivot_created_at
-                        })
+                        } )
                     const reviews = [] as Array<object>
 
-                    for (let i = 0; i < sorted.length; i++) {
+                    for ( let i = 0; i < sorted.length; i++ ) {
                         var review = sorted[i]
                         const review_created_at = review.$extras.pivot_created_at
-                            .toFormat("ccc dd LLL yyyy 'à' HH:mm", {locale: 'fr'})
+                            .toFormat( "ccc dd LLL yyyy 'à' HH:mm", { locale: 'fr' } )
 
-                        reviews.push({
+                        reviews.push( {
                             user: {
                                 id: review.id,
                                 name: review.name,
@@ -651,7 +647,7 @@ export default class PostsController {
                             comment: review.$extras.pivot_comment,
                             rating: review.$extras.pivot_rating,
                             created_at: review_created_at
-                        })
+                        } )
                     }
 
                     return {
@@ -660,42 +656,39 @@ export default class PostsController {
                         reviews: reviews,
                         // sorted
                     }
-                })
-                .catch(err => {
+                } )
+                .catch( err => {
                     return {
                         success: false,
                         controller: "Post/PostsController",
                         method: "GetReviews",
                         error: err.message
                     }
-                })
+                } )
 
-        }
-
-
-        else if (request.method() == "POST") {
+        } else if ( request.method() == "POST" ) {
             return await auth.check()
-                .then(async authenticated => {
+                .then( async authenticated => {
 
-                    if (authenticated) {
+                    if ( authenticated ) {
                         const user = auth.user as User
 
                         return await Post.query()
-                            .where('slug', params.slug)
-                            .andWhere('is_valid', 1)
-                            .preload('reviews', review => {
-                                review.select('id')
-                            })
+                            .where( 'slug', params.slug )
+                            .andWhere( 'is_valid', 1 )
+                            .preload( 'reviews', review => {
+                                review.select( 'id' )
+                            } )
                             .firstOrFail()
-                            .then(post => {
-                                return user.related('reviews')
-                                    .attach({
+                            .then( post => {
+                                return user.related( 'reviews' )
+                                    .attach( {
                                         [post.id]: request.all()
-                                    })
-                                    .then(() => {
-                                        const date = DateTime.now().toFormat("dd/LL/yyyy 'à' HH:mm")
-                                        const reviews_ratings = post.reviews.map(revs => revs.$extras.pivot_rating);
-                                        reviews_ratings.push(Number.parseInt(request.all().rating))
+                                    } )
+                                    .then( () => {
+                                        const date = DateTime.now().toFormat( "dd/LL/yyyy 'à' HH:mm" )
+                                        const reviews_ratings = post.reviews.map( revs => revs.$extras.pivot_rating );
+                                        reviews_ratings.push( Number.parseInt( request.all().rating ) )
 
                                         const reviews_length = reviews_ratings.length;
 
@@ -709,62 +702,61 @@ export default class PostsController {
                                                     avatar: user.avatar,
                                                 },
                                                 comment: request.all().comment,
-                                                rating: Number.parseInt(request.all().rating),
+                                                rating: Number.parseInt( request.all().rating ),
                                                 created_at: date,
                                             },
-                                            reviews_avg: reviews_ratings.reduce( (a,b) => a + b) / reviews_length,
+                                            reviews_avg: reviews_ratings.reduce( (a, b) => a + b ) / reviews_length,
                                         }
-                                    })
+                                    } )
 
-                                    .catch(err => {
+                                    .catch( err => {
                                         return {
                                             success: false,
                                             controller: "Post/PostsController",
                                             method: "attachReview",
                                             error: err.message
                                         }
-                                    })
+                                    } )
 
-                            })
-                            .catch(err => {
+                            } )
+                            .catch( err => {
                                 return {
                                     success: false,
                                     controller: "Post/PostsController",
                                     method: "addReview_PostNotFount",
                                     error: err.message
                                 }
-                            })
-                    }
-                    else return {
+                            } )
+                    } else return {
                         success: false,
                         controller: "Post/PostsController",
                         method: "addReview",
                         error: "not_authenticated"
                     }
 
-                })
-                .catch((err: AuthenticationException) => {
+                } )
+                .catch( (err: AuthenticationException) => {
                     return {
                         success: false,
                         controller: "Post/PostsController",
                         method: "addReview",
                         error: err.message
                     }
-                })
+                } )
         }
 
     }
 
 
-    public async addReport({auth, params, request}: HttpContextContract) {
+    public async addReport({ auth, params, request }: HttpContextContract) {
 
         return await auth.check()
-            .then(async authenticated => {
+            .then( async authenticated => {
 
-                if(authenticated){
+                if ( authenticated ) {
                     const user = auth.user as User
                     const report_type = await ReportType.query()
-                        .where('ref', request.all().ref)
+                        .where( 'ref', request.all().ref )
                         .select()
                         .firstOrFail()
                         .then( report_type => {
@@ -772,8 +764,8 @@ export default class PostsController {
                                 success: true,
                                 report_type_id: report_type.id
                             }
-                        })
-                        .catch(err => {
+                        } )
+                        .catch( err => {
                             return {
                                 success: false,
                                 controller: "Post/PostsController",
@@ -781,71 +773,68 @@ export default class PostsController {
                                 error: err.message,
                                 report_type_id: null
                             }
-                        })
+                        } )
 
 
                     return await Post.query()
-                        .where('slug', params.slug)
-                        .select(['id'])
+                        .where( 'slug', params.slug )
+                        .select( [ 'id' ] )
                         .firstOrFail()
-                        .then(async post => {
+                        .then( async post => {
 
-                            if (report_type.success) {
-                                return user.related('reports')
-                                    .attach({
+                            if ( report_type.success ) {
+                                return user.related( 'reports' )
+                                    .attach( {
                                         [post.id]: {
                                             comment: request.all().comment,
                                             report_type_id: report_type.report_type_id,
                                         }
-                                    })
-                                    .then(() => {
+                                    } )
+                                    .then( () => {
                                         return {
                                             success: true,
                                         }
-                                    })
+                                    } )
 
-                                    .catch((err: Exception) => {
+                                    .catch( (err: Exception) => {
                                         return {
                                             success: false,
                                             controller: "Post/PostsController",
                                             method: "addReport",
                                             error: err.message
                                         }
-                                    })
-                            }
-                            else {
+                                    } )
+                            } else {
                                 return report_type
                             }
 
 
-                        })
-                        .catch(err => {
+                        } )
+                        .catch( err => {
                             return {
                                 success: false,
                                 controller: "Post/PostsController",
                                 method: "addReport",
                                 error: err.message
                             }
-                        })
+                        } )
 
-                }
-
-                else return {
+                } else return {
                     success: false,
                     controller: "Post/PostsController",
                     method: "addReport",
                     error: "not_authenticated"
                 }
 
-            })
-            .catch((err: AuthenticationException) => {
+            } )
+            .catch( (err: AuthenticationException) => {
                 return {
                     success: false,
                     controller: "Post/PostsController",
                     method: "addReport",
                     error: err.message
                 }
-            })
+            } )
 
         /*return await request.validate(ReportValidator)
 
@@ -916,97 +905,96 @@ export default class PostsController {
     }
 
 
-    public async sendMessage({params, request}: HttpContextContract){
+    public async sendMessage({ params, request }: HttpContextContract) {
         // return request.all().conversation_key ? "exists" : "doesn't exist"
 
         return await Post.query()
-            .where('slug', params.slug)
-            .select('id', 'user_id')
+            .where( 'slug', params.slug )
+            .select( 'id', 'user_id' )
             .firstOrFail()
             .then( async post => {
                 // return post
-                const post_conversation: boolean | Conversation = await post.related('conversations')
+                const post_conversation: boolean | Conversation = await post.related( 'conversations' )
                     .query()
-                    .where('from_email', request.all().from_email)
-                    .preload('messages')
+                    .where( 'from_email', request.all().from_email )
+                    .preload( 'messages' )
                     .firstOrFail()
                     .then( conversation => {
                         return conversation
-                    })
+                    } )
                     .catch( () => {
                         return false
-                    })
+                    } )
 
                 // return post_conversations
 
-                if(post_conversation instanceof Conversation) {
-                    return await post_conversation.related('messages')
-                        .create({
+                if ( post_conversation instanceof Conversation ) {
+                    return await post_conversation.related( 'messages' )
+                        .create( {
                             message: request.all().message,
                             direction: request.all().direction,
-                        })
-                        .then(message => {
-
+                        } )
+                        .then( async message => {
+                            await message.load( 'conversation' )
                             return {
                                 success: true,
                                 message,
                             }
-                        })
-                        .catch(err => {
+                        } )
+                        .catch( err => {
                             return {
                                 success: false,
                                 controller: "Post/PostsController",
                                 method: "sendMessage_conversation",
                                 error: err.message
                             }
-                        })
+                        } )
 
-                }
-                else {
-                    return await post.related('conversations')
-                        .create({
+                } else {
+                    return await post.related( 'conversations' )
+                        .create( {
                             from_name: request.all().from_name,
                             from_email: request.all().from_email,
-                        })
+                        } )
                         .then( async conversation => {
 
-                            return conversation.related('messages')
-                                .create({
+                            return conversation.related( 'messages' )
+                                .create( {
                                     message: request.all().message,
-                                })
+                                } )
                                 .then( () => {
                                     return {
                                         success: true,
                                         conversation,
                                     }
-                                })
-                                .catch(err => {
+                                } )
+                                .catch( err => {
                                     return {
                                         success: false,
                                         controller: "Post/PostsController",
                                         method: "sendMessage_conversation",
                                         error: err.message
                                     }
-                                })
-                        })
-                        .catch(err => {
+                                } )
+                        } )
+                        .catch( err => {
                             return {
                                 success: false,
                                 controller: "Post/PostsController",
                                 method: "sendMessage_conversation",
                                 error: err.message
                             }
-                        })
+                        } )
                 }
-            })
-            .catch((err: Exception) => {
+            } )
+            .catch( (err: Exception) => {
                 return {
                     success: false,
                     controller: "Post/PostsController",
                     method: "sendMessage",
                     error: err.message
                 }
-            })
+            } )
     }
 
 }

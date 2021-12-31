@@ -45,8 +45,8 @@
                             </p>
 
                             <span class="text-sm text-gray-500 font-light mt-1">
-                                    {{ conv.creation_date }}
-                                </span>
+                                {{ conv.creation_date }}
+                            </span>
                         </div>
 
                     </div>
@@ -129,10 +129,7 @@
                            disabled="!typing"
                            @click.prevent="send_message"
                         >
-                            <span>
-                                Envoyer
-                            </span>
-
+                            Envoyer
                         </a>
                     </div>
                 </div>

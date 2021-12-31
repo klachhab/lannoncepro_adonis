@@ -24,7 +24,7 @@
 
 
                 <!-- Civilié -->
-                <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
+                <div class="lg:grid lg:grid-cols-7" :class="input_class.container" >
                     <span :class="input_class.label">
                         Civilié
                     </span>
