@@ -19,8 +19,8 @@
             </div>
 
 
-            {{-- Mobile menu --}}
-<!--            <div class="lg:hidden bg-white lg:hidden flex w-full px-5 pt-5 rounded-t border-t border-gray-200 mx-auto max-w-xs md:max-w-lg sm:max-w-xl mt-10 ">
+        {{-- Mobile menu --}}
+        <!--            <div class="lg:hidden bg-white lg:hidden flex w-full px-5 pt-5 rounded-t border-t border-gray-200 mx-auto max-w-xs md:max-w-lg sm:max-w-xl mt-10 ">
                 <svg class="fill-current transition-colors duration-200 ease-in-out hover:text-blue-700" width="23px" height="16px" viewBox="0 0 23 16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <path d="M1.6,3.2 L20.8,3.2 C21.6832,3.2 22.4,2.4832 22.4,1.6 C22.4,0.7168 21.6832,0 20.8,0 L1.6,0 C0.7168,0 0,0.7168 0,1.6 C0,2.4832 0.7168,3.2 1.6,3.2 Z M20.8,6.4 L1.6,6.4 C0.7168,6.4 0,7.1168 0,8 C0,8.8832 0.7168,9.6 1.6,9.6 L20.8,9.6 C21.6832,9.6 22.4,8.8832 22.4,8 C22.4,7.1168 21.6832,6.4 20.8,6.4 Z M20.8,12.8 L1.6,12.8 C0.7168,12.8 0,13.5168 0,14.4 C0,15.2832 0.7168,16 1.6,16 L20.8,16 C21.6832,16 22.4,15.2832 22.4,14.4 C22.4,13.5168 21.6832,12.8 20.8,12.8 Z" id="Shape">
                     </path>
@@ -29,10 +29,11 @@
             </div>-->
             {{-- ! Mobile menu ! --}}
 
-            <div class="flex flex-col md:flex-row justify-between w-full mx-auto bg-white rounded lg:rounded-b-none mt-10 " :class="container">
+            <div class="flex flex-col md:flex-row justify-between w-full mx-auto bg-white rounded mt-10
+            {{ user.email_verified ? ' lg:rounded-b-none' : '' }}" :class="container">
 
                 {{-- User name --}}
-                <div class="flex flex-col lg:flex-row items-center lg:items-start md:ml-10 py-6 w-full">
+                <div class="flex flex-col lg:flex-row lg:flex-1 items-center lg:items-start md:ml-10 py-6 w-full">
 
                     <img src="/images/user.png" width="73px" class="rounded-full h-16 w-16">
 
@@ -49,7 +50,13 @@
                             Membre depuis le <b>{{user.membre_depuis }}</b>
                         </span>
 
+                        @if(!user.email_verified)
 
+                            <span data-v-785a652c="" class="lg:text-left text-center text-sm text-red-500">
+                                Votre compte n'est pas encore validé
+                            </span>
+
+                        @end
                     </div>
 
                 </div>
@@ -74,55 +81,54 @@
             </div>
 
 
-            @if(my_username == user.username)
+            @if(my_username == user.username && user.email_verified)
 
                 <div class="hidden lg:flex flex-wrap mx-auto space-x-4 divide-x divide-gray-200 px-4 w-full bg-white rounded-b border-t border-gray-200"
-                 :class="container"
-            >
-
-                <router-link exact :to="{name: element.route_name}"
-                             class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out"
-                             :class="element.color"
-                             v-for="(element, index) in side_menu" :key="index"
+                     :class="container"
                 >
-                    @{{ element.label }}
-                    <span class="badge border-0 bg-red-500 text-white"
-                          v-if="element.route_name === 'messages' && messages_count"
+
+                    <router-link exact :to="{name: element.route_name}"
+                                 class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out"
+                                 :class="element.color"
+                                 v-for="(element, index) in side_menu" :key="index"
                     >
+                        @{{ element.label }}
+                        <span class="badge border-0 bg-red-500 text-white"
+                              v-if="element.route_name === 'messages' && messages_count"
+                        >
                         @{{ messages_count > 99 ? 99+"+" : messages_count }}
                     </span>
-                </router-link>
+                    </router-link>
 
-                <a href="#" @click.prevent="deleteAccount"
-                   class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out hover:text-red-700"
-                >
-                    Supprimer mon compte
-                </a>
+                    <a href="#" @click.prevent="deleteAccount"
+                       class="pl-3 py-4 text-center transition-colors duration-200 ease-in-out hover:text-red-700"
+                    >
+                        Supprimer mon compte
+                    </a>
 
-            </div>
+                </div>
 
             @end
 
+            @if(user.email_verified)
                 <div class="lg:flex-none lg:grid lg:grid-cols-12 lg:gap-x-4 mx-auto w-full mt-5"
                      :class="container"
                 >
                     @if(my_username == user.username)
-
-                    <transition name="fade" mode="out-in">
-                        <router-view>
-                        </router-view>
-                    </transition>
+                        <transition name="fade" mode="out-in">
+                            <router-view>
+                            </router-view>
+                        </transition>
                     @else
 
                         <user-post is_me="{{ my_username == user.username }}"></user-post>
-                    @end
+                        @end
 
 
-                    <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>
-
+                        <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>
                 </div>
 
-
+            @end
         </div>
 
     </user-profile>

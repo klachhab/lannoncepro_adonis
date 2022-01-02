@@ -42,7 +42,7 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     @column()
     public avatar: string
 
-    @column({ serializeAs: null })
+    @column()
     public email_verified: boolean
 
     @column({ serializeAs: null })

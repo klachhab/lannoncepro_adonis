@@ -9,8 +9,7 @@ import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import { AuthenticationException } from "@adonisjs/auth/build/standalone";
 import City from "App/Models/City";
-import { EmailTransportException } from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
-import VerifyEmail from "App/Mailers/VerifyEmail";
+// import VerifyEmail from "App/Mailers/VerifyEmail";
 
 export default class UsersController {
 
@@ -286,7 +285,7 @@ export default class UsersController {
 
                     return view.render('user/profile', {
                         user: user.serialize({
-                            fields: ['id', 'name', 'avatar', 'email', 'is_pro',
+                            fields: ['id', 'name', 'avatar', 'email', 'is_pro', 'email_verified',
                                 'blocked', 'membre_depuis', 'username', 'is_online'
                             ],
                         }),

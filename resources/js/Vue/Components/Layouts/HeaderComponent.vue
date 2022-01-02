@@ -176,7 +176,6 @@ export default {
     },
 
     mounted() {
-
         this.getMessagesCount()
     },
 
@@ -201,8 +200,6 @@ export default {
                     error: e.code
                 }
             })
-
-            console.log(logout)
         },
 
         async getMessagesCount() {

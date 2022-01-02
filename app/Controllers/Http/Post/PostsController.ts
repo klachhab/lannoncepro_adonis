@@ -26,18 +26,50 @@ export default class PostsController {
 
     }
 
-    public async create({ view }: HttpContextContract) {
+    public async create({ view, auth }: HttpContextContract) {
         // return await Category.query().doesntHave('parent').select('name', 'slug','id')
+        const authenticated = await auth.check().then(verified => {
+            return verified
+        })
 
-        return view.render( "posts/create", {
-            categories: await Category.query()
-                .has( 'subs' )
-                .select( 'name', 'slug', 'id' )
-        } )
+        if ( authenticated ) {
+            const user = auth.user as User
+
+            if ( user.email_verified ) {
+                return view.render( "posts/create", {
+                    categories: await Category.query()
+                        .has( 'subs' )
+                        .select( 'name', 'slug', 'id' )
+                } )
+            }
+
+            else {
+                return view.render( "errors/unauthorized" )
+            }
+        }
+
+        else {
+            return view.render( "errors/unauthentified" )
+        }
+
     }
 
-    public async details({ request, view }: HttpContextContract) {
+    public async details({ request, view, response, auth }: HttpContextContract) {
         // return request.all()
+        const authenticated = await auth.check().then(verified => {
+            return verified
+        })
+
+        if ( !authenticated ) {
+            return view.render( "errors/unauthentified" )
+        }
+
+        else {
+            const user = auth.user as User
+            if ( !user.email_verified  ) {
+                return view.render( "errors/unauthorized" )
+            }
+        }
 
         const category = await Category.query()
             .where( 'slug', request.all().sub_category )
