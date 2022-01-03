@@ -32,7 +32,7 @@ export default class PostFilter extends BaseModelFilter {
         )
 
 
-    public q(title: string) {
+    public keyword(title: string) {
         this.post
             .where('title', 'Like', `${title}%`)
     }

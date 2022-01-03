@@ -50,8 +50,8 @@
                         <div class="h-full flex flex-1 items-center border-r border-gray-200 pl-4"
                         >
 
-                            <input v-model="search_form.q" type="text"
-                                   @chenge="filterPosts('q', search_form.q )"
+                            <input v-model="search_form.keyword" type="text"
+                                   @input="filterPosts('keyword', search_form.keyword )"
                                    placeholder="Que cherchez vous ?"
                                    class="w-full focus-visible:outline-none py-3 bg-transparent text-md text-gray-600"
                             >

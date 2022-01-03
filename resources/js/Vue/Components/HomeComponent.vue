@@ -91,7 +91,7 @@ export default {
             },
 
             search_form: {
-                q: '',
+                keyword: '',
                 category: {
                     slug: null,
                     name: null,
@@ -191,8 +191,8 @@ export default {
 
             this.queries[key] = val
 
-            if (this.search_form.q === ''){
-                delete this.queries['q']
+            if (this.search_form.keyword === ''){
+                delete this.queries['keyword']
             }
 
             const arrUrl = []
@@ -228,13 +228,6 @@ export default {
                     const posts_count = cities
                         .map(city => city.meta.posts_count)
                         .reduce( (a,b) => a + b, 0)
-
-                    // console.log(
-                    //     cities.sort((a,b) => {
-                    //         return b.meta.posts_count - a.meta.posts_count
-                    //     })
-                    //         .slice(0, 14)
-                    // )
 
                     this.cities = cities.sort((a,b) => {
                         return b.meta.posts_count - a.meta.posts_count
