@@ -23,7 +23,7 @@ export default class PostFilter extends BaseModelFilter {
             })
                 .select('id', 'name', 'code', 'departmentId')
         })
-        .preload('images', images => {
+        .preload('pictures', images => {
             images.select('path', "postId")
                 .first()
         })

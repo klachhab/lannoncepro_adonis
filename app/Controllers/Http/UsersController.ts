@@ -8,7 +8,6 @@ import { ValidationException } from "@adonisjs/validator/build/src/ValidationExc
 import Hash from "@ioc:Adonis/Core/Hash";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import { AuthenticationException } from "@adonisjs/auth/build/standalone";
-import City from "App/Models/City";
 // import VerifyEmail from "App/Mailers/VerifyEmail";
 
 export default class UsersController {
@@ -52,13 +51,11 @@ export default class UsersController {
                         }
                     )
                     .then( async city => {
-
+                        request.all().city_id = city.id
                         return {
                             success: true,
-                            response: city,
                         } as {
                             success: boolean,
-                            response: City,
                         }
                     } )
                     .catch( err => {
@@ -73,35 +70,6 @@ export default class UsersController {
                         }
                     } )
 
-                /*.query()
-                .where( 'code', request.all().city_code )
-                .firstOrFail()
-                .then( ct => {
-                    return ct
-                } )
-                .catch( async () => {
-                    return await dep.related( 'cities' )
-                        .firstOrCreate(
-                            { code: request.all().city_code },
-                            {
-                                code: request.all().city_code,
-                                name: request.all().city_name,
-                                longitude: request.all().longitude,
-                                latitude: request.all().latitude
-                            } )
-                        .catch( err => {
-                            return {
-                                success: false,
-                                model: 'new_city',
-                                response: err.message,
-                            } as {
-                                success: boolean,
-                                model: string,
-                                response: string,
-                            }
-                        } )
-                } )*/
-
             } )
             .catch( err => {
                 return {
@@ -115,11 +83,7 @@ export default class UsersController {
                 }
             } )
 
-        if ( get_city.success ){
-            const city = get_city.response as City
-            request.all().city_id = city.id
-        }
-        else {
+        if ( !get_city.success ){
             return get_city
         }
 
@@ -209,7 +173,7 @@ export default class UsersController {
                 .catch( err => {
                     return {
                         success: false,
-                        response: err.messages,
+                        response: err.message,
                     }
                 })
         }

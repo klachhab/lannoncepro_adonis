@@ -14,6 +14,7 @@ export default class HomeController {
                 })
                 .withCount('posts', posts => {
                     posts.where('is_valid', 1)
+                        .whereNull('deleted_at')
                 })
                 .select('id', 'name', 'slug')
                 .limit(15)

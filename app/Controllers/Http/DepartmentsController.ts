@@ -1,4 +1,4 @@
-import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Department from "App/Models/Department";
 
 export default class DepartmentsController {
@@ -73,18 +73,19 @@ export default class DepartmentsController {
     }
 
 
-    public async home_cities({params}: HttpContextContract) {
+    public async home_cities({ params }: HttpContextContract) {
 
         return await Department.query()
-            .preload('cities', cities => {
-                cities
-                    .withCount('posts')
-                    .select('id', 'name', 'code')
+            .preload( 'cities', cities => {
+                cities.withCount( 'posts', posts => {
+                    posts.where( 'is_valid', 1 )
+                        .whereNull( 'deleted_at' )
+                } )
                 // .limit(14)
-            })
+            } )
 
-            .where('code', params.query)
-            .orWhere('name', "like", `${ params.query }%`)
+            .where( 'code', params.query )
+            .orWhere( 'name', "like", `${params.query}%` )
             // .firstOrFail()
             .then( async departments => {
                 // const cities = departments
@@ -105,13 +106,13 @@ export default class DepartmentsController {
                     //     .slice(0, 14)
                 }
 
-            })
-            .catch(e => {
+            } )
+            .catch( e => {
                 return {
                     success: false,
                     error: e.message
                 }
-            })
+            } )
 
     }
 

@@ -214,11 +214,11 @@ Route.group(() => {
     // Category -------------------------------------------------------------------
     Route.post('category', 'CategoriesController.show')
         .as('category.show')
-        .middleware('auth:api,web')
+        // .middleware('auth:api,web')
 
     Route.route('categories', ['GET', 'POST'],'CategoriesController.index')
         .as('categories')
-        .middleware('auth:api,web')
+        // .middleware('auth:api,web')
 })
     .prefix('api')
     .as("api")

@@ -56,6 +56,10 @@ export default class UserValidator {
             rules.exists({table: 'cities', column: 'id'})
         ]),
 
+        // city_code: schema.number( [
+        //     rules.exists({table: 'cities', column: 'code'})
+        // ]),
+
         // department_code: schema.string({}, [
         //     rules.exists({table: 'departments', column: 'code'})
         // ]),
@@ -99,11 +103,16 @@ export default class UserValidator {
         'phone.regex': "Le numéro de téléphone que vous avez saisi n'est pas valide",
         'phone.unique': "Le numéro de téléphone est déjà utilisé",
 
-        'city_id.required': "Merci de choisir votre ville ( selectionnez le département puis le ville )",
-        'city_id.exists': "Cette ville/commune n'existe pas dans nos bases de données<sup>*</sup>",
 
-        'department_code.required': "Merci de choisir le département",
-        'department_code.exists': "Le département que vous avez n'existe pas dans nos bases de données<sup>*</sup>",
+        'city_id.required': "Merci d'indiquer votre ville",
+        'city_id.exists': "Cette ville/commune n'existe pas",
+
+        // 'city_code.required': "Merci d'indiquer votre ville",
+        // 'city_code.exists': "Cette ville/commune n'existe pas",
+        //
+        // 'department_code.required': "Merci d'indiquer votre ville",
+        // 'department_code.exists': "Cette ville/commune n'existe pas",
+
 
         // "avatar.size": "La taille de l'image ne doit pas dépasser {{ options.size}}",
         // "avatar.extnames": "L'image doit être sous format JPG, JPEG ou PNG",

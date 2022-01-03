@@ -42,8 +42,8 @@ export default {
                         latitude: null,
                     },
                     department: {
-                        name: null,
                         code: null,
+                        name: null,
                     },
                 }
             },
@@ -119,70 +119,6 @@ export default {
             'setErrorFields'
         ]),
 
-        async getDepartments($event) {
-            const element = $event.target
-            const defaultClasses = this.getInputClass('default').split(" ")
-            const errorClasses = this.getInputClass('error').split(" ")
-
-            element.classList.remove(...errorClasses)
-            element.classList.add(...defaultClasses)
-
-            if (element.value.trim() === "") {
-
-                this.form.department_code = ""
-                this.departments = []
-
-            } else {
-                await axios.post(`/api/departments`, {
-                    name: element.value.trim()
-                })
-                    .then(response => {
-                        this.departments = response.data
-                    })
-
-            }
-        },
-
-        async getDepartment(department) {
-
-            this.getInputClass(false)
-            this.form.department_name = department.name
-            this.form.department_code = department.code
-
-            this.form.city_name = ""
-            this.form.city_id = ""
-            this.departments = []
-            this.cities = []
-        },
-
-        async getCities($event) {
-            const element = $event.target
-            const defaultClasses = this.getInputClass('default').split(" ")
-            const errorClasses = this.getInputClass('error').split(" ")
-
-            element.classList.remove(...errorClasses)
-            element.classList.add(...defaultClasses)
-
-            if (element.value.trim() === "") {
-                this.cities = []
-            }
-            else {
-                await axios.post(`/api/cities/${this.form.department_code}`, {
-                    name: element.value.trim()
-                })
-                    .then(response => {
-                        this.cities = response.data
-                    })
-            }
-        },
-
-        async getCity(city) {
-
-            this.form.city_id = city.id
-            this.form.city_name = city.name
-            this.cities = []
-        },
-
         
         // Save user ======================
         async newUser(){
@@ -241,6 +177,10 @@ export default {
                             this.errorFields = data.error_fields
                         }
 
+                        else if ( data.model === 'dep' ) {
+                            this.errors.city_id = data.response
+                        }
+
                         else {
                             this.$swal( {
                                 icon: 'error',
@@ -252,7 +192,7 @@ export default {
 
                 })
                 .catch(err => {
-                    console.log(err)
+                    console.log(err.message)
                 })
 
         },
@@ -263,8 +203,23 @@ export default {
             const value = $event.target.value
 
             if ( value === '' ){
+                this.errors.city_id = null
+                this.errors.department_code = null
                 this.foundCities.list = []
                 this.foundCities.show_list = false
+
+                this.form.city.name = null
+                this.form.city.code = null
+
+                this.form.city.geo_coordinates = {
+                    longitude: null,
+                    latitude: null,
+                }
+
+                this.form.city.department = {
+                    code: null,
+                    name: null,
+                }
                 return
             }
 
@@ -276,8 +231,9 @@ export default {
                 .then( resp => {
                     this.foundCities.list = resp.data.features
                 })
-                .catch( () => {
+                .catch( (err) => {
                     this.foundCities.list = []
+                    console.log(err.message)
                 })
 
             this.foundCities.loading = false

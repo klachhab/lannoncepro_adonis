@@ -54,7 +54,7 @@ export default class PostsController {
 
     }
 
-    public async details({ request, view, response, auth }: HttpContextContract) {
+    public async details({ request, view, auth }: HttpContextContract) {
         // return request.all()
         const authenticated = await auth.check().then(verified => {
             return verified
