@@ -64,7 +64,7 @@
 
                     <!-- Categories mega menu -->
                     <div class="absolute flex grid md:grid-cols-6 grid-cols-1 gap-2 w-full mt-14" v-if="show_menu"
-                         @blur="show_menu = false" tabindex="-1" role="listbox"
+                         @click.shift="show_menu = false" tabindex="-1" role="listbox"
                     >
 
                         <div class="col-span-2 flex flex-col items-center gap-2 w-full bg-white rounded border border-gray-200 shadow py-2 h-full overflow-auto z-50">
@@ -152,8 +152,8 @@
                                     <span class="text-sm">({{ category.$extras.posts_count }} annnonces)</span>
                                 </a>
 
-                                <div class="bg-category w-full h-full">
-                                    <img class="object-fit rounded-md h-full" src="https://lannoncepro.test/images/trending/1.jpg" alt="">
+                                <div class="bg-category w-full ">
+                                    <img class="object-fit rounded-md w-full" src="https://via.placeholder.com/1050x600" alt="">
                                 </div>
                             </div>
 

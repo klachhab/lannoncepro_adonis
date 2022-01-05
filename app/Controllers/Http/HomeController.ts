@@ -17,10 +17,11 @@ export default class HomeController {
                         .whereNull('deleted_at')
                 })
                 .select('id', 'name', 'slug')
-                .limit(15)
 
         return view.render('home', {
-            sub_categories: sub_categories.sort((a, b) => b.$extras.posts_count - a.$extras.posts_count),
+            sub_categories: sub_categories
+                .sort((a, b) => b.$extras.posts_count - a.$extras.posts_count)
+                .slice(0, 15),
         })
     }
 

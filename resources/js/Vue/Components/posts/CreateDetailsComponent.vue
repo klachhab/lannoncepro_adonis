@@ -115,17 +115,16 @@ export default {
 
         isSameCity(){
 
-
             this.selected_address = null
 
             this.form.city.name = null
+            this.form.city.same = false
             this.form.city.code = null
 
             this.form.city.department = {
                 name: null,
                 code: null,
             }
-
         },
 
         async getCities(){

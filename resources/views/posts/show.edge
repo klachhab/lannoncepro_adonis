@@ -377,10 +377,10 @@
                         Déscription
                     </a>
 
-                    @if(post.video_link)
+                    @if(post.videoLink)
                         <a href="#"
                            class="w-full text-center transition duration-300 ease-in-out cursor-pointer text-xs md:text-sm lg:text-md xl:text-lg"
-                           :class="selected_tab == 'video' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
+                           :class="selected_tab === 'video' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
                            @click.prevent="selected_tab = 'video'"
                         >
                             Video
@@ -438,17 +438,17 @@
 
 
                     {{-- Vidéo --}}
-                    @if(post.video_type)
+                    @if(post.videoType)
 
                         <div class="flex justify-center w-full px-5 lg:px-24 xl:px-48 mt-5"
                              v-if="selected_tab == 'video'"
                         >
                             <div class="aspect-w-16 aspect-h-9 w-full">
-                            @if(post.video_type == "iframe")
+                            @if(post.videoType == "iframe")
 
-                                <iframe src="https://www.youtube.com/embed/VURZvau80Jo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <iframe src="{{ post.videoLink }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-                            @elseif(post.video_type == "local")
+                            @elseif(post.videoType == "local")
                                 <video-player class="video-player-box w-full" ref="videoPlayer"
                                               :options="videoOptions"
                                               :playsinline="true"

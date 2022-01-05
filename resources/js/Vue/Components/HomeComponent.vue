@@ -142,8 +142,12 @@ export default {
 
         showSubCategories(index){
             this.sub_categories = this.categories[index].subs
-            this.selected_category.name = this.categories[index].name
-            this.selected_category.slug = this.categories[index].slug
+            // this.selected_category.name = this.categories[index].name
+            // this.selected_category.slug = this.categories[index].slug
+            this.selected_category = {
+                name: this.categories[index].name,
+                slug: this.categories[index].slug,
+            }
             this.show_sub_menu = true
         },
 
@@ -220,7 +224,7 @@ export default {
         async getCities(dep_code){
             this.selectedDep = dep_code
 
-            await axios.post(`/api/departments/${dep_code}/cts`)
+            await axios.get(`/api/departments/${dep_code}/cts`)
                 .then( response => {
 
                     const department = response.data.departments[0]

@@ -28,9 +28,9 @@ export default class PostsController {
 
     public async create({ view, auth }: HttpContextContract) {
         // return await Category.query().doesntHave('parent').select('name', 'slug','id')
-        const authenticated = await auth.check().then(verified => {
+        const authenticated = await auth.check().then( verified => {
             return verified
-        })
+        } )
 
         if ( authenticated ) {
             const user = auth.user as User
@@ -41,14 +41,10 @@ export default class PostsController {
                         .has( 'subs' )
                         .select( 'name', 'slug', 'id' )
                 } )
-            }
-
-            else {
+            } else {
                 return view.render( "errors/unauthorized" )
             }
-        }
-
-        else {
+        } else {
             return view.render( "errors/unauthentified" )
         }
 
@@ -56,17 +52,15 @@ export default class PostsController {
 
     public async details({ request, view, auth }: HttpContextContract) {
         // return request.all()
-        const authenticated = await auth.check().then(verified => {
+        const authenticated = await auth.check().then( verified => {
             return verified
-        })
+        } )
 
         if ( !authenticated ) {
             return view.render( "errors/unauthentified" )
-        }
-
-        else {
+        } else {
             const user = auth.user as User
-            if ( !user.email_verified  ) {
+            if ( !user.email_verified ) {
                 return view.render( "errors/unauthorized" )
             }
         }
@@ -144,7 +138,7 @@ export default class PostsController {
                                 }
                             )
                             .then( async city => {
-                                await city.load('department')
+                                await city.load( 'department' )
                                 return {
                                     success: true,
                                     response: city,
@@ -340,12 +334,6 @@ export default class PostsController {
 
                 const user = auth.user as User
 
-                // return {
-                //     reviews: post.reviews.map(fav => fav.id),
-                //     reports: post.reports.map(fav => fav.id),
-                //     user
-                // }
-
                 const favourites = post.favourites.map( fav => fav.id )
                 const reviews = post.reviews.map( rev => rev.id )
                 const reports = post.reports.map( rep => rep.id )
@@ -385,11 +373,11 @@ export default class PostsController {
 
             } )
 
-            .catch( async (e: Exception) => {
-                return {
-                    success: false,
-                    error: e.message,
-                }
+            .catch( async () => {
+                // return {
+                //     success: false,
+                //     error: e.message,
+                // }
                 return await view.render( 'errors.not-found' )
             } )
     }
