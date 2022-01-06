@@ -15,6 +15,7 @@ import Conversation from "App/Models/Conversation";
 import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
 import City from "App/Models/City";
 import Application from "@ioc:Adonis/Core/Application";
+import ReportValidator from "App/Validators/Post/ReportValidator";
 
 export default class PostsController {
 
@@ -576,8 +577,14 @@ export default class PostsController {
 
                         const isMyFavourite = checked && favourites.includes( user.id )
 
+                        if ( !user.email_verified ) {
+                            return {
+                                success: false,
+                                result: "not_verified",
+                            }
+                        }
 
-                        if ( isMyFavourite ) {
+                        else if ( isMyFavourite ) {
 
                             return post.related( 'favourites' )
                                 .detach( [ user.id ] )
@@ -759,163 +766,153 @@ export default class PostsController {
                 } )
         }
 
+        else return
+
     }
 
 
     public async addReport({ auth, params, request }: HttpContextContract) {
 
-        return await auth.check()
-            .then( async authenticated => {
-
-                if ( authenticated ) {
+        await auth.check()
+            .then( checked => {
+                if ( checked ) {
                     const user = auth.user as User
-                    const report_type = await ReportType.query()
-                        .where( 'ref', request.all().ref )
-                        .select()
-                        .firstOrFail()
-                        .then( report_type => {
-                            return {
-                                success: true,
-                                report_type_id: report_type.id
-                            }
-                        } )
-                        .catch( err => {
-                            return {
-                                success: false,
-                                controller: "Post/PostsController",
-                                method: "addReport",
-                                error: err.message,
-                                report_type_id: null
-                            }
-                        } )
 
-
-                    return await Post.query()
-                        .where( 'slug', params.slug )
-                        .select( [ 'id' ] )
-                        .firstOrFail()
-                        .then( async post => {
-
-                            if ( report_type.success ) {
-                                return user.related( 'reports' )
-                                    .attach( {
-                                        [post.id]: {
-                                            comment: request.all().comment,
-                                            report_type_id: report_type.report_type_id,
-                                        }
-                                    } )
-                                    .then( () => {
-                                        return {
-                                            success: true,
-                                        }
-                                    } )
-
-                                    .catch( (err: Exception) => {
-                                        return {
-                                            success: false,
-                                            controller: "Post/PostsController",
-                                            method: "addReport",
-                                            error: err.message
-                                        }
-                                    } )
-                            } else {
-                                return report_type
-                            }
-
-
-                        } )
-                        .catch( err => {
-                            return {
-                                success: false,
-                                controller: "Post/PostsController",
-                                method: "addReport",
-                                error: err.message
-                            }
-                        } )
-
-                } else return {
-                    success: false,
-                    controller: "Post/PostsController",
-                    method: "addReport",
-                    error: "not_authenticated"
+                    request.all().user_id = user.id
+                    request.all().name = user.name
+                    request.all().email = user.email
                 }
-
-            } )
-            .catch( (err: AuthenticationException) => {
-                return {
-                    success: false,
-                    controller: "Post/PostsController",
-                    method: "addReport",
-                    error: err.message
-                }
-            } )
-
-        /*return await request.validate(ReportValidator)
-
-            .then(async valid_report => {
-
-                return await Post.query()
-                    .where('slug', params.slug)
-                    .select(['id'])
-                    .withCount('reports', reports => {
-                        reports.wherePivot('user_id', request.qs().user)
-                    })
-                    .firstOrFail()
-                    .then(async post => {
-                        return await User.findOrFail(request.qs().user)
-                            .then(async user => {
-
-                                if (!post.$extras.reports_count) {
-
-                                    return await post.related('reports').attach({
-                                        [user.id]: {
-                                            comment: valid_report.comment,
-                                            report_type: valid_report.report_type,
-                                        }
-                                    })
-                                        .then(() => {
-                                            return {
-                                                success: true,
-                                                result: 'attached',
-                                            }
-                                        })
-
-                                        .catch((err: Exception) => {
-                                            return {
-                                                success: false,
-                                                result: err.code,
-                                                model: 'reports_attach'
-                                            }
-                                        })
-
-                                } else {
-                                    return {
-                                        success: false,
-                                        result: 'already_attached'
-                                    }
-                                }
-
-                            })
-
-                            .catch(() => {
-                                return {
-                                    success: false,
-                                    result: 'user_not_fount',
-                                }
-                            })
-                    })
-
-                    .catch(() => {
-                        return {
-                            success: false,
-                            result: 'post_not_fount',
-                        }
-                    })
 
             })
-            .catch((e: ValidationException) => {
-                return e.messages
-            })*/
+
+        // Get Report =======================
+        const report_type = await ReportType.query()
+            .where( 'ref', request.all().report_type )
+            .select()
+            .firstOrFail()
+            .then( report_type => {
+                delete request.all().report_type
+                request.all().report_type_id = report_type.id
+
+                return {
+                    success: true,
+                    result: report_type.id
+                } as { success: boolean, result: number }
+            } )
+            .catch( err => {
+                return {
+                    success: false,
+                    result: err.message
+                } as { success: boolean, result: string }
+            } )
+
+        if ( !report_type.success ) {
+            return {
+                success: false,
+                result: report_type.result,
+                error: 'reportType_not_found'
+            }
+        }
+
+        // else {
+        //     return {
+        //         success: true,
+        //         result: report_type.result
+        //     }
+        // }
+
+        // Get Post =======================
+        const post = await Post.query()
+            .where( 'slug', params.slug )
+            .select( [ 'id', 'title' ] )
+            .firstOrFail()
+            .then( post => {
+                return {
+                    success: true,
+                    result: post
+                } as { success: boolean, result: Post }
+            } )
+            .catch( err => {
+                return {
+                    success: false,
+                    result: err.message
+                } as { success: boolean, result: string }
+            } )
+
+        if ( !post.success ) {
+            return {
+                success: false,
+                result: post.result,
+                error: 'post_not_found'
+            }
+        }
+
+        // else {
+        //     return {
+        //         success: true,
+        //         result: post.result,
+        //     }
+        // }
+
+        // Validation =======================
+        const report_validation = await request.validate(ReportValidator)
+            .then( (result: Object) => {
+                return {
+                    success: true,
+                    result
+                }
+            })
+            .catch( (error: ValidationException) => {
+
+                const validation_errors =  error.messages.errors
+                const errors = {}
+
+                for ( const messageKey in validation_errors ) {
+                    var message = validation_errors[messageKey]
+                    errors[message.field]  = message.message
+                }
+
+                return {
+                    success: false,
+                    result: errors
+                }
+            })
+
+        if ( !report_validation.success ) {
+            return {
+                success: false,
+                result: report_validation.result,
+                error: 'validation'
+            }
+        }
+
+        // else {
+        //     return {
+        //         success: true,
+        //         result: report_validation.result
+        //     }
+        // }
+
+        // Create Report =======================
+
+        // return {
+        //     success: true,
+        //     result: request.all()
+        // }
+
+        const pst = post.result as Post
+
+        return pst.related('reports').create(request.all())
+            .then( report => {
+                return { success: true, report }
+            })
+            .catch( err => {
+                return {
+                    success: false,
+                    result: err.message,
+                }
+            })
+
     }
 
 

@@ -10,17 +10,23 @@ export default class PostReport extends compose(BaseModel, SoftDeletes)  {
   @column({ isPrimary: true })
   public id: number
 
+  @column()
+  public name: string
+
+  @column()
+  public email: string
+
+  @column()
+  public comment: string
+
   @column({ serializeAs: null })
-  public userId: number
+  public userId: number | null
 
   @column({ serializeAs: null })
   public postId: number
 
   @column({ serializeAs: null })
-  public postTypeId: number
-
-  @column()
-  public comment: string
+  public reportTypeId: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

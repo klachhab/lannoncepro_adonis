@@ -37,16 +37,17 @@ export default {
             show_add_review: false,
             show_add_report: false,
 
-            review_form: {
-                rate: 0,
-                comment: null
-            },
+            // --------------------------
 
             report_form: {
-                report_ref: null,
-                comment: null
+                name: '',
+                email: '',
+                report_type: null,
+                comment: ''
             },
 
+            report_errors: {},
+            // --------------------------
             message_form: {
                 from_name: this.user_name === 'null' ? null : this.user_name,
                 from_email: this.user_email === 'null' ? null : this.user_email,
@@ -54,6 +55,10 @@ export default {
             },
 
             // --------------------------
+            review_form: {
+                rate: 0,
+                comment: null
+            },
 
             reviews: [],
             reviews_avg: 0,
@@ -127,7 +132,7 @@ export default {
             this.review_form.rate = 0
             this.review_form.comment = null
 
-            this.report_form.report_ref = null
+            this.report_form.report_type = null
             this.report_form.comment = null
 
             this.message_form.message = null
@@ -150,8 +155,13 @@ export default {
                     if (data.success){
                         this.isMyFavourite = data.result
                     }
-                    else {
-                        console.log(data.result)
+                    else if ( data.result === 'not_verified' ) {
+                        this.$swal({
+                            icon: "warning",
+                            title: "Votre compte n'est pas encore validé",
+                            text: `Merci de consulter votre boite e-mail afin de confirmer votre compte.`
+                            // + `${result.data.error}`
+                        })
                     }
                 })
                 .catch( err => {
@@ -270,18 +280,53 @@ export default {
         },
 
         async send_report(){
-            // console.log(this.report_form)
-            // return
 
             const form = new FormData
             form.append('comment', this.report_form.comment)
-            form.append('ref', this.report_form.report_ref)
+            form.append('report_type', this.report_form.report_type)
+            form.append('name', this.report_form.name)
+            form.append('email', this.report_form.email)
+
 
             await axios.post(`/api/annonces/${ this.post_slug }/add_report`, form)
                 .then(result => {
 
                     // console.log(result.data)
-                    // return
+
+                    if ( !result.data.success ) {
+
+                        if ( result.data.error === 'validation' ) {
+                            this.report_errors = result.data.result
+                        }
+
+                        else this.$swal( {
+                            icon: "error",
+                            title: "Erreur",
+                            text: 'Une erreur est survenue lors de l\'envoi de votre message.\n' +
+                                `Merci de contacter notre support.`
+                            // + `${result.data}`
+                        } )
+                    }
+                    else {
+
+                        this.$swal({
+                            icon: "success",
+                            title: "Rapport envoyé",
+                            text: 'Votre rapport a été envoyé avec succès pour étude'
+                        }).then(() => {
+
+                            window.localStorage.setItem('report', result.data.report)
+
+                            this.report_errors = {}
+                            this.hideModal()
+                        })
+                    }
+
+                    return
+
+                    if ( !result.data.success && result.data.error === 'validation' ) {
+                        this.report_errors = result.data.result
+                    }
 
                     if (result.data.success) {
                         this.$swal({
@@ -290,19 +335,13 @@ export default {
                             text: 'Votre rapport a été envoyé avec succès pour étude'
                         }).then(() => {
 
-                            this.can_add_report   = false
+                            this.can_add_report = false
                             this.hideModal()
                         })
 
                     }
                     else {
-                        this.$swal({
-                            icon: "error",
-                            title: "Erreur",
-                            text: 'Une erreur est survenue lors de l\'envoi de votre rapport.\n' +
-                                `Merci de contacter notre support.`
-                            // + `${result.data}`
-                        })
+                        this.report_errors = result.data.result
                     }
 
                 })

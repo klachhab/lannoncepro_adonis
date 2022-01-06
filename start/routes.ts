@@ -203,7 +203,7 @@ Route.group(() => {
 
         Route.post(':slug/add_report', 'Post/PostsController.addReport')
             .as('annonces.addReport')
-            .middleware('auth:web,api')
+            // .middleware('auth:web,api')
 
         Route.post(':slug/send_message', 'Post/PostsController.sendMessage')
             .as('annonces.sendMessage')

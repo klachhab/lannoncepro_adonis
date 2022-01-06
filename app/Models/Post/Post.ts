@@ -21,6 +21,7 @@ import {Filterable} from '@ioc:Adonis/Addons/LucidFilter';
 import PostFilter from "App/Models/Filters/PostFilter";
 import Conversation from "App/Models/Conversation";
 import PostPic from "App/Models/Post/PostPic";
+import PostReport from "App/Models/Post/PostReport";
 
 export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
 
@@ -134,15 +135,18 @@ export default class Post extends compose(BaseModel, SoftDeletes, Filterable) {
     })
     public reviews: ManyToMany<typeof User>
 
-    @manyToMany(() => User, {
-        pivotColumns: ['comment'],
-        pivotTable: "post_reports",
-        pivotTimestamps: {
-            createdAt: true,
-            updatedAt: false
-        },
-    })
-    public reports: ManyToMany<typeof User>
+    // @manyToMany(() => User, {
+    //     pivotColumns: ['comment'],
+    //     pivotTable: "post_reports",
+    //     pivotTimestamps: {
+    //         createdAt: true,
+    //         updatedAt: false
+    //     },
+    // })
+    // public reports: ManyToMany<typeof User>
+
+    @hasMany(() => PostReport)
+    public reports: HasMany<typeof PostReport>
 
     // -----------------------------------------------
 

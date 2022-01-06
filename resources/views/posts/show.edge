@@ -145,7 +145,7 @@
                             <modal-box name="message">
                                 <template #header>
                                     <h4 class="text-xl font-normal">
-                                        Envoyer un message /User Name : @{{ user_name === 'null' }}
+                                        Envoyer un message
                                     </h4>
                                 </template>
 
@@ -231,22 +231,26 @@
                     {{-- ! Delevery ! --}}
 
                     @if(authenticated && !my_post)
+
                         {{-- Favourites --}}
-                    <div class="flex items-center w-full mt-6 text-gray-500">
-                        <a href="#" class="transition duration-300 ease-in-out hover:text-blue-500"
-                           @click.prevent="addToFav"
-                        >
-                            <i class=" fa-heart text-red-500 mr-2"
-                               :class="isMyFavourite ? 'fas' : 'far'"
-                            ></i>
-                            <span @click.prevent
-                                  class="font-normal"
+                        <div class="flex items-center w-full mt-6 text-gray-500">
+                            <a href="#" class="transition duration-300 ease-in-out hover:text-blue-500"
+                               @click.prevent="addToFav"
                             >
-                                Ajouter aux favoris
-                            </span>
-                        </a>
-                    </div>
+                                <i class=" fa-heart text-red-500 mr-2"
+                                   :class="isMyFavourite ? 'fas' : 'far'"
+                                ></i>
+                                <span @click.prevent
+                                      class="font-normal"
+                                >
+                                    Ajouter aux favoris
+                                </span>
+                            </a>
+                        </div>
                         {{-- ! Favourites ! --}}
+                    @end
+                    @if(!my_post)
+
 
                         {{-- Add report --}}
                         <div class="flex items-center w-full mt-6 text-gray-500">
@@ -263,8 +267,8 @@
                             </a>
                         </div>
 
-                            {{-- Add report Form --}}
-                            <modal-box name="report">
+                        {{-- Add report Form --}}
+                        <modal-box name="report">
                                 <template #header>
                                     <h4 class="text-xl font-normal">
                                         Signaler un abus
@@ -274,10 +278,44 @@
 
                                 <template #body>
 
-                                    <div class="flex items-center self-start">
+                                    @if( !authenticated )
+
+                                        <div class="flex flex-col self-start">
+
+                                            <input ref="name_input" type="text"
+                                                   class="disabled:bg-gray-100 disabled:text-gray-400 disabled:select-none"
+                                                   placeholder="Votre nom" :disabled="user_name !== 'null'"
+                                                   :class="getInputClass(report_errors.name ? 'error': 'default')"
+                                                   v-model="report_form.name"
+                                                   @input="report_errors.name = null"
+                                            />
+                                            <span class="text-xs text-red-400 ml-1 mt-1" v-if="report_errors.name">
+                                                @{{ report_errors.name }}
+                                            </span>
+
+                                        </div>
+
+                                        <div class="flex flex-col self-start my-4">
+                                            <input ref="email_input" type="email"
+                                                   class="disabled:bg-gray-100 disabled:text-gray-400 disabled:select-none"
+                                                   placeholder="E-mail" :disabled="user_email !== 'null'"
+                                                   :class="getInputClass(report_errors.email ? 'error': 'default')"
+                                                   v-model="report_form.email"
+                                                   @input="report_errors.email = null"
+                                            />
+                                            <span class="text-xs text-red-400 ml-1 mt-1" v-if="report_errors.email">
+                                                @{{ report_errors.email }}
+                                            </span>
+
+                                        </div>
+
+                                    @end
+
+                                    <div class="flex flex-col self-start">
                                         <select class="lg:col-span-5"
-                                                :class="getInputClass('default')"
-                                                v-model="report_form.report_ref"
+                                                :class="getInputClass(report_errors.report_type_id ? 'error': 'default')"
+                                                v-model="report_form.report_type"
+                                                @change="report_errors.report_type = null"
                                         >
 
                                             <option value="null" disabled selected>Raison</option>
@@ -289,6 +327,10 @@
                                             @end
 
                                         </select>
+
+                                        <span class="text-xs text-red-400 ml-1 mt-1" v-if="report_errors.report_type_id">
+                                            @{{ report_errors.report_type }}
+                                        </span>
 
 <!--                                        <select class="mt-1 block w-full rounded-md placeholder-gray-400"
                                                 :class="field_class.normal"
@@ -305,16 +347,21 @@
 
                                     </div>
 
-                                    <label class="block mt-4">
+                                    <div class="flex flex-col self-start mt-4">
 
                                         <textarea placeholder="Commentaire" rows="4"
                                                   class="resize-none"
-                                                  :class="getInputClass('default')"
+                                                  :class="getInputClass(report_errors.comment ? 'error': 'default')"
                                                   v-model="report_form.comment"
                                                   @change="reportComment2html"
+                                                  @input="report_errors.comment = null"
                                         ></textarea>
 
-                                    </label>
+                                        <span class="text-xs text-red-400 ml-1 mt-1" v-if="report_errors.comment">
+                                            @{{ report_errors.comment }}
+                                        </span>
+
+                                    </div>
 
                                 </template>
 
@@ -348,10 +395,11 @@
                                 </template>
 
                             </modal-box>
-                            {{-- ! Add report Form ! --}}
+                        {{-- ! Add report Form ! --}}
 
                         {{-- ! Add report ! --}}
-                        @end
+                    @end
+
                 </div>
                 {{-- ! Right side ! --}}
 

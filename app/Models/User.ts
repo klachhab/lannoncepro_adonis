@@ -16,6 +16,7 @@ import {compose} from "@poppinss/utils/build/src/Helpers";
 import {SoftDeletes} from "@ioc:Adonis/Addons/LucidSoftDeletes";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import Conversation from "App/Models/Conversation";
+import PostReport from "App/Models/Post/PostReport";
 
 export default class User extends compose(BaseModel, SoftDeletes) {
 
@@ -113,15 +114,18 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     })
     public reviews: ManyToMany<typeof Post>
 
-    @manyToMany(() => Post, {
-        pivotColumns: ['comment'],
-        pivotTable: "post_reports",
-        pivotTimestamps: {
-            createdAt: true,
-            updatedAt: false
-        },
-    })
-    public reports: ManyToMany<typeof Post>
+    // @manyToMany(() => Post, {
+    //     pivotColumns: ['comment'],
+    //     pivotTable: "post_reports",
+    //     pivotTimestamps: {
+    //         createdAt: true,
+    //         updatedAt: false
+    //     },
+    // })
+    // public reports: ManyToMany<typeof Post>
+
+    @hasMany(() => PostReport)
+    public reports: HasMany<typeof PostReport>
 
     @hasManyThrough([
         () => Conversation,
