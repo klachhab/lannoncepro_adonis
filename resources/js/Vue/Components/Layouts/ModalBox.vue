@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-center items-center bg-black bg-opacity-50 absolute inset-0 w-screen h-screen
-            transition-opacity duration-100 ease-in-out"
+            transition-opacity duration-100 ease-in-out z-50"
          :class="show_modal.modal_type === name? '': 'hidden'"
          @click.self="showModal({ modal_type: '', show: false})"
     >

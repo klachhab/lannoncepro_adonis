@@ -293,7 +293,7 @@ export default class PostsController {
     }
 
 
-    public async show({ params, view, auth }: HttpContextContract) {
+    public async show({ request, params, view, auth }: HttpContextContract) {
         return await Post.query()
             .where( 'slug', params.id )
             .andWhere( 'is_valid', 1 )
@@ -323,6 +323,11 @@ export default class PostsController {
             .firstOrFail()
 
             .then( async post => {
+
+                if ( request.qs().pictures ) {
+                    return post.pictures
+                }
+
                 const authenticated = await auth.check()
                     .then( async checked => {
                         return checked;
@@ -351,8 +356,8 @@ export default class PostsController {
                 if ( auth.defaultGuard == "api" ) {
                     return {
                         report_types,
-                        post: post.id,
-                        user: authenticated ? user.id : "Unauthenticated",
+                        post,
+                        user: authenticated ? user.id : "unauthenticated",
                         fav_revs
                     }
                 }
@@ -792,7 +797,6 @@ export default class PostsController {
             .firstOrFail()
             .then( report_type => {
                 delete request.all().report_type
-                request.all().report_type_id = report_type.id
 
                 return {
                     success: true,
@@ -806,20 +810,9 @@ export default class PostsController {
                 } as { success: boolean, result: string }
             } )
 
-        if ( !report_type.success ) {
-            return {
-                success: false,
-                result: report_type.result,
-                error: 'reportType_not_found'
-            }
+        if ( report_type.success ) {
+            request.all().report_type_id = report_type.result
         }
-
-        // else {
-        //     return {
-        //         success: true,
-        //         result: report_type.result
-        //     }
-        // }
 
         // Get Post =======================
         const post = await Post.query()
@@ -886,19 +879,7 @@ export default class PostsController {
             }
         }
 
-        // else {
-        //     return {
-        //         success: true,
-        //         result: report_validation.result
-        //     }
-        // }
-
         // Create Report =======================
-
-        // return {
-        //     success: true,
-        //     result: request.all()
-        // }
 
         const pst = post.result as Post
 

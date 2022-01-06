@@ -6,13 +6,15 @@ import 'video.js/dist/video-js.css'
 import {mapState} from "vuex";
 
 import { videoPlayer } from 'vue-video-player'
+import { Swiper, SwiperSlide } from "vue-awesome-swiper";
+import 'swiper/css/swiper.css'
 
 export default {
     name: "Create",
     components : {
         StarRating,
-        ModalBox,
-        videoPlayer
+        ModalBox, videoPlayer,
+        Swiper, SwiperSlide,
     },
     props: ['favourite', 'add_review', 'add_report', 'post_slug', 'user_name', 'user_email', 'local_video_src'],
 
@@ -37,6 +39,43 @@ export default {
             show_add_review: false,
             show_add_report: false,
 
+            // --------------------------
+
+            swiperOption: {
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev'
+                },
+            },
+
+            thumbSwiperOption: {
+                spaceBetween: 10,
+                // centeredSlides: true,
+                slidesPerView: 'auto',
+                touchRatio: 0.2,
+                slideToClickedSlide: true,
+                breakpoints: {
+                    1024: {
+                        slidesPerView: 5,
+                        // spaceBetween: 40
+                    },
+                    768: {
+                        slidesPerView: 3,
+                        // spaceBetween: 30
+                    },
+                    640: {
+                        slidesPerView: 2,
+                        // spaceBetween: 20
+                    },
+                    320: {
+                        slidesPerView: 1,
+                        // spaceBetween: 10
+                    }
+                },
+            },
+
+            selectedSlide: 0,
+            slider_pics: [],
             // --------------------------
 
             report_form: {
@@ -69,7 +108,7 @@ export default {
             videoOptions: {
                 autoplay: false,
                 controls: true,
-                language: 'en',
+                language: 'fr',
                 fluid: true,
                 sources: [{
                     type: "video/mp4",
@@ -104,6 +143,16 @@ export default {
 
     mounted() {
         this.get_reviews()
+        this.get_pics()
+
+        const swiperTop = this.$refs.swiperTop.$swiper
+        const swiperThumbs = this.$refs.swiperThumbs.$swiper
+
+        swiperTop.on('slideChange', () => {
+            this.selectedSlide = swiperTop.activeIndex
+            swiperThumbs.slideTo(swiperTop.activeIndex)
+        })
+
     },
 
     methods: {
@@ -111,6 +160,24 @@ export default {
         ...mapMutations([
             'showModal'
         ]),
+
+        async get_pics(){
+            await axios.get('?pictures=1')
+                .then(response => {
+                    this.slider_pics = response.data.map(pic => pic.path)
+                    // console.log(pictures)
+
+                    // this.slider_pictures
+
+                })
+        },
+
+        swipePicture(index){
+            this.selectedSlide = index
+            const swiperTop = this.$refs.swiperTop.$swiper
+            swiperTop.slideTo(index)
+        },
+        // ------------------------------------------------------
 
         modal(type){
 
@@ -129,11 +196,19 @@ export default {
 
         hideModal(){
 
-            this.review_form.rate = 0
-            this.review_form.comment = null
+            this.review_form = {
+                rate: 0,
+                comment: null
+            }
 
-            this.report_form.report_type = null
-            this.report_form.comment = null
+            this.report_errors = {}
+            this.report_form = {
+                name: '',
+                email: '',
+                report_type: null,
+                comment: ''
+            }
+
 
             this.message_form.message = null
             this.$refs.text_message.value = null

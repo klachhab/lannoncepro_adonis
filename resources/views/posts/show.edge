@@ -10,8 +10,8 @@
                add_report="{{ fav_revs.iHaveReps }}"
                post_slug="{{ post.slug }}"
                user_name="{{ user_name }}"
-               user_email="{{ user_email }}"
-               local_video_src="{{ post.video_type == "local" ? post.video_link : "" }}"
+               user_email="{{ user_email }}"r
+               local_video_src="{{ post.videoType == "local" ? post.videoLink : "" }}"
                style="background-image: url('/images/bg/login_bg.png'); background-size: cover;"
     >
 
@@ -32,12 +32,49 @@
 
                 {{-- Left side --}}
                 <div class="lg:col-span-3 flex self-start justify-center
-                            grid grid-cols-1 lg:p-10 p-2 w-full bg-white">
-                    <div class="flex justify-center items-center h-80">
+                            grid grid-cols-1 lg:p-10 p-2 w-full bg-white"
+                >
+                    <div class="flex flex-col justify-center items-center h-96 w-full">
 
-                        <p class="lg:text-4xl md:text-3xl text-xl text-gray-500 select-none text-center">
-                            Aucune photo n’est attahée à cette annonce
-                        </p>
+                        @if(!post.pictures.length)
+                            <p class="lg:text-4xl md:text-3xl text-xl text-gray-500 select-none text-center">
+                                Cette annonce ne contient aucune image
+                            </p>
+
+                        @else
+
+                            <div class="grid grid-rows-5 w-full h-full gap-1">
+
+                                <swiper class="swiper rounded w-full mb-1 row-span-4" ref="swiperTop" :options="swiperOption"
+                                >
+
+                                    <swiper-slide v-for="(pic, index) in slider_pics" :key="index">
+
+                                        <img :src="pic" class="object-cover object-center" alt="">
+
+                                    </swiper-slide>
+
+                                    <div class="swiper-button-prev swiper-button-white" slot="button-prev"></div>
+                                    <div class="swiper-button-next swiper-button-white" slot="button-next"></div>
+                                </swiper>
+
+                                <swiper class="swiper rounded w-full" :options="thumbSwiperOption" ref="swiperThumbs">
+                                    <swiper-slide v-for="(pic, index) in slider_pics" :key="index">
+
+                                        <div class="static w-full h-full hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                                             :class="selectedSlide === index ? 'opacity-100' : 'opacity-50'" @click="swipePicture(index)"
+                                        >
+                                            <img :src="pic" class="rounded" alt="">
+                                        </div>
+
+                                    </swiper-slide>
+                                </swiper>
+
+<!--                                <div class="flex items-center justify-center bg-gray-300 w-full h-full">
+                                    <p>aldskaldkm</p>
+                                </div>-->
+                            </div>
+                        @end
 
                     </div>
 
@@ -431,7 +468,7 @@
                            :class="selected_tab === 'video' ? 'text-blue-700' : 'text-gray-700 hover:text-blue-700'"
                            @click.prevent="selected_tab = 'video'"
                         >
-                            Video
+                            Vidéo
                         </a>
                     @end
 
@@ -488,16 +525,16 @@
                     {{-- Vidéo --}}
                     @if(post.videoType)
 
-                        <div class="flex justify-center w-full px-5 lg:px-24 xl:px-48 mt-5"
+                        <div class="flex justify-center w-full px-5 lg:px-24 xl:px-48 mt-5 rounded"
                              v-if="selected_tab == 'video'"
                         >
-                            <div class="aspect-w-16 aspect-h-9 w-full">
+                            <div class="aspect-w-16 aspect-h-9 w-full rounded">
                             @if(post.videoType == "iframe")
 
-                                <iframe src="{{ post.videoLink }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <iframe class="rounded" src="{{ post.videoLink }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
                             @elseif(post.videoType == "local")
-                                <video-player class="video-player-box w-full" ref="videoPlayer"
+                                <video-player class="video-player-box w-full rounded" ref="videoPlayer"
                                               :options="videoOptions"
                                               :playsinline="true"
                                 >

@@ -68,6 +68,7 @@ Route.group(() => {
         .middleware({
             create: 'auth:web',
         })
+
     Route.post('/annonces/create/details', 'Post/PostsController.details')
         .as('post.create.details')
         .middleware('auth:web')
