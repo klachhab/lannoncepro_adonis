@@ -620,13 +620,6 @@ export default {
                             icon: "error",
                             text: 'Une erreur est survenue lors de la modification de votre mot de passe.\nMerci de contacter notre support.'
                         } )
-                        // .then( () => {
-                        //     console.log( response )
-                        //
-                        //     this.errors = {}
-                        //     this.profile_form.new_password = null
-                        //     this.profile_form.new_pass_confirmation = null
-                        // } )
                     }
 
                     else this.$swal( {

@@ -177,137 +177,93 @@ export default class AuthController {
             return await User.query()
                 .where('verification_code', request.qs().key)
                 .firstOrFail()
-                .then( async user => {
+                .then( user => {
+                    return view.render('auth/reset_password', {
+                        verification_code: user.verification_code
+                    })
 
-                    user.email_verified = true
-                    user.verification_code = null
-
-                    return await user.save()
-                        .then( async usr => {
-
-                            return await auth.use(request.qs().api ? "api": 'web' )
-                                .login(usr)
-                                .then( () => {
-
-                                    return response.redirect().toRoute( 'web.my_profile' )
-
-                                })
-                                .catch( error => {
-                                    return {
-                                        success: false,
-                                        response: error.message,
-                                    }
-                                } )
-
-                        })
-                        .catch( err => {
-                            return {
-                                success: false,
-                                response: err.message
-                            }
-                        })
+                    // user.email_verified = true
+                    // user.verification_code = null
+                    //
+                    // return await user.save()
+                    //     .then( () => {
+                    //
+                    //         return {
+                    //             success: true,
+                    //         }
+                    //         // return await auth.use(request.qs().api ? "api": 'web' )
+                    //         //     .login(usr)
+                    //         //     .then( () => {
+                    //         //
+                    //         //         return response.redirect().toRoute( 'web.my_profile' )
+                    //         //
+                    //         //     })
+                    //         //     .catch( error => {
+                    //         //         return {
+                    //         //             success: false,
+                    //         //             response: error.message,
+                    //         //         }
+                    //         //     } )
+                    //
+                    //     })
+                    //     .catch( err => {
+                    //         return {
+                    //             success: false,
+                    //             response: err.message
+                    //         }
+                    //     })
 
                 })
                 .catch( () => {
-                    return {
-                        success: false,
-                        response: 'not_found'
-                    }
+                    return view.render('auth/reset_password')
                 })
-
-            return await User.query()
-                .where('verification_code', request.qs().key)
-                .firstOrFail()
-                .then( async user => {
-
-                    if (request.qs().q == 'rst'){
-                        user.verification_code = null
-                        user.password = request.qs().npss
-
-                        return await user.save()
-                            .then( () => {
-                                return response.redirect('/mon-profil/infos')
-                            })
-                    }
-
-                    else if (request.qs().q == 'ui_rst'){
-                        return view.render('auth/reset_password', {
-                            verification_code: user.verification_code
-                        })
-                    }
-
-                    else return response.redirect().toRoute('web.my_profile')
-
-                })
-                .catch( (error: Exception) => {
-                    return {
-                        success: false,
-                        message: error.message
-                    }
-                })
-
         }
     }
 
 
-    public async verify({request, auth, response}: HttpContextContract) {
+    public async verify({request, auth, response, view}: HttpContextContract) {
+
+        console.log(await auth.check())
+        if ( await auth.check() ){
+
+            if ( auth.defaultGuard == "api" ) {
+                return {
+                    success: false,
+                    response: 'authenticated'
+                }
+            }
+
+            return response.redirect().toRoute('web.my_profile')
+        }
+
 
         return await User.query()
             .where('verification_code', request.qs().key)
             .firstOrFail()
             .then(async user => {
-                user.verification_code = null
-                user.email_verified = true
 
-                if (await auth.check().then(checked => {return checked}) ){
-                    user.password = request.qs().npss
-                }
+                return view.render('auth/reset_password')
 
-                return await user.save()
-                    .then(async () => {
-
-                        if (await auth.check().then(checked => {return checked}) ){
-                            return response.redirect('/mon-profil/infos')
-                        }
-
-                        return auth.login(user)
-                            .then( () => {
-                                return response.redirect('/mon-profil/infos')
-                            })
-
-                    })
-                return user.save()
-                    .then( async () => {
-
-                        return auth.use('web').login(user)
-                            .then( async () => {
-
-                                return await auth.check()
-                                    .then( () => {
-                                        return response.redirect('/')
-                                    })
-                                    .catch( async () => {
-                                        return {
-                                            user: auth.user,
-                                            verified: true,
-                                        }
-                                    })
-
-                            })
-                            .catch( (err: AuthenticationException) => {
-                                return {
-                                    err: err.message,
-                                    verified: false
-                                }
-                            })
-
-                    })
-                    .catch(err => {
-                        return {
-                            error: err.code
-                        }
-                    })
-
+                // user.verification_code = null
+                // user.email_verified = true
+                //
+                // if (await auth.check().then(checked => {return checked}) ){
+                //     user.password = request.qs().npss
+                // }
+                //
+                // return await user.save()
+                //     .then(async () => {
+                //
+                //         if (await auth.check().then(checked => {return checked}) ){
+                //             return response.redirect('/mon-profil/infos')
+                //         }
+                //
+                //         return auth.login(user)
+                //             .then( () => {
+                //                 return response.redirect('/mon-profil/infos')
+                //             })
+                //
+                //     })
 
             })
             .catch(err => {
@@ -328,12 +284,13 @@ export default class AuthController {
                 ]),
             }),
             messages: {
+                'password.required': "Merci de choisir un mot de passe",
                 'password.minLength': "Le mot de passe doit contenir au minimum {{ options.minLength }} caractères",
                 'password_confirmation.confirmed': "Les mots de passe que vous avez saisi ne sont pas identiques"
             }
 
         })
-            .then( async (response: Object) => {
+            .then( () => {
                 return {
                     success: true,
                 }
@@ -354,11 +311,51 @@ export default class AuthController {
                 }
             } )
 
+        // return validation
+
         if ( !validation.success ) {
             return validation
         }
 
         else {
+            var user: User;
+
+            if ( await auth.check() ){
+                user = auth.user as User
+            }
+            else {
+                user = await User.query()
+                    .where('verification_code', request.all().verification_code)
+                    .firstOrFail()
+            }
+            
+            user.password = request.all().password
+            user.verification_code = null
+
+            return await user.save()
+                .then( async () => {
+                    return await auth.attempt(user.email, request.all().password)
+                        .then( () => {
+                            return {
+                                success: true,
+                            }
+                        })
+                        .catch( err => {
+                            return {
+                                success: false,
+                                response: err.message,
+                                reason: "auth_attemption"
+                            }
+                        })
+
+                })
+                .catch( err => {
+                    console.log({
+                        success: false,
+                        response: err.message,
+                        reason: "save_exception"
+                    })
+                })
 
             return await auth.check()
                 .then( async success => {

@@ -33,11 +33,8 @@ export default {
                 auth_field: "",
                 password: "",
             },
-
-            error_field: "",
-
             hide_password: true,
-            select_pass: false,
+            error_field: "",
 
             errorFields: [],
 
@@ -59,36 +56,12 @@ export default {
         ...mapGetters([
             "getInputClass"
         ]),
-
-        password_class() {
-            const clss = this.select_pass ? " border-blue-400 ring-1 ring-blue-300" : "border-gray-300"
-            const danger = this.select_pass ? " border-red-400 ring-1 ring-red-300" : " border-red-300"
-
-            return this.password_has_error ? `bg-red-50 ${danger}` : clss
-        },
-
     },
 
     methods: {
         ...mapMutations([
             'setPassMatch', 'setUserExists'
         ]),
-
-        blurInput($event, field){
-
-            const element = $event.target
-            const defaultClasses = this.getInputClass('default').split(" ")
-            const errorClasses = this.getInputClass('error').split(" ")
-
-            if (this.errorFields.includes(field)) {
-                element.classList.remove(...errorClasses)
-                element.classList.add(...defaultClasses)
-
-                const fieldIndex = this.errorFields.indexOf(field)
-                this.errorFields.slice(fieldIndex, 1)
-            }
-        },
-
 
         login(){
             this.request_sent = true
@@ -139,6 +112,7 @@ export default {
 
         },
 
+
         reset_password(){
 
             this.request_sent = true
@@ -146,7 +120,6 @@ export default {
             const form = new FormData
 
             form.append('email', this.reset_email)
-            form.append('guest', true)
 
             axios.post('/auth/reset-password', form)
                 .then(result => {
