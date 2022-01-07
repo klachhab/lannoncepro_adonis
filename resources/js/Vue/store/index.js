@@ -22,7 +22,7 @@ const store = new Vuex.Store({
                 "disabled:bg-gray-100 disabled:text-gray-600 ",
             variants: {
                 default: "border-gray-300 bg-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-300",
-                danger: "border-red-300 bg-red-50 placeholder-red-400 text-red-900 focus:border-red-400 focus:ring-1 focus:ring-red-300",
+                danger: "border-red-300 bg-red-50 placeholder-red-400 text-red-700 focus:border-red-400 focus:ring-1 focus:ring-red-300",
             }
         },
         select_class: {

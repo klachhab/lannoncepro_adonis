@@ -53,11 +53,10 @@ export default {
 
     computed: {
         ...mapState([
-            'input_class', 'password_match', 'user_exists', 'select_class'
+            'input_class', 'select_class'
         ]),
 
         ...mapGetters([
-            "getPasswordMatchClass", "getUserExistsClass",
             "getInputClass"
         ]),
 
@@ -90,34 +89,37 @@ export default {
             }
         },
 
+
         login(){
             this.request_sent = true
 
             axios.post('/auth/login', this.form)
                 .then( result => {
+                    const success = result.data.success
+                    const reason = result.data.reason
+                    const response = result.data.response
 
-                    if (!result.data.success) {
-                        this.error_field = result.data.error
+                    if ( !success ) {
                         this.request_sent = false
 
-                        if (this.error_field === "E_ROW_NOT_FOUND") {
-                            this.setUserExists(false)
+                        if ( reason === 'auth') {
+                            this.error_field = response
                         }
 
-                        else if (this.error_field === 'pass_incorrect') {
-                            this.setUserExists(true)
-                            this.setPassMatch(false)
-                            this.password_has_error = true
+                        else {
+                            this.$swal( {
+                                icon: 'error',
+                                text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
+                            } );
                         }
-
 
                     }
+
                     else {
                         this.error_field = ""
                         window.location.replace('/mon-profil')
                     }
 
-                    console.log(result.data)
                 })
                 .catch( err => {
                     console.log(err)
@@ -127,6 +129,8 @@ export default {
 
         switch_reset_form(){
             this.reset = !this.reset
+            this.error_field = ""
+
             this.form = {
                 auth_field: "",
                 password: "",

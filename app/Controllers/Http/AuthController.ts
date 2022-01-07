@@ -9,14 +9,6 @@ import VerifyEmail from "App/Mailers/VerifyEmail";
 
 export default class AuthController {
 
-    public async check({auth, request}: HttpContextContract) {
-        const log = auth.use(request.qs().env && request.qs().env == 'api' ? 'api' : "web")
-
-        return {
-            loggedIn: log.check()
-        }
-    }
-
     public async login({auth, request, view, response}: HttpContextContract) {
 
         if (request.method() == "POST") {
@@ -24,61 +16,61 @@ export default class AuthController {
             const auth_field = request.all().auth_field
             const password = request.all().password
 
+            // return request.all()
+
             // Check user -------------
-            return User.query()
-                .where('email', auth_field)
+            return await User.query()
+                .whereNull('deleted_at')
+                .andWhere('email', auth_field)
                 .orWhere('username', auth_field)
                 .firstOrFail()
                 .then(async user => {
-
                     return await Hash.verify(user.password, password)
+                        .then( async verified => {
 
-                        .then( async (valid) => {
+                            if ( verified ) {
 
-                            // Check password -------------
-                            if (valid){
-                                const log = auth
-                                    .use(request.all().env && request.all().env == 'api'
-                                        ? 'api' : "web"
-                                    )
-
-                                return await log.attempt(user.email, password)
-                                    .then(response => {
-
+                                return auth
+                                    .use(request.all().api ? 'api': 'web')
+                                    .login(user)
+                                    .then( response => {
                                         return {
-                                            user: auth.user,
                                             success: true,
-                                            token: auth.defaultGuard == "api" ? response.token : false,
+                                            response
                                         }
-
                                     })
-                                    .catch(e => {
+                                    .catch( err => {
                                         return {
                                             success: false,
-                                            error: e.message
+                                            reason: 'auth',
+                                            response: err.message
                                         }
                                     })
+
                             }
-                            else {
-                                return {
-                                    success: false,
-                                    error: "pass_incorrect"
-                                }
+
+                            else return {
+                                success: false,
+                                reason: 'auth',
+                                response: 'password'
                             }
 
                         })
-                        .catch( (error) => {
+
+                        .catch( error => {
                             return {
                                 success: false,
-                                error
+                                reason: 'hashing',
+                                response: error.message
                             }
                         })
 
                 })
-                .catch( (error) => {
+                .catch( () => {
                     return {
                         success: false,
-                        error: error.code
+                        reason: 'auth',
+                        response: 'user'
                     }
                 })
 
@@ -86,12 +78,20 @@ export default class AuthController {
         }
 
         else {
-            if (await auth.check()) {
-                return response.redirect('/')
+            if ( await auth.check() ){
+
+                if ( auth.defaultGuard == "api" ) {
+                    return {
+                        success: false,
+                        response: 'authenticated'
+                    }
+                }
+
+                return response.redirect('/mon-profil')
             }
-            else {
-                return view.render('auth/login')
-            }
+
+            return view.render('auth/login')
+
         }
     }
 

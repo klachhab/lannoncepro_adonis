@@ -50,7 +50,6 @@ export default {
 
             errors: {},
             errorFields: [],
-            // Form ------------------------------------------
 
             hide: {
                 password: true,
@@ -157,7 +156,7 @@ export default {
 
                         })
                             .then( () => {
-                                // window.location.replace('/mon-profil')
+                                window.location.replace('/mon-profil')
                             });
                     }
                     else {

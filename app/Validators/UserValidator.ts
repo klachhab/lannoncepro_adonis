@@ -38,9 +38,10 @@ export default class UserValidator {
                 table: 'users',
                 column: 'username',
                 where: {
-                    ['deleted_at']: null
-                }}),
-            rules.regex(/^[A-Za-z]+[0-9]+$/)
+                    'deleted_at': null
+                }
+            }),
+            rules.regex(/^[a-zA-Z]+?[0-9]/)
         ]),
 
         email: schema.string({}, [
@@ -49,7 +50,7 @@ export default class UserValidator {
                 table: 'users',
                 column: 'email',
                 where: {
-                    ['deleted_at']: null
+                    'deleted_at': null
                 }
             } ),
         ]),
