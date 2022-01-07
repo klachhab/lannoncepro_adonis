@@ -19,12 +19,12 @@
 
                     <div class="relative mb-7 w-full ">
                         <input type="text"
-                               class="mt-1"
-                               :class="getUserExistsClass"
+                               class="mt-1 block w-full rounded-md"
+                               :class="getInputClass(error_field === 'user' ? 'error' : 'default')"
                                v-model="reset_email"
                                placeholder="Adresse e-mail / nom d'utilisateur"/>
 
-                        <span class="text-xs text-red-500" v-if="!user_exists">
+                        <span class="text-xs text-red-500" v-if="error_field === 'user'">
                             L'adresse e-mail ( ou le nom d'utilisateur ) n'est pas valide
                         </span>
                     </div>

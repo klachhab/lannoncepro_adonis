@@ -140,6 +140,7 @@ export default {
         },
 
         reset_password(){
+
             this.request_sent = true
 
             const form = new FormData
@@ -148,12 +149,24 @@ export default {
             form.append('guest', true)
 
             axios.post('/auth/reset-password', form)
-                .then(response => {
+                .then(result => {
+                    const success = result.data.success
+                    const reason = result.data.reason
+                    const response = result.data.response
+
                     this.request_sent = false
-                    if (response.data.success) {
+
+                    if ( !success ) {
+                        if ( reason === 'auth') {
+                            this.error_field = response
+                        }
+                        else console.log(response)
+                    }
+
+                    else {
                         this.$swal({
                             icon: 'success',
-                            title: "",
+                            title: "Succès",
                             text: "Merci de vérifier votre boite e-mail afin de valider le changement de votre mot de passe"
                         })
                             .then( () => {

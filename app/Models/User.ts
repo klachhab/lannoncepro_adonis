@@ -147,7 +147,7 @@ export default class User extends compose(BaseModel, SoftDeletes) {
         if (user.$dirty.password) {
             user.password = await Hash.make(user.password);
         }
-        user.verification_code = Encryption.encrypt(user.email)
+        // user.verification_code = Encryption.encrypt(user.email)
     }
 
     @afterDelete()

@@ -4,7 +4,7 @@ import Hash from "@ioc:Adonis/Core/Hash";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {Exception} from "@poppinss/utils";
-import VerifyEmail from "App/Mailers/VerifyEmail";
+// import VerifyEmail from "App/Mailers/VerifyEmail";
 
 
 export default class AuthController {
@@ -87,7 +87,7 @@ export default class AuthController {
                     }
                 }
 
-                return response.redirect('/mon-profil')
+                return response.redirect().toRoute('web.my_profile')
             }
 
             return view.render('auth/login')
@@ -122,121 +122,96 @@ export default class AuthController {
 
         if (request.method() == "POST") {
 
-            const get_email = await auth.check()
-                .then( async authenticated => {
-                    if (!authenticated) {
-                        return {
-                            success: request.all().guest,
-                            message: request.all().guest == "" ? "not_authenticated" : request.all().email
-                        }
-                    }
-                    else if (request.all().new_password !== request.all().new_pass_confirmation) {
-                        return {
-                            success: false,
-                            message: "pass_not_match"
-                        }
-                    }
-                    else {
-                        const user = auth.user as User
-                        return {
-                            success: true,
-                            message: user.email
-                        }
-                    }
+            return await User.query()
+                .where('email', request.all().email)
+                .firstOrFail()
+                .then( async user => {
+
+                    user.verification_code = Encryption.encrypt(user.email)
+                    return await user.save()
+                        .then( usr => {
+                            // Send Validation email ==========================
+
+                            // Send Validation email ==========================
+
+                            return {
+                                success: true,
+                                response: usr
+                            }
+                        })
+                        .catch( err => {
+                            return {
+                                success: false,
+                                reason: "save",
+                                response: err.message
+                            }
+                        })
                 })
-                .catch( (error: AuthenticationException) => {
+                .catch( () => {
                     return {
                         success: false,
-                        message: error.message
+                        reason: "auth",
+                        response: 'user'
                     }
                 })
-
-            // return get_email
-
-            if (get_email.success) {
-                return await User.query()
-                    .where('email', get_email.message)
-                    .firstOrFail()
-                    .then(async user => {
-                        // return user
-                        user.verification_code = Encryption.encrypt(user.email)
-
-                        return user.save()
-                            .then(async (user) => {
-
-                                var hashed = ""
-
-                                if (!request.all().guest) {
-
-                                    hashed = await Hash.make(request.all().new_password)
-                                        .then(hashed_pass => {
-                                            return hashed_pass
-                                        }).catch( () => {
-                                            return ""
-                                        })
-
-                                }
-
-                                return await new VerifyEmail(user, hashed, request.all().guest)
-                                    .send()
-                                    .then(async () => {
-
-                                        return {
-                                            success: true,
-                                            message: "email_sent",
-                                        }
-
-                                    })
-                                    .catch((err) => {
-                                        return {
-                                            success: false,
-                                            error: err.message,
-                                            type: "email"
-                                        }
-                                    })
-                            })
-
-                            .catch(error => {
-                                return {
-                                    success: false,
-                                    message: error.message
-                                }
-                            })
-
-                    })
-
-                    .catch(error => {
-                        return {
-                            success: false,
-                            message: error.code
-                        }
-                    })
-            }
-
-            else {
-                return {
-                    success: false,
-                    message: "unsuccess"
-                }
-            }
 
         }
 
         else {
 
-            const authenticated = await auth.check()
-                .then( checked => {
-                    return checked
-                })
+            if ( await auth.check() ){
 
-                .catch( (error: AuthenticationException) => {
-                    console.log(error.message)
-                    return false
-                })
+                // if ( auth.defaultGuard == "api" ) {
+                //     return {
+                //         success: false,
+                //         response: 'authenticated'
+                //     }
+                // }
 
-            if (authenticated){
                 return response.redirect().toRoute('web.my_profile')
             }
+
+
+            return await User.query()
+                .where('verification_code', request.qs().key)
+                .firstOrFail()
+                .then( async user => {
+
+                    user.email_verified = true
+                    user.verification_code = null
+
+                    return await user.save()
+                        .then( async usr => {
+
+                            return await auth.use(request.qs().api ? "api": 'web' )
+                                .login(usr)
+                                .then( () => {
+
+                                    return response.redirect().toRoute( 'web.my_profile' )
+
+                                })
+                                .catch( error => {
+                                    return {
+                                        success: false,
+                                        response: error.message,
+                                    }
+                                } )
+
+                        })
+                        .catch( err => {
+                            return {
+                                success: false,
+                                response: err.message
+                            }
+                        })
+
+                })
+                .catch( () => {
+                    return {
+                        success: false,
+                        response: 'not_found'
+                    }
+                })
 
             return await User.query()
                 .where('verification_code', request.qs().key)
