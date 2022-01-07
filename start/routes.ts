@@ -44,6 +44,7 @@ Route.group(() => {
 
         Route.put('/update-password',  'AuthController.update_password')
             .as('update_password')
+            .middleware('auth')
 
         Route.get('/verify', 'AuthController.verify')
             .as('verify')

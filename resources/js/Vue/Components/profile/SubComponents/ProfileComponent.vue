@@ -204,40 +204,47 @@
                     Nouveau mot de passe
                 </span>
 
-                <div :class="focus_password_class" class="flex flex-between items-center">
+                <div class="flex flex-col lg:col-span-5">
+                    <label class="relative block">
+                        <input :type="hide.password ? 'password' : 'text'"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="getInputClass(errors.password ? 'error' : 'default')"
+                               @input="errors.password = null"
+                               v-model="profile_form.new_password"
+                               placeholder="Mot de passe" />
 
-                    <input :type="hide.password ? 'password' : 'text'"
-                           :class="select_class.input"
-                           v-model="profile_form.new_password"
-                           placeholder="Mot de passe"
-                           @focus="selected_input = 'pass'"
-                           @blur="selected_input = null"
-                    />
+                        <span class="absolute inset-y-0 right-0 flex items-center">
+                                <svg v-if="hide.password" class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                     :class="errors.password ? 'text-red-400' : 'text-gray-400'"
+                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     @click="hide.password = false"
+                                     stroke="currentColor" >
 
-                    <svg v-if="hide.password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                         class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
-                         @click="hide.password = false"
-                         stroke="currentColor">
+                                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                                          stroke-linejoin="round" stroke-width="2"></path>
 
-                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
-                              stroke-linejoin="round" stroke-width="2"></path>
+                                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                </svg>
 
-                        <path
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
+                                <svg class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                     :class="errors.password ? 'text-red-400' : 'text-gray-400'"
+                                     v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     @click="hide.password = true"
+                                     stroke="currentColor"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                    ></path>
+                                </svg>
+                            </span>
 
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                         class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
-                         @click="hide.password = true"
-                         stroke="currentColor"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                        ></path>
-                    </svg>
+                    </label>
+
+                    <span class="text-xs text-red-500 ml-2" v-if="errors.password">
+                        {{ errors.password }}
+                    </span>
                 </div>
-
 
             </div>
 
@@ -247,7 +254,51 @@
                     Confirmation
                 </span>
 
-                <div :class="focus_pass_conf_class" class="flex flex-between items-center">
+                <div class="flex flex-col lg:col-span-5">
+
+                    <label class="relative block">
+                        <input :type="hide.password_confirmation ? 'password' : 'text'"
+                               class="mt-1 block w-full rounded-md placeholder-gray-400"
+                               :class="getInputClass(errors.password_confirmation ? 'error' : 'default')"
+                               @input="errors.password_confirmation = null"
+                               v-model="profile_form.new_pass_confirmation"
+                               placeholder="Confirmation du mot de passe" />
+
+                        <span class="absolute inset-y-0 right-0 flex items-center">
+                            <svg v-if="hide.password_confirmation"
+                                 class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                 :class="errors.password_confirmation ? 'text-red-400' : 'text-gray-400'"
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 @click="hide.password_confirmation = false"
+                                 stroke="currentColor" >
+
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                                      stroke-linejoin="round" stroke-width="2"></path>
+
+                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+
+                            <svg class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                 :class="errors.password_confirmation ? 'text-red-400' : 'text-gray-400'"
+                                 v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 @click="hide.password_confirmation = true"
+                                 stroke="currentColor"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                ></path>
+                            </svg>
+                        </span>
+
+                    </label>
+
+                    <span class="text-xs text-red-500 ml-2" v-if="errors.password_confirmation">
+                        {{ errors.password_confirmation }}
+                    </span>
+                </div>
+
+<!--                <div :class="focus_pass_conf_class" class="flex flex-between items-center">
 
                     <input :type="hide.password_confirmation ? 'password' : 'text'"
                            :class="select_class.input"
@@ -280,13 +331,13 @@
                               d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                         ></path>
                     </svg>
-                </div>
+                </div>-->
 
             </div>
 
 
             <div class="lg:grid lg:grid-cols-7" :class="input_class.container">
-                <button :disabled="!profile_form.new_pass_confirmation || !password_match"
+                <button :disabled="!profile_form.new_pass_confirmation && !profile_form.new_password"
                         class="p-2.5 text-center lg:col-span-2 text-white rounded-md
                     bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:hover:bg-green-300
                     disabled:cursor-default"
@@ -326,6 +377,7 @@ export default {
             departments: [],
             cities: [],
 
+            // User data Form =====================
             profile_form: {
                 title: null,
                 name: null,
@@ -341,6 +393,9 @@ export default {
                 new_password: null,
                 new_pass_confirmation: null,
             },
+
+            errors: {},
+            // User data Form =====================
 
             hide: {
                 password: true,
@@ -550,80 +605,58 @@ export default {
             this.updating_pass = true
 
             axios.put('/auth/update-password', form)
-                .then(response => {
+                .then(result => {
 
-                    const data = response.data
+                    const success = result.data.success
+                    const reason = result.data.reason
+                    const response = result.data.response
 
-                    var message = ""
-                    switch (data.message) {
-                        case "length_ko" : message = "Le mot de passe doit contenir au minimum 8 caractères (espace non inclu)"; break;
-                        case "no_match" : message = "Les 2 mots de passe ne sont pas identiques"; break;
-                        case "pass_null" : message = "Merci de saisir un mot de passe"; break;
-                        default : message = "Mot de passe mis à jour avec succès"
+                    if ( !success ) {
+                        if ( reason === 'validation' ){
+                            this.errors = response
+                        }
+
+                        else this.$swal( {
+                            icon: "error",
+                            text: 'Une erreur est survenue lors de la modification de votre mot de passe.\nMerci de contacter notre support.'
+                        } )
+                        // .then( () => {
+                        //     console.log( response )
+                        //
+                        //     this.errors = {}
+                        //     this.profile_form.new_password = null
+                        //     this.profile_form.new_pass_confirmation = null
+                        // } )
                     }
 
-                    this.$swal({
-                        icon: data.success ? "success" : "error",
-                        title: data.success ? null :"Erreur",
-                        text: message,
-                    }).then( () => {
+                    else this.$swal( {
+                        icon: "success",
+                        text: 'Mot de passe changé avec succès.'
+                    } )
+                    .then( () => {
 
+                        this.errors = {}
                         this.profile_form.new_password = null
                         this.profile_form.new_pass_confirmation = null
-                        this.updating_pass = false
+
+                        this.hide = {
+                            password: true,
+                            password_confirmation: true,
+                        }
+
                     })
 
+                    this.updating_pass = false
 
                 })
-                .catch(err => {
-                    console.log(err.message)
-                })
+                .catch( () => {
 
-
-            /*await axios.post(`/auth/reset-password`, form)
-                .then(response => {
-
-                    console.log(response.data)
-                    if (response.data.success) {
-                        this.$swal({
-                            icon: "success",
-                            title: "Mot de passe modifié",
-                            text: 'Merci de verifier votre boite mail afin de confirmer votre nouveau mot de passe'
-                        }).then(() => {
-                            this.profile_form.new_password = null
-                            this.profile_form.new_pass_confirmation = null
-                            this.updating_pass = false
-                        })
-
-                    } else {
-                        const error_message = response.data.message === "pass_not_match" ? "Les 2 mots de passe ne sont pas identiques" :
-                            'Une erreur est survenue lors de la modification de votre mot de passe.\nMerci de contacter notre support.'
-                            + `\n${response.data.message}`
-
-                        this.$swal({
-                            icon: "error",
-                            title: "Erreur",
-                            text: error_message
-
-                        }).then( () => {
-                            this.updating_pass = false
-                        })
-                    }
-
-
-                })
-                .catch(error => {
                     this.$swal({
                         icon: "error",
-                        title: "Erreur",
-                        text: 'Une erreur est survenue lors de la modification de votre mot de passe.\n' +
-                            `Merci de contacter notre support.`
-                        + `\n${error.message}`
-                    }).then( () => {
-                        this.updating_pass = false
+                        text: 'Une erreur est survenue lors de la modification de votre mot de passe.\nMerci de contacter notre support.'
                     })
-                })*/
 
+                })
         },
     },
 }

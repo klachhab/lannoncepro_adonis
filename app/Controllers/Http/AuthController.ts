@@ -4,6 +4,8 @@ import Hash from "@ioc:Adonis/Core/Hash";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import {Exception} from "@poppinss/utils";
+import { rules, schema } from "@ioc:Adonis/Core/Validator";
+import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
 // import VerifyEmail from "App/Mailers/VerifyEmail";
 
 
@@ -318,82 +320,86 @@ export default class AuthController {
 
     public async update_password({auth, request}: HttpContextContract) {
 
-        if (!request.all().password){
-            return {
-                success: false,
-                message: "pass_null"
+        const validation = await request.validate( {
+            schema: schema.create({
+                password: schema.string({}, [
+                    rules.minLength(8),
+                    rules.confirmed(),
+                ]),
+            }),
+            messages: {
+                'password.minLength': "Le mot de passe doit contenir au minimum {{ options.minLength }} caractères",
+                'password_confirmation.confirmed': "Les mots de passe que vous avez saisi ne sont pas identiques"
             }
-        }
 
-        if (request.all().password.length < 8){
-            return {
-                success: false,
-                message: "length_ko"
-            }
-        }
-
-        if (request.all().password_confirmation !== request.all().password){
-            return {
-                success: false,
-                message: "no_match"
-            }
-        }
-
-        const logged_in = await auth.check()
-            .then( async authenticated => {
-                return authenticated
+        })
+            .then( async (response: Object) => {
+                return {
+                    success: true,
+                }
             })
-            .catch( err => {
-                console.log(err.message)
-            })
+            .catch( (err: ValidationException) => {
+                const validation_errors = err.messages.errors
+                const errors = {}
 
-        const user_response = logged_in ?
-            {
-                success: true,
-                response: auth.user as User
-            } :
-            await User.query()
-                .where('verification_code', request.all().verification_code)
-                .firstOrFail()
-                .then(usr => {
-                    return {
-                        success: true,
-                        response: usr
-                    }
-                })
-                .catch( err => {
-                    return {
-                        success: false,
-                        response: err.message
-                    }
-                })
+                for ( const messageKey in validation_errors ) {
+                    var message = validation_errors[messageKey]
+                    errors[message.field] = message.message
+                }
 
-        if (user_response.success){
-            const user = user_response.response
+                return {
+                    success: false,
+                    response: errors,
+                    reason: "validation"
+                }
+            } )
 
-            user.password = await Hash.make(request.all().password)
-            user.verification_code = null
-
-            return user.save()
-                .then( user => {
-                    return {
-                        success: true,
-                        response: user
-                    }
-                })
-                .catch( err => {
-                    return {
-                        success: false,
-                        response: err.message
-                    }
-                })
+        if ( !validation.success ) {
+            return validation
         }
 
         else {
-            return {
-                success: false,
-                response: user_response.response
-            }
+
+            return await auth.check()
+                .then( async success => {
+
+                    if ( !success ) {
+                        return {
+                            success: false,
+                            response: "Vous n'êtes pas connecté",
+                            reason: "auth"
+                        }
+                    }
+
+                    const user = auth.user as User
+
+                    user.password = request.all().password
+
+                    return await user.save()
+                        .then( () => {
+                            return {
+                                success: true,
+                            }
+                        })
+                        .catch( err => {
+                            console.log({
+                                success: false,
+                                response: err.message,
+                                reason: "save_exception"
+                            })
+                        })
+
+
+                })
+                .catch( (err: AuthenticationException) => {
+                    console.log({
+                        success: false,
+                        response: err.message,
+                        reason: "auth_exception"
+                    })
+                })
+
+
         }
 
     }
