@@ -76,7 +76,6 @@ export default {
             show_errors: false,
             saving: false,
 
-            selected_select: "",
         }
     },
 
@@ -100,16 +99,6 @@ export default {
 
         accepted: () => {
             return true
-        },
-
-        focus_password_class() {
-            const clss = this.selected_select === 'pass' ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
-            return this.select_class.container + clss
-        },
-
-        focus_pass_conf_class() {
-            const clss = this.selected_select === 'pass_conf' ? " border-blue-400 ring-1 ring-blue-300" : " border-gray-300"
-            return this.select_class.container + clss
         },
     },
 
@@ -143,6 +132,7 @@ export default {
             form.append('longitude', geometry.longitude)
             form.append('latitude', geometry.latitude)
             form.append('department_code', city.department.code)
+            form.append('department_name', city.department.name)
 
             await axios.post('/profil', form)
                 .then(async response => {
@@ -167,18 +157,13 @@ export default {
 
                         })
                             .then( () => {
-                                window.location.replace('/')
+                                // window.location.replace('/mon-profil')
                             });
                     }
                     else {
 
-                        if ( data.errors ) {
-                            this.errors = data.errors
-                            this.errorFields = data.error_fields
-                        }
-
-                        else if ( data.model === 'dep' ) {
-                            this.errors.city_id = data.response
+                        if ( data.error === "validation" ) {
+                            this.errors = data.result
                         }
 
                         else {
@@ -203,24 +188,22 @@ export default {
             const value = $event.target.value
 
             if ( value === '' ){
-                this.errors.city_id = null
-                this.errors.department_code = null
                 this.foundCities.list = []
                 this.foundCities.show_list = false
-
-                this.form.city.name = null
-                this.form.city.code = null
-
-                this.form.city.geo_coordinates = {
-                    longitude: null,
-                    latitude: null,
-                }
-
-                this.form.city.department = {
-                    code: null,
-                    name: null,
-                }
                 return
+            }
+            this.errors.city_id = null
+            this.errors.department_code = null
+
+            // this.form.city.name = null
+            this.form.city.code = null
+            this.form.city.geo_coordinates = {
+                longitude: null,
+                latitude: null,
+            }
+            this.form.city.department = {
+                code: null,
+                name: null,
             }
 
             this.foundCities.show_list = true

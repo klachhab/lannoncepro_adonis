@@ -2,7 +2,7 @@ import {DateTime} from 'luxon'
 import {
     afterDelete,
     BaseModel,
-    beforeCreate,
+    beforeCreate, beforeUpdate,
     BelongsTo,
     belongsTo,
     column, computed,
@@ -81,7 +81,7 @@ export default class User extends compose(BaseModel, SoftDeletes) {
     public updatedAt: DateTime
 
     @column.dateTime({serializeAs: null})
-    public deletedAt: DateTime
+    public deletedAt: DateTime | null
 
 
     // Accessors ===================================================
@@ -137,6 +137,13 @@ export default class User extends compose(BaseModel, SoftDeletes) {
 
     @beforeCreate()
     public static async beforeCreate(user: User) {
+        if (user.$dirty.password) {
+            user.password = await Hash.make(user.password);
+        }
+        user.verification_code = Encryption.encrypt(user.email)
+    }
+    @beforeUpdate()
+    public static async beforeUpdate(user: User) {
         if (user.$dirty.password) {
             user.password = await Hash.make(user.password);
         }

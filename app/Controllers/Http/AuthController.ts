@@ -287,7 +287,7 @@ export default class AuthController {
                 }
 
                 return await user.save()
-                    .then(async usr => {
+                    .then(async () => {
 
                         if (await auth.check().then(checked => {return checked}) ){
                             return response.redirect('/mon-profil/infos')
@@ -341,7 +341,7 @@ export default class AuthController {
     }
 
 
-    public async update_password({auth, request, response}: HttpContextContract) {
+    public async update_password({auth, request}: HttpContextContract) {
 
         if (!request.all().password){
             return {

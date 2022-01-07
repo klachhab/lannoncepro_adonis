@@ -1,5 +1,5 @@
-import {schema, rules} from '@ioc:Adonis/Core/Validator'
-import {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
+import { rules, schema } from '@ioc:Adonis/Core/Validator'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 export default class UserValidator {
     constructor(protected ctx: HttpContextContract) {
@@ -34,22 +34,45 @@ export default class UserValidator {
         ]),
 
         username: schema.string({}, [
-            rules.unique({table: 'users', column: 'username'}),
+            rules.unique({
+                table: 'users',
+                column: 'username',
+                where: {
+                    ['deleted_at']: null
+                }}),
+            rules.regex(/^[A-Za-z]+[0-9]+$/)
         ]),
 
         email: schema.string({}, [
             rules.email(),
-            rules.unique({table: 'users', column: 'email'}),
+            rules.unique( {
+                table: 'users',
+                column: 'email',
+                where: {
+                    ['deleted_at']: null
+                }
+            } ),
+        ]),
+
+        phone: schema.string({}, [
+            rules.regex(/^[0-9]+$/),
+            rules.minLength(10),
+            rules.maxLength(10),
+            // rules.mobile({
+            //     strict: true,
+            //     locales: ['fr-FR']}
+            // ),
+            rules.unique({
+                table: 'users',
+                column: 'phone',
+                where: {
+                    ['deleted_at']: null
+                }}),
         ]),
 
         password: schema.string({}, [
             rules.minLength(8),
             rules.confirmed(),
-        ]),
-
-        phone: schema.string({}, [
-            rules.regex(/^[0-9]+$/),
-            rules.unique({table: 'users', column: 'phone'}),
         ]),
 
         city_id: schema.number( [
@@ -90,6 +113,7 @@ export default class UserValidator {
 
         'username.required': "Merci de choisir un nom d'utilisateur",
         'username.unique': "Le nom d'utilisateur est déjà existant. Merci d'en choisir un autre",
+        'username.regex': "Le nom d'utilisateur doit contenir seulement des chiffres et lettres commençant par une lettre",
 
         'email.required': "L'adresse e-email est obligatoire",
         'email.email': "L'adresse e-email n'est pas valide",
@@ -100,12 +124,14 @@ export default class UserValidator {
         'password_confirmation.confirmed': "Les mots de passe que vous avez saisi ne sont pas identiques",
 
         'phone.required': "Votre numéro de téléphone est obligatoir",
-        'phone.regex': "Le numéro de téléphone que vous avez saisi n'est pas valide",
+        // 'phone.regex': "Le numéro de téléphone que vous avez saisi n'est pas valide",
         'phone.unique': "Le numéro de téléphone est déjà utilisé",
+        'phone.minLength': "Le numéro de téléphone que vous avez saisi n'est pas valide",
+        'phone.maxLength': "Le numéro de téléphone que vous avez saisi n'est pas valide",
 
 
         'city_id.required': "Merci d'indiquer votre ville",
-        'city_id.exists': "Cette ville/commune n'existe pas",
+        'city_id.exists': "Cette ville/commune n'existe pas ou le nom n'est pas correcte",
 
         // 'city_code.required': "Merci d'indiquer votre ville",
         // 'city_code.exists': "Cette ville/commune n'existe pas",
