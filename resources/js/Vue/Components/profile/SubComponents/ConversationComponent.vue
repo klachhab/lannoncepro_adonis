@@ -150,7 +150,7 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default {
     name: "ConversationComponent",
@@ -189,30 +189,33 @@ export default {
             }, 50)
         },
 
-        async getConversations(){
+        async getConversations() {
 
-            await axios.get('/api/profile/my_profile/chatroom')
-            .then(response => {
-                const data = response.data
-                const unread_conversations = data.filter(conversation => conversation.read === 0).length
+            await axios.get( '/api/profile/my_profile/chatroom' )
+                .then( response => {
+                    const data = response.data
+                    const unread_conversations = data.filter( conversation => conversation.read === 0 ).length
 
-                this.$store.commit('update_message_count', unread_conversations)
+                    this.$store.commit( 'update_message_count', unread_conversations )
 
-                data.forEach(conversation => {
-                    const message = conversation.messages[0].message
-                    const dots = message.length > 20 ? " ..." : ""
+                    data.forEach( conversation => {
+                        const message = conversation.messages[0].message
+                        const dots = message.length > 20 ? " ..." : ""
 
-                    this.conversations.push({
-                        conversation_key: conversation.conversation_key,
-                        from_name: conversation.from_name,
-                        last_message: message.substr(0,20) + dots,
-                        creation_date: conversation.creation_date,
-                        read: conversation.read,
-                    })
+                        this.conversations.push( {
+                            conversation_key: conversation.conversation_key,
+                            from_name: conversation.from_name,
+                            last_message: message.substr( 0, 20 ) + dots,
+                            creation_date: conversation.creation_date,
+                            read: conversation.read,
+                        } )
 
+                    } )
+
+                } )
+                .catch(err => {
+                    console.log(err.message)
                 })
-
-            })
 
         },
 
@@ -236,6 +239,9 @@ export default {
                     const unread_conversations = this.conversations.filter(conversation => conversation.read === 0).length
 
                     this.$store.commit('update_message_count', unread_conversations)
+                })
+                .catch(err => {
+                    console.log(err.message)
                 })
 
         },
@@ -267,6 +273,9 @@ export default {
                             // + `${result.data}`
                         })
                     }
+                })
+                .catch(err => {
+                    console.log(err.message)
                 })
         },
 

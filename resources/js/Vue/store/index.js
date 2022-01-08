@@ -13,6 +13,8 @@ const store = new Vuex.Store({
         messages_count: 0,
 
         username: "",
+        user_name: "",
+
         isMyProfile: false,
 
         input_class: {
@@ -83,6 +85,10 @@ const store = new Vuex.Store({
 
         setUserName: (state, value) => {
             state.username = value
+        },
+
+        setName: (state, value) => {
+            state.user_name = value
         },
 
         setUserExists: (state, value) => {

@@ -26,7 +26,7 @@
                         <div class="relative inline-block text-left">
                             <button class=" flex items-center justify-center w-full rounded-md pr-4 py-2 text-normal font-medium text-gray-700 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-500">
                                 <a href="#" class="mr-4 text-gray-800 dark:hover:text-white py-2">
-                                    {{ user }}
+                                    {{ user_name }}
                                 </a>
                                 <ChevronDownIcon size="20" />
                             </button>
@@ -159,7 +159,6 @@ import {ChevronDownIcon, MenuIcon, ChatIcon, CogIcon, HeartIcon,
 import {mapMutations, mapState} from "vuex";
 
 export default {
-    props: ['check', 'user'],
     name: "HeaderComponent",
     components: {
         ChevronDownIcon, MenuIcon, ChatIcon,
@@ -170,25 +169,49 @@ export default {
         return {
             transition: "transition duration-200 ease-in-out",
             show_profile_menu: false,
-            authenticated: this.check === "true",
+            authenticated: false,
             messages: 30,
         }
     },
 
-    mounted() {
-        this.getMessagesCount()
-    },
-
     computed: {
         ...mapState([
-            'messages_count'
+            'messages_count', 'user_name', 'username'
         ]),
+
+    },
+
+    mounted() {
+        this.checkLog()
     },
 
     methods: {
         ...mapMutations([
-            'update_message_count'
+            'update_message_count', 'setName', 'setUserName'
         ]),
+
+        async checkLog(){
+            await axios.post('/auth/check')
+                .then(result => {
+                    const success = result.data.success
+                    this.authenticated = result.data.authenticated
+
+                    if ( success ) {
+                        const unread_messages = result.data.unread_messages
+                        const user = result.data.user
+
+                        this.update_message_count(unread_messages)
+                        this.setUserName(user.username)
+                        this.setName(user.name)
+                    }
+                })
+                .catch(() => {
+                    // console.log(e.code)
+                    // return {
+                    //     error: e.code
+                    // }
+                })
+        },
 
         async logout() {
             const logout = await axios.post('/auth/logout')
@@ -202,17 +225,6 @@ export default {
             })
         },
 
-        async getMessagesCount() {
-            await axios.post('/api/messages-count')
-                .then( result => {
-                    const success = result.data.success
-                    const unread_messages = result.data.unread_messages
-
-                    if (success) {
-                        this.update_message_count(unread_messages)
-                    }
-                })
-        }
     },
 }
 </script>

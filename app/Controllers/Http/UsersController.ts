@@ -227,7 +227,8 @@ export default class UsersController {
 
         return await User.query().where( 'username', username )
             .withCount( 'posts', posts => {
-                posts.where( 'is_valid', 1 )
+                posts.whereNull('deleted_at')
+                    .andWhere( 'is_valid', 1 )
             } )
             .withCount( 'favourites', favourites => {
                 favourites
@@ -290,8 +291,6 @@ export default class UsersController {
 
     public async update({ params, request }: HttpContextContract) {
 
-        console.log( request.all() )
-
         return await User.query()
             .where( 'username', params.id )
             .firstOrFail()
@@ -306,8 +305,6 @@ export default class UsersController {
                 }
 
                 user.merge( request.all() ).save()
-
-                await user.load( 'city' )
 
                 return {
                     success: true,
@@ -411,7 +408,8 @@ export default class UsersController {
 
         return await User.query().where( 'username', params.username )
             .withCount( 'posts', posts => {
-                posts.where( 'is_valid', 1 )
+                posts.whereNull('deleted_at')
+                    .andWhere( 'is_valid', 1 )
             } )
             .withCount( 'favourites' )
             .select( 'id', 'name' )

@@ -447,7 +447,7 @@ export default {
 
     methods: {
         ...mapMutations([
-            'setPassMatch'
+            'setPassMatch', 'setName'
         ]),
 
         blur_element(element) {
@@ -495,6 +495,9 @@ export default {
                         })
                     }
 
+                })
+                .catch(err => {
+                    console.log(err.message)
                 })
         },
 
@@ -567,6 +570,10 @@ export default {
             await axios.put(url, form)
                 .then(response => {
                     if (response.data.success) {
+                        const user = response.data.response
+
+                        this.setName(user.name)
+
                         this.$swal({
                             icon: "success",
                             text: 'Vos informations ont été mises à jour avec succès'

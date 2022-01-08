@@ -3,13 +3,55 @@ import User from "App/Models/User";
 import Hash from "@ioc:Adonis/Core/Hash";
 import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import Encryption from "@ioc:Adonis/Core/Encryption";
-import {Exception} from "@poppinss/utils";
 import { rules, schema } from "@ioc:Adonis/Core/Validator";
 import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
 // import VerifyEmail from "App/Mailers/VerifyEmail";
 
 
 export default class AuthController {
+
+    public async check({auth}: HttpContextContract) {
+
+        return auth.check()
+            .then( async authenticated => {
+                const resp = {
+                    success: true,
+                    authenticated
+                }
+                if ( authenticated ) {
+                    const user = auth.user as User
+
+                    await user.load('posts', posts => {
+                        posts.select('id')
+                            .withCount('conversations', conversations => {
+                                conversations.where('read', 0)
+                            })
+                    })
+
+                    resp.user = user.serialize({
+                        fields: ['name', 'username']
+                    })
+                    const conversations = user.posts
+                        .map(post => post.$extras.conversations_count)
+
+                    resp.unread_messages = conversations.reduce((a,b) => {
+                        return a + b
+                    })
+
+                }
+
+                return resp
+
+            } )
+            .catch( (err) => {
+                return {
+                    success: false,
+                    reason: 'auth_check',
+                    response: err.message
+                }
+            })
+
+    }
 
     public async login({auth, request, view, response}: HttpContextContract) {
 
@@ -215,7 +257,7 @@ export default class AuthController {
 
                 })
                 .catch( () => {
-                    return view.render('auth/reset_password')
+                    return view.render('errors/not-found')
                 })
         }
     }

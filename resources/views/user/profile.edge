@@ -5,6 +5,7 @@
     @set('authenticated', await auth.check().then(checked => {return checked}))
 
     <user-profile inline-template id="container"
+                  user_name="{{ user.name }}"
                   username="{{ user.username }}"
                   my_username="{{ my_username }}"
                   is_online="{{ user.is_online }}"
@@ -40,7 +41,7 @@
                     <div class="flex flex-col lg:flex-row-none items-center lg:items-start mt-3 lg:mt-0 lg:ml-3">
                         <div class="flex items-center flex-col md:flex-row mb-2 md:mb-0">
                             <span class="mb-1 font-semibold">
-                                {{ user.name }}
+                                @{{ user_name }}
                             </span>
 
                         </div>

@@ -32,6 +32,9 @@ Route.group(() => {
         Route.route('/login', ['GET', 'POST'], 'AuthController.login')
             .as('login')
 
+        Route.post('/check', 'AuthController.check')
+            .as('check')
+
         Route.get('/register', 'UsersController.create')
             .as('register')
 

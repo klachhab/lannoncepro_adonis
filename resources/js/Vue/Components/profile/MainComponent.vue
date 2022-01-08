@@ -68,7 +68,7 @@ export default {
 
     computed: {
         ...mapState([
-            'container', 'messages_count', 'isMyProfile'
+            'container', 'messages_count', 'isMyProfile', 'user_name'
         ]),
 
     },

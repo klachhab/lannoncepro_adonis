@@ -147,34 +147,38 @@ export default {
                 showCancelButton: true,
                 confirmButtonText: 'Oui',
                 cancelButtonText: 'Non',
-            }).then( async result => {
-
-                if (result.isConfirmed) {
-
-                    const post = this.posts[index]
-
-                    await axios.delete(`/api/annonces/annonce/${post.slug}`)
-                        .then( response => {
-                            const data = response.data
-
-                            if (data.success){
-                                this.posts.splice(index, 1)
-                                this.getPosts(this.meta.current_page)
-                            }
-                            else {
-                                this.$swal({
-                                    title: 'Erreur',
-                                    text: "Une erreur est survenue lors de la suppression de votre annonce.",
-                                    icon: 'error',
-                                })
-                                    .then( () => {
-                                        console.log(data.result)
-                                    })
-
-                            }
-                        })
-                }
             })
+                .then( async result => {
+
+                    if (result.isConfirmed) {
+
+                        const post = this.posts[index]
+
+                        await axios.delete(`/api/annonces/annonce/${post.slug}`)
+                            .then( response => {
+                                const data = response.data
+
+                                if (data.success){
+                                    this.posts.splice(index, 1)
+                                    this.getPosts(this.meta.current_page)
+                                }
+                                else {
+                                    this.$swal({
+                                        title: 'Erreur',
+                                        text: "Une erreur est survenue lors de la suppression de votre annonce.",
+                                        icon: 'error',
+                                    })
+                                        .then( () => {
+                                            console.log(data.result)
+                                        })
+
+                                }
+                            })
+                    }
+                })
+                .catch(err => {
+                    console.log(err.message)
+                })
 
         },
 
