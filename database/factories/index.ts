@@ -28,14 +28,14 @@ export const PostFactory = Factory
                 condition: faker.random.arrayElement( ['new', 'used'] ),
                 price: faker.datatype.float( 2 ),
                 negotiable: faker.datatype.boolean(),
-                lat: faker.datatype.float( 2 ),
-                lon: faker.datatype.float( 2 ),
+                // lat: faker.datatype.float( 2 ),
+                // lon: faker.datatype.float( 2 ),
                 is_valid: faker.datatype.boolean(),
                 featured: faker.datatype.boolean(),
                 
             }
         } )
-        .relation( 'images', () => GalleryFactory )
+        .relation( 'pictures', () => GalleryFactory )
         .build()
 
 export const UserFactory = Factory

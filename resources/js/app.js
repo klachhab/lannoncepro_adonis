@@ -41,6 +41,9 @@ Vue.component('vue-nav', require('./Vue/Components/Layouts/HeaderComponent').def
 
 // Content
 Vue.component('home', require('./Vue/Components/HomeComponent.vue').default);
+
+// Posts
+Vue.component('indexPost', require('./Vue/Components/posts/IndexComponent').default);
 Vue.component('createPost', require('./Vue/Components/posts/CreateComponent').default);
 Vue.component('createPostDetails', require('./Vue/Components/posts/CreateDetailsComponent').default);
 Vue.component('showPost', require('./Vue/Components/posts/ShowComponent').default);

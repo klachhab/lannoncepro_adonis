@@ -1,47 +1,55 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import * as Subs from "../Components/profile/SubComponents"
+import IndexComponent from "../Components/posts/IndexComponent";
 
 Vue.use(VueRouter);
 
 const routes = [
 
+    // My Profile ====================================================
     {
-        path: '/',
+        path: '/mon-profil',
         name: 'ads',
         component: Subs.PostsComponent
     },
 
     {
-        path: '/messages',
+        path: '/mon-profil/messages',
         name: 'messages',
         component: Subs.ConversationComponent
     },
 
     {
-        path: '/favoris',
+        path: '/mon-profil/favoris',
         name: 'favourite_ads',
         component: Subs.FavouritePostsComponent
     },
 
     {
-        path: '/en-attente',
+        path: '/mon-profil/en-attente',
         name: 'pending_ads',
         component: Subs.PendingPostsComponent
     },
 
     {
-        path: '/infos',
+        path: '/mon-profil/infos',
         name: 'profile_infos',
         component: Subs.ProfileComponent,
     },
 
 
+    // Posts ====================================================
+
+    // {
+        // path: '/annonces',
+        // name: 'posts',
+        // component: IndexComponent,
+    // },
 ];
 
 const router = new VueRouter({
     mode: "history",
-    base: "/mon-profil",
     linkActiveClass: "text-blue-700",
     linkExactActiveClass: "text-blue-700",
     routes

@@ -145,13 +145,15 @@ export default {
         this.get_reviews()
         this.get_pics()
 
-        const swiperTop = this.$refs.swiperTop.$swiper
-        const swiperThumbs = this.$refs.swiperThumbs.$swiper
+        if ( this.slider_pics.length) {
+            const swiperTop = this.$refs.swiperTop.$swiper
+            const swiperThumbs = this.$refs.swiperThumbs.$swiper
 
-        swiperTop.on('slideChange', () => {
-            this.selectedSlide = swiperTop.activeIndex
-            swiperThumbs.slideTo(swiperTop.activeIndex)
-        })
+            swiperTop.on( 'slideChange', () => {
+                this.selectedSlide = swiperTop.activeIndex
+                swiperThumbs.slideTo( swiperTop.activeIndex )
+            } )
+        }
 
     },
 

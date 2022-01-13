@@ -16,16 +16,50 @@ import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
 import City from "App/Models/City";
 import Application from "@ioc:Adonis/Core/Application";
 import ReportValidator from "App/Validators/Post/ReportValidator";
+import Database from "@ioc:Adonis/Lucid/Database";
 
 export default class PostsController {
 
     protected ids: number[]
 
-    public index({ request }: HttpContextContract) {
-        return Post.filter( request.qs() )
-            .paginate( request.qs().page, 20 )
+    public async index({ request, view }: HttpContextContract) {
+
+        // const options = {
+        //     from: null,
+        //     to: null
+        // }
+        // const prices: Array<Object> = request.qs().prx.split(',').map(val => val.split(':'))
+        //
+        // prices.forEach( (val) => {
+        //     options[val[0]] = Number.parseInt(val[1])
+        // } )
+        //
+        // return options
+        // const prices = request.qs().prx.split(',').length > 1 ?
+        //     request.qs().prx.split(',')
+        //         .map(val => Number.parseInt(val))
+        //
+        //     : [ Number.parseInt( request.qs().prx ), 0 ]
+
+
+        // return Post.query()
+        //     .whereBetween('price', prices.sort( (a,b) => {
+        //         return a - b
+        //     })
+        //     )
+        //     .limit(10)
+
+        if ( request.qs().api ) {
+
+            return Post.filter( request.qs() )
+                .paginate( request.qs().page, 10 )
+
+        } else {
+            return view.render( "posts/index" )
+        }
 
     }
+
 
     public async create({ view, auth }: HttpContextContract) {
         // return await Category.query().doesntHave('parent').select('name', 'slug','id')
