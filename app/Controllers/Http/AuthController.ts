@@ -16,8 +16,16 @@ export default class AuthController {
             .then( async authenticated => {
                 const resp = {
                     success: true,
-                    authenticated
+                    authenticated,
+                    user: null,
+                    unread_messages: 0,
+                } as {
+                    success: boolean,
+                    authenticated: boolean,
+                    user: User | null,
+                    unread_messages: number,
                 }
+
                 if ( authenticated ) {
                     const user = auth.user as User
 
@@ -30,13 +38,14 @@ export default class AuthController {
 
                     resp.user = user.serialize({
                         fields: ['name', 'username']
-                    })
+                    }) as User
+
                     const conversations = user.posts
                         .map(post => post.$extras.conversations_count)
 
-                    resp.unread_messages = conversations.reduce((a,b) => {
+                    resp.unread_messages = conversations.length ? conversations.reduce((a,b) => {
                         return a + b
-                    })
+                    }) : 0
 
                 }
 
@@ -145,18 +154,18 @@ export default class AuthController {
         const log = auth.defaultGuard == "web" ? auth.use('web') : auth.use('api')
 
         if (await log.check()) {
-           return await log.logout()
-               .then( () => {
-                   return {
-                       logged_out: true
-                   }
-               })
-               .catch(e => {
-                   return {
-                       logged_out: false,
-                       error: e.code
-                   }
-               })
+            return await log.logout()
+                .then( () => {
+                    return {
+                        logged_out: true
+                    }
+                })
+                .catch(e => {
+                    return {
+                        logged_out: false,
+                        error: e.code
+                    }
+                })
         }
 
     }
@@ -265,8 +274,11 @@ export default class AuthController {
 
     public async verify({request, auth, response, view}: HttpContextContract) {
 
-        console.log(await auth.check())
-        if ( await auth.check() ){
+        // return request.qs().key
+        const authenticated = await auth.check().then( ok => {
+            return ok
+        })
+        if ( !authenticated ){
 
             if ( auth.defaultGuard == "api" ) {
                 return {
@@ -275,7 +287,10 @@ export default class AuthController {
                 }
             }
 
-            return response.redirect().toRoute('web.my_profile')
+            // return response.redirect().toRoute('web.my_profile')
+            return {
+                response: 'unauthenticated'
+            }
         }
 
 
@@ -284,34 +299,22 @@ export default class AuthController {
             .firstOrFail()
             .then(async user => {
 
-                return view.render('auth/reset_password')
+                user.verification_code = null
+                user.email_verified = true
 
-                // user.verification_code = null
-                // user.email_verified = true
-                //
-                // if (await auth.check().then(checked => {return checked}) ){
-                //     user.password = request.qs().npss
-                // }
-                //
-                // return await user.save()
-                //     .then(async () => {
-                //
-                //         if (await auth.check().then(checked => {return checked}) ){
-                //             return response.redirect('/mon-profil/infos')
-                //         }
-                //
-                //         return auth.login(user)
-                //             .then( () => {
-                //                 return response.redirect('/mon-profil/infos')
-                //             })
-                //
-                //     })
-
+                return await user.save()
+                    .then( () => {
+                        return response.redirect().toRoute('web.my_profile')
+                    })
+                    .catch( err => {
+                        console.log(err.message)
+                        return response.status(500)
+                    })
             })
-            .catch(err => {
-                return {
-                    error: err.code
-                }
+            .catch( err => {
+
+                console.log(err.message)
+                return response.status(404)
             })
     }
 
@@ -370,7 +373,7 @@ export default class AuthController {
                     .where('verification_code', request.all().verification_code)
                     .firstOrFail()
             }
-            
+
             user.password = request.all().password
             user.verification_code = null
 

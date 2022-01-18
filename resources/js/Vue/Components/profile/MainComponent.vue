@@ -115,7 +115,7 @@ export default {
 <style scoped>
 
 #container {
-    background-image: url("/images/bg/login_bg.png");
+    background-image: url('/images/bg/login_bg.png');
     background-size: cover;
 }
 

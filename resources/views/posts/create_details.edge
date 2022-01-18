@@ -67,45 +67,65 @@
 
 
                     <!---------------------------------- Reason -------------------------------------->
-                     <div class="flex items-center grid lg:grid-cols-7 mt-10 mb-7">
+                    <div class="flex items-center grid lg:grid-cols-7 mt-10 mb-7">
 
                         <span class="self-start" :class="input_class.label">
                             Je souhaite
                         </span>
 
-                        <div class="flex items-center w-full">
-                            <label class="inline-flex items-center mr-5">
+                        <div class="flex flex-col w-full">
 
-                                <input type="radio" v-model="form.reason" value="sell"
-                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
-                                       checked >
+                            <div class="flex items-center w-full">
 
-                                <span class="ml-2">Vendre</span>
+                                <label class="inline-flex items-center mr-5">
 
-                            </label>
-                            <label class="inline-flex items-center">
+                                    <input type="radio" v-model="form.reason" value="sell"
+                                           class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                           checked>
 
-                                <input type="radio" v-model="form.reason" value="buy"
-                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
-                                >
-                                <span class="ml-2">Acheter</span>
+                                    <span class="ml-2">Vendre</span>
 
-                            </label>
+                                </label>
+                                <label class="inline-flex items-center">
+
+                                    <input type="radio" v-model="form.reason" value="buy"
+                                           class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                    >
+                                    <span class="ml-2">Acheter</span>
+
+                                </label>
+                            </div>
+
+                            <span class="text-xs text-red-500 mt-1" v-if="errors.reason">
+                                @{{ errors.reason }}
+                            </span>
+
                         </div>
+
+
 
                     </div>
                     <!---------------------------------- ! Reason ! ---------------------------------->
 
                     <!---------------------------------- Title -------------------------------------->
                     <div class="flex grid lg:grid-cols-7 mb-7" :class="input_class.container">
-                        <span :class="input_class.label">
+                        <span :class="input_class.label" class="self-start">
                             Titre<span class="text-red-400">*</span>
                         </span>
 
-                        <input type="text" class="lg:col-span-5"
-                               :class="getInputClass('default')"
-                               v-model="form.title"
-                        />
+                        <div class="flex flex-col lg:col-span-5">
+
+                            <input type="text" class="flex-1"
+                                   :class="getInputClass(errors.title ? 'error' : 'default')"
+                                   @input="delete errors.title"
+                                   v-model="form.title"
+                            />
+
+                            <span class="text-xs text-red-500 mt-1" v-if="errors.title">
+                               @{{ errors.title }}
+                           </span>
+
+                        </div>
                     </div>
 
                     <!---------------------------------- ! Title ! ---------------------------------->
@@ -117,12 +137,20 @@
                             Déscription<span class="text-red-400">*</span>
                         </span>
 
-                        <textarea placeholder="Tapez quelques lignes décrivant votre bien"
-                                  rows="8"
-                                  class="lg:col-span-5"
-                                  :class="getInputClass('default')"
-                                  v-model="form.description"
-                        ></textarea>
+                        <div class="flex flex-col lg:col-span-5">
+
+                            <textarea rows="8" placeholder="Tapez quelques lignes décrivant votre bien"
+                                      class="lg:col-span-5"
+                                      :class="getInputClass(errors.description ? 'error' : 'default')"
+                                      v-model="form.description"
+                                      @input="delete errors.description"
+                            ></textarea>
+
+                            <span class="text-xs text-red-500 mt-1" v-if="errors.description">
+                               @{{ errors.description }}
+                            </span>
+
+                        </div>
 
                     </div>
                     <!---------------------------------- ! Description ! ---------------------------------->
@@ -137,7 +165,7 @@
                         <div class="flex lg:col-span-2 items-center px-3 py-2 transition duration-100 ease-in-out rounded-md border"
                              :class="focus_price_class"
                         >
-                            <input type="text" step="0.01" placeholder="0,00"
+                            <input type="text" placeholder="0,00"
                                    class="w-full focus-visible:outline-none appearance-none"
                                    @focus="selected = 'price'"
                                    @blur="selected = null"
@@ -166,19 +194,27 @@
                             Condition<span class="text-red-400">*</span>
                         </span>
 
-                        <div class="flex items-center w-full">
+                        <div class="flex flex-col w-full">
 
-                            <label class="inline-flex items-center mr-5">
-                                <input type="radio" v-model="form.condition" value="new"
-                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
-                                       checked>
-                                <span class="ml-2">Neuf</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" v-model="form.condition" value="used"
-                                       class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
-                                <span class="ml-2">Utilisé</span>
-                            </label>
+                            <div class="flex items-center w-full">
+
+                                <label class="inline-flex items-center mr-5">
+                                    <input type="radio" v-model="form.condition" value="new"
+                                           class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                           checked>
+                                    <span class="ml-2">Neuf</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" v-model="form.condition" value="used"
+                                           class="border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-2">Utilisé</span>
+                                </label>
+
+                            </div>
+
+                            <span class="text-xs text-red-500 mt-1" v-if="errors.condition">
+                                @{{ errors.condition }}
+                            </span>
 
                         </div>
 
@@ -187,23 +223,32 @@
 
                     <!---------------------------------- Delivery Mode -------------------------------------->
                     <div class="flex grid lg:grid-cols-7 mb-7 mt-10" :class="input_class.container">
-                        <span  :class="input_class.label">
+                        <span :class="input_class.label" class="self-start">
                             Mode de livraison<span class="text-red-400">*</span>
                         </span>
 
-                        <select placeholder="Ex. iPhone 12, Samsung S12 ..."
-                               class="lg:col-span-5"
-                               :class="getInputClass('default')"
-                               v-model="form.delivery_mode"
-                        >
-                            <option disabled value="null">Selectionnez...</option>
+                        <div class="flex flex-col lg:col-span-5">
 
-                            @each(delivery_mode in delivery_modes)
+                            <select class="lg:col-span-5"
+                                    :class="getInputClass(errors.delivery_mode_id ? 'error' : 'default')"
+                                    v-model="form.delivery_mode"
+                                    @change="delete errors.delivery_mode_id"
+                            >
+                                <option disabled value="">Selectionnez...</option>
 
-                            <option value="{{ delivery_mode.id }}">{{ delivery_mode.mode }}</option>
+                                @each(delivery_mode in delivery_modes)
 
-                            @end
-                        </select>
+                                <option value="{{ delivery_mode.id }}">{{ delivery_mode.mode }}</option>
+
+                                @end
+                            </select>
+
+                            <span class="text-xs text-red-500 mt-1" v-if="errors.delivery_mode_id">
+                               @{{ errors.delivery_mode_id }}
+                            </span>
+
+                        </div>
+
                     </div>
                     <!---------------------------------- ! Delivery Mode ! ---------------------------------->
 
@@ -214,7 +259,7 @@
                             Ajouter une vidéo
 
                             <a href="#" class="ml-2 mt-1" v-if="form.video_type"
-                               @click.prevent="form.video_type = null; form.video_link = null">
+                               @click.prevent="form.video_type = ''; form.video_link = ''; delete errors.video_link">
 
                                 <svg width="1em" height="1.14em" viewBox="0 0 50 57" xmlns="http://www.w3.org/2000/svg"
                                      class="fill-current text-red-600"
@@ -230,27 +275,34 @@
 
                         <div class="flex lg:col-span-5 grid grid-cols-1">
 
-                            <select type="text" class="w-full mb-3" :class="getInputClass('default')"
-                                    v-model="form.video_type" @change="form.video_link = null"
+                            <select type="text" class="w-full"
+                                    :class="getInputClass(errors.video_link ? 'error' : 'default')"
+                                    v-model="form.video_type"
+                                    @change="form.video_link = ''; delete errors.video_link"
                             >
-                                <option disabled value="null">Selectionnez...</option>
+                                <option disabled value="">Selectionnez...</option>
                                 <option value="iframe">Lien Youtube, Dailymotion ou Vimeo</option>
                                 <option value="local">Depuis votre appareil</option>
                             </select>
 
                             {{-- v-if="form.video_type === 'iframe' && !form.video_link" --}}
                             <input type="text" placeholder="Ex. https://www.youtube.com/watch?v=aqz-KE-bpKQ"
-                                   class="mb-3" :class="getInputClass('default')"
+                                   class="mt-3"
+                                   @input="delete errors.video_link"
+                                   :class="getInputClass(errors.video_link && form.video_type === 'iframe' ? 'error' : 'default')"
                                    v-if="form.video_type === 'iframe'"
                                    v-model="form.video_link"
                             />
 
-                            <label class="flex justify-center items-center border border-1 h-24 w-full rounded-md border-gray-300 text-gray-300 cursor-pointer mb-3"
-                                 v-else-if="form.video_type === 'local'"
+                            <label class="flex justify-center items-center border border-1 h-24 w-full rounded-md cursor-pointer mt-3"
+                                   :class="errors.video_link ? 'border-red-300 text-red-300 bg-red-50' : 'border-gray-300 text-gray-300'"
+                                   v-else-if="form.video_type === 'local'"
                             >
 
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current mr-1" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                 </svg>
 
                                 <span class="text-sm select-none">
@@ -261,10 +313,24 @@
 
                             </label>
 
-                            {{-- Video preview --}}
-                            <div class="w-full" v-if="form.video_link">
+                            {{-- Error messages --}}
 
-                                <iframe :src="videoLink" class="w-full aspect-h-9 h-80" v-if="form.video_type === 'iframe'"></iframe>
+                            <div class="w-full" v-if="errors.video_link">
+
+                                <span class="text-xs text-red-500 mt-1" v-if="form.video_type === 'iframe'">
+                                   Merci d'ajouter un lien vers la vidéo
+                                </span>
+                                <span class="text-xs text-red-500 mt-1" v-else>
+                                   Merci de choisir une vidéo depuis votre appareil
+                                </span>
+
+                            </div>
+
+                            {{-- Video preview --}}
+                            <div class="w-full mt-3" v-if="form.video_link">
+
+                                <iframe :src="videoLink" class="w-full aspect-h-9 h-80"
+                                        v-if="form.video_type === 'iframe' && videoLink"></iframe>
 
                                 <video-player v-else-if="form.video_type === 'local'" class="video-player-box w-full"
                                               ref="videoPlayer"
@@ -292,21 +358,22 @@
                                 <svg width="1em" viewBox="0 0 384 384" xmlns="http://www.w3.org/2000/svg"
                                      class="fill-current text-white mr-2"
                                 >
-                                    <g >
-                                        <path d="M368,160 L224,160 L224,16 C224,7.16 216.84,0 208,0 L176,0 C167.16,0 160,7.16 160,16 L160,160 L16,160 C7.16,160 0,167.16 0,176 L0,208 C0,216.84 7.16,224 16,224 L160,224 L160,368 C160,376.84 167.16,384 176,384 L208,384 C216.84,384 224,376.84 224,368 L224,224 L368,224 C376.84,224 384,216.84 384,208 L384,176 C384,167.16 376.84,160 368,160 Z" id="Path"></path>
+                                    <g>
+                                        <path d="M368,160 L224,160 L224,16 C224,7.16 216.84,0 208,0 L176,0 C167.16,0 160,7.16 160,16 L160,160 L16,160 C7.16,160 0,167.16 0,176 L0,208 C0,216.84 7.16,224 16,224 L160,224 L160,368 C160,376.84 167.16,384 176,384 L208,384 C216.84,384 224,376.84 224,368 L224,224 L368,224 C376.84,224 384,216.84 384,208 L384,176 C384,167.16 376.84,160 368,160 Z"
+                                              id="Path"></path>
                                     </g>
                                 </svg>
 
                                 <p>Ajouter</p>
 
                                 <form ref="localPics">
-                                    <input type="file" multiple max="5" class="hidden" @change="addPics" accept="image/jpeg, image/png">
+                                    <input type="file" multiple max="5" class="hidden" @change="addPics"
+                                           accept="image/jpeg, image/png">
                                 </form>
                             </label>
                         </div>
 
                         <div class="flex col-span-2 w-full grid grid-cols-1">
-
 
 
                             <div class="masonry md:masonry-2 masonry-3 before:box-inherit after:box-inherit mt-3"
@@ -329,7 +396,8 @@
                                         <svg width=".75em" viewBox="0 0 11 12" xmlns="http://www.w3.org/2000/svg"
                                              class="fill-current hover:text-red-600 mr-2"
                                         >
-                                            <path d="M6.66687705,5.50015638 L10.1924773,1.97455614 L10.9195292,1.24750422 C11.0267823,1.14025117 11.0267823,0.965964964 10.9195292,0.858711915 L10.1416008,0.0807835468 C10.0343478,-0.0264695026 9.86006159,-0.0264695026 9.75280854,0.0807835468 L5.50015638,4.33343571 L1.24750422,0.0804397871 C1.14025117,-0.0268132624 0.965964964,-0.0268132624 0.858711915,0.0804397871 L0.0804397871,0.858368155 C-0.0268132624,0.965621204 -0.0268132624,1.13990741 0.0804397871,1.24716046 L4.33343571,5.50015638 L0.0804397871,9.75280854 C-0.0268132624,9.86006159 -0.0268132624,10.0343478 0.0804397871,10.1416008 L0.858368155,10.9195292 C0.965621204,11.0267823 1.13990741,11.0267823 1.24716046,10.9195292 L5.50015638,6.66687705 L9.02575662,10.1924773 L9.75280854,10.9195292 C9.86006159,11.0267823 10.0343478,11.0267823 10.1416008,10.9195292 L10.9195292,10.1416008 C11.0267823,10.0343478 11.0267823,9.86006159 10.9195292,9.75280854 L6.66687705,5.50015638 Z" id="Path"/>
+                                            <path d="M6.66687705,5.50015638 L10.1924773,1.97455614 L10.9195292,1.24750422 C11.0267823,1.14025117 11.0267823,0.965964964 10.9195292,0.858711915 L10.1416008,0.0807835468 C10.0343478,-0.0264695026 9.86006159,-0.0264695026 9.75280854,0.0807835468 L5.50015638,4.33343571 L1.24750422,0.0804397871 C1.14025117,-0.0268132624 0.965964964,-0.0268132624 0.858711915,0.0804397871 L0.0804397871,0.858368155 C-0.0268132624,0.965621204 -0.0268132624,1.13990741 0.0804397871,1.24716046 L4.33343571,5.50015638 L0.0804397871,9.75280854 C-0.0268132624,9.86006159 -0.0268132624,10.0343478 0.0804397871,10.1416008 L0.858368155,10.9195292 C0.965621204,11.0267823 1.13990741,11.0267823 1.24716046,10.9195292 L5.50015638,6.66687705 L9.02575662,10.1924773 L9.75280854,10.9195292 C9.86006159,11.0267823 10.0343478,11.0267823 10.1416008,10.9195292 L10.9195292,10.1416008 C11.0267823,10.0343478 11.0267823,9.86006159 10.9195292,9.75280854 L6.66687705,5.50015638 Z"
+                                                  id="Path"/>
                                         </svg>
                                         Enlever
                                     </span>
@@ -348,29 +416,49 @@
                     <!---------------------------------- Add city -------------------------------------->
                     <div class="flex grid lg:grid-cols-7 mb-7 mt-10" :class="input_class.container">
                         <span class="self-start mt-1" :class="input_class.label">
-                            Ville<span class="text-red-400">*</span>
+                            Ville
                         </span>
 
                         <div class="flex col-span-5 w-full grid grid-cols-1">
                             <select class="lg:col-span-5 mb-3"
-                                    @change="isSameCity"
                                     :class="getInputClass('default')"
+                                    @change="isSameCity"
                                     v-model="form.city.same"
                             >
-                                <option :value="true">Ma ville</option>
-                                <option :value="false">Autre ville</option>
+                                <option value="true">Ma ville</option>
+                                <option value="false">Autre ville</option>
 
                             </select>
 
                             <div v-if="!form.city.same" class="relative lg:col-span-5">
 
-                                <input type="text" placeholder="Ex: Paris"
-                                       class="w-full"
-                                       :class="getInputClass('default')"
-                                       @input="searchAddress"
-                                       data-dropdown-toggle="adresses"
-                                       v-model="selected_address"
-                                />
+                                <div class="flex flex-col w-full">
+                                    <label class="relative flex">
+                                        <input type="text" placeholder="Ex: Paris"
+                                               class="w-full"
+                                               :class="getInputClass(errors.city_id ? 'error' : 'default')"
+                                               @input="searchAddress"
+                                               data-dropdown-toggle="adresses"
+                                               v-model="selected_address"
+                                        />
+
+                                        <span class="absolute inset-y-0 right-0 flex items-center">
+
+                                            <svg v-if="selected_address" class="h-5 w-5 stroke-current text-gray-400 mr-3 cursor-pointer"
+                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 @click="selected_address = null; form.city.code = '' "
+                                                 stroke="currentColor">
+
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </span>
+
+                                    </label>
+
+                                    <span class="text-xs text-red-500 mt-1" v-if="errors.city_id">
+                                        @{{ errors.city_id }}
+                                    </span>
+                                </div>
 
                                 <div class="flex flex-col w-full bg-white rounded-md shadow mt-1 h-48 overflow-auto border border-gray-100"
                                      id="adresses"
@@ -378,9 +466,13 @@
                                      @focusout="foundAddresses.show_list = false"
                                 >
 
-                                    <svg v-if="foundAddresses.loading" class="motion-reduce:hidden animate-spin self-center my-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <svg v-if="foundAddresses.loading"
+                                         class="motion-reduce:hidden animate-spin self-center my-2 h-5 w-5"
+                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
 
                                     <div class="flex flex-col w-full py-2 justify-center cursor-pointer hover:bg-blue-500 p-2 group"
@@ -416,7 +508,8 @@
 
                             <p class="col-span-11 text-gray-500">
                                 J'ai lu et j'accepte
-                                <a href="#" @click.prevent class="font-semibold text-gray-900">les conditions générales et la politique de
+                                <a href="#" @click.prevent class="font-semibold text-gray-900">les conditions générales
+                                    et la politique de
                                     confidentialité</a>
                                 de
                                 <a href="#" @click.prevent class="font-semibold text-gray-900">LannoncePro.fr</a>

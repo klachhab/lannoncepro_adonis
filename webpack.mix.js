@@ -32,5 +32,5 @@ mix.js( 'resources/js/app.js', path.resolve( __dirname, 'public/js' ) )
         } )
         .vue()
         .sourceMaps()
-        .disableNotifications()
+        // .disableNotifications()
 // Add your assets here

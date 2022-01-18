@@ -1,1 +1,27 @@
-<p>It's a 404 </p>
+@layout('layouts/master')
+@set('title', '404 - Page introuvable')
+
+@section('content')
+
+    <div class="py-16" style="background-image: url('/images/bg/login_bg.png'); background-size: cover;">
+
+        <div class="flex flex-col items-center max-h-full ">
+
+            <span class="font-bold text-4xl text-white mb-5">Page introuvable</span>
+
+            <span class="text-white text-2xl mb-1">
+                Cette page n'existe pas
+            </span>
+
+            <div class="flex text-white hover:underline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-current mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+
+                <a href="/" class="">Revenir</a>
+            </div>
+        </div>
+
+    </div>
+
+@endsection

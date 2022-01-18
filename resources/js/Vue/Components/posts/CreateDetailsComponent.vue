@@ -1,6 +1,7 @@
 <script>
 
 import { mapGetters, mapState } from "vuex";
+import Swal from "sweetalert2";
 
 
 export default {
@@ -13,37 +14,41 @@ export default {
         return {
             container: "max-w-xs xl:max-w-6xl lg:max-w-4xl md:max-w-lg sm:max-w-xl",
             selected: null,
+
+            // Form ------------------------------------------
             form: {
                 reason: 'sell',
-                title: null,
-                description: null,
+                title: "",
+                description: "",
                 condition: 'new',
-                price: null,
+                price: "",
                 negotiable: false,
-                delivery_mode: null,
+                delivery_mode: "",
 
 
-                video_type: null,
-                video_link: null,
+                video_type: "",
+                video_link: "",
 
                 photos: [],
                 photos_urls: [],
 
                 city: {
                     same: true,
-                    name: null,
-                    code: null,
+                    name: "",
+                    code: "",
                     // lon < lat
                     geo_coordinates: {
-                        longitude: null,
-                        latitude: null,
+                        longitude: "",
+                        latitude: "",
                     },
                     department: {
-                        name: null,
-                        code: null,
+                        name: "",
+                        code: "",
                     },
                 }
             },
+            errors: {},
+            // Form ------------------------------------------
 
             same_city: 'same',
             cities: [],
@@ -88,22 +93,24 @@ export default {
         ]),
 
         videoLink() {
+            if ( !this.form.video_link) {
+                return
+            }
             return this.form.video_link.includes('youtube') ?
                 this.form.video_link.replace('/watch?v=', '/embed/') :
                 this.form.video_link.includes('dailymotion') ?
                     this.form.video_link.replace('com/video/', 'com/embed/video/') :
                     this.form.video_link.includes('vimeo') ? this.form.video_link.replace('//vimeo.com/',
-                        '//player.vimeo.com/video/') + '?title=0&portrait=0' : null;
-
+                        '//player.vimeo.com/video/') + '?title=0&portrait=0' : '';
         },
 
         description(){
-            const description = this.form.description.replace(/\n/g, '<br/>')
+            const description = this.form.description
 
             if (this.form.description){
                 return description.replace(/\n/g, '<br/>')
             }
-            return null
+            return ""
         },
 
         focus_price_class() {
@@ -113,18 +120,32 @@ export default {
 
     methods: {
 
-        isSameCity(){
+        isSameCity($event){
+            delete this.errors.city_id
+            const value = $event.target.value
 
             this.selected_address = null
 
-            this.form.city.name = null
-            this.form.city.same = false
-            this.form.city.code = null
-
-            this.form.city.department = {
-                name: null,
-                code: null,
+            this.form.city = {
+                same: JSON.parse(value),
+                name: "",
+                code: "",
+                department: {
+                    name: "",
+                    code: "",
+                },
+                geo_coordinates: {
+                    longitude: "",
+                    latitude: "",
+                }
             }
+            // this.form.city.name = ""
+            // this.form.city.code = ""
+            //
+            // this.form.city.department = {
+            //     name: "",
+            //     code: "",
+            // }
         },
 
         async getCities(){
@@ -183,6 +204,7 @@ export default {
         },
 
         addVideo(event) {
+            delete this.errors.video_link
             let video = event.target.files[0];
 
             this.videoPlayerOptions.sources[0].src = URL.createObjectURL(video)
@@ -200,8 +222,6 @@ export default {
 
             this.form.video_link = null
         },
-
-
 
 
         // Search address -------------------------------
@@ -233,6 +253,7 @@ export default {
 
 
         selectAddress(address) {
+            delete this.errors.city_id
             const contextArr = address.properties.context.split(', ')
 
             this.selected_address = address.properties.label
@@ -279,10 +300,8 @@ export default {
             form.append('delivery_mode_id', this.form.delivery_mode)
             form.append('category_id', this.category_id)
 
-            if (this.form.video_type){
-                form.append('video_type', this.form.video_type)
-                form.append('video_link',this.form.video_type === "iframe" ? this.videoLink : this.form.video_link)
-            }
+            form.append('video_type', this.form.video_type)
+            form.append('video_link',this.form.video_type === "iframe" ? this.videoLink : this.form.video_link)
 
             this.form.photos.forEach( photo => {
                 form.append('photos[]', photo)
@@ -298,32 +317,49 @@ export default {
             })
                 .then( response => {
 
-                    if (!response.data.success){
-                        this.$swal({
-                            icon: "error",
-                            title: "Erreur",
-                            text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
-                                `Merci de contacter notre support.`
-                        }).then( () => {
-                            this.saving = false
-                        })
+                    const success = response.data.success
+                    const data = response.data
+
+
+                    if (!success) {
+                        if ( response.data.error === "validation" ) {
+                            this.errors = data.result
+                            // console.log(data.result)
+                        }
+
+                        else {
+                            Swal.fire( {
+                                icon: 'error',
+                                html: "Une erreur est survenue lors de la création de votre compte.<br/>Merci de contacter notre support",
+                            } );
+                        }
+
                     }
-                    else window.location.replace(`/mon-profil/en-attente`)
+                    else {
+                        Swal.fire( {
+                            icon: 'success',
+                            html: "Votre annonce a bien été ajouter.<br/>Vous receverai un e-mail après la verification",
+                        } )
+                        .then( () => {
+                            window.location.replace(`/mon-profil/en-attente`)
+                        });
+                    }
 
                 })
-                .catch( error => {
+                .catch( () => {
 
-                    this.$swal({
+                    Swal.fire({
                         icon: "error",
                         title: "Erreur",
-                        text: 'Une erreur est survenue lors de l\'ajout de votre annonce.\n' +
-                            `Merci de contacter notre support.\n`
-                        + `${error}`
-                    }).then( () => {
-                        this.saving = false
-                        // window.location.replace('/')
+                        html: 'Une erreur est survenue lors de l\'ajout de votre annonce.<br/>' +
+                            `Merci de contacter notre support.`
                     })
+                        .then( () => {
+                            // window.location.replace('/')
+                        })
                 })
+
+            this.saving = false
 
         },
 

@@ -434,6 +434,9 @@ export default class UsersController {
                                 }
                             } )
                     } )
+
+                    .orderBy('createdAt', 'desc')
+
                     .select( 'id', 'title', 'slug', 'price', 'negotiable', 'createdAt', 'cityId', 'userId' )
                     .paginate( request.all().page, 5 )
 

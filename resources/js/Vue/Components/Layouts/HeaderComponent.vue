@@ -193,6 +193,8 @@ export default {
         async checkLog(){
             await axios.post('/auth/check')
                 .then(result => {
+                    // console.log(result.data)
+                    // return
                     const success = result.data.success
                     this.authenticated = result.data.authenticated
 

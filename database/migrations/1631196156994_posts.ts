@@ -6,7 +6,8 @@ export default class Posts extends BaseSchema {
     public async up() {
         this.schema.createTable( this.tableName, (table) => {
             table.increments( 'id' )
-            table.string( 'slug', 255 ).nullable()
+            table.string( 'slug', 255 )
+                .nullable()
 
             // Relations ================================================
             table
@@ -27,8 +28,13 @@ export default class Posts extends BaseSchema {
             table.string( 'title', 255 ).notNullable()
             table.text( 'description' ).notNullable()
             table.enum( 'condition', [ 'new', 'used' ] ).notNullable()
-            table.enum( 'reason', [ 'sell', 'buy' ] ).defaultTo( 'sell' )
-            table.float( 'price', 11, 2 ).nullable()
+            table.enum( 'reason', [ 'sell', 'buy' ] )
+                .notNullable()
+                .defaultTo( 'sell' )
+            table.float( 'price', 11, 2 )
+                .unsigned()
+                .defaultTo(0.00)
+
             table.boolean( 'negotiable' ).defaultTo( false )
 
             table.string( 'address' ).nullable() // for Pros only

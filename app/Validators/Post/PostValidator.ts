@@ -25,9 +25,6 @@ export default class PostValidator {
     public schema = schema.create( {
 
         // Relations ================================================
-        // user_id: schema.string({}, [
-        //   rules.exists({table: 'users', column: 'id'})
-        // ]),
 
         city_id: schema.number( [
           rules.exists({table: 'cities', column: 'id'})
@@ -42,7 +39,7 @@ export default class PostValidator {
             rules.exists( { table: 'delivery_modes', column: 'id' } )
         ] ),
         // ! Relations ================================================
-        reason: schema.enum( ['sell', 'buy'] ),
+        reason: schema.enum( ['sell', 'buy'] as const ),
 
         // title: schema.string( {}, [
         //     rules.unique( { table: 'posts', column: 'title' } ),
@@ -50,7 +47,9 @@ export default class PostValidator {
 
         title: schema.string(),
 
-        description: schema.string( {} ),
+        description: schema.string( {}, [
+            rules.minLength(100)
+        ] ),
 
         condition: schema.enum( [ 'new', 'used' ] ),
 
@@ -61,13 +60,19 @@ export default class PostValidator {
         negotiable: schema.boolean(),
 
         video_type: schema.enum.optional( ['iframe', 'local'] ),
+
+        video_link: schema.string.optional( {}, [
+            rules.requiredIfExists('video_type'),
+            rules.notIn(["undefined", "null"])
+        ] ),
     } )
 
     public messages = {
         'title.required': "Le titre de l'annonce est obligatoire",
-        'title.unique': "Ce titre est déjà utiliser dans une autre annonce",
+        // 'title.unique': "Ce titre est déjà utiliser dans une autre annonce",
 
         'description.required': "La description de l'annonce est obligatoire",
+        'description.minLength': "La description doit contenir au moins 100 caractères",
 
         'condition.enum': "La condition n'est pas valide",
         'condition.required': "Merci de choisir la condition du produit que vous souhaitez vendre",
@@ -80,13 +85,13 @@ export default class PostValidator {
         'negotiable.required': "Merci d'indiquer si le prix de vente est négociable ou non",
 
 
-        'city_id.required': "Merci d'indiquer votre ville",
+        'city_id.required': "Merci d'indiquer une ville",
         'city_id.exists': "Cette ville/commune n'existe pas dans nos bases de données et/ou incorrecte<sup>*</sup>",
 
         'category_id.required': "Merci de selectionner une catégorie",
         'category_id.exists': "La catégorie que vous avez selectionné n'est pas correcte",
 
-        'delivery_mode_id.required': "Merci d'indiquer le mode de livraison",
+        'delivery_mode_id.required': "Merci de choisir un mode de livraison",
         'delivery_mode_id.exists': "Le mode de livraison que vous avez indiquer n'est pas correcte",
 
         'video_type.enum': "Le type de vidéo que vous avez indiquer n'est pas valide",

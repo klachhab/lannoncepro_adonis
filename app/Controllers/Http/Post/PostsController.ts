@@ -13,41 +13,12 @@ import { DateTime } from "luxon";
 import ReportType from "App/Models/Post/ReportType";
 import Conversation from "App/Models/Conversation";
 import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
-import City from "App/Models/City";
 import Application from "@ioc:Adonis/Core/Application";
 import ReportValidator from "App/Validators/Post/ReportValidator";
-import Database from "@ioc:Adonis/Lucid/Database";
 
 export default class PostsController {
 
-    protected ids: number[]
-
     public async index({ request, view }: HttpContextContract) {
-
-        // const options = {
-        //     from: null,
-        //     to: null
-        // }
-        // const prices: Array<Object> = request.qs().prx.split(',').map(val => val.split(':'))
-        //
-        // prices.forEach( (val) => {
-        //     options[val[0]] = Number.parseInt(val[1])
-        // } )
-        //
-        // return options
-        // const prices = request.qs().prx.split(',').length > 1 ?
-        //     request.qs().prx.split(',')
-        //         .map(val => Number.parseInt(val))
-        //
-        //     : [ Number.parseInt( request.qs().prx ), 0 ]
-
-
-        // return Post.query()
-        //     .whereBetween('price', prices.sort( (a,b) => {
-        //         return a - b
-        //     })
-        //     )
-        //     .limit(10)
 
         if ( request.qs().api ) {
 
@@ -84,6 +55,7 @@ export default class PostsController {
         }
 
     }
+
 
     public async details({ request, view, auth }: HttpContextContract) {
         // return request.all()
@@ -153,14 +125,14 @@ export default class PostsController {
                     city.preload( 'department' )
                 } )
 
-                const city_code = JSON.parse( request.all().same_city ) ? user.city.code : request.all().city_code
                 const department_code = JSON.parse( request.all().same_city ) ? user.city.department.code : request.all().department_code
 
-                const get_city = await Department
+                await Department
                     .query()
                     .where( 'code', department_code )
                     .firstOrFail()
                     .then( async dep => {
+                        const city_code = JSON.parse( request.all().same_city ) ? user.city.code : request.all().city_code
 
                         return await dep.related( 'cities' )
                             .firstOrCreate(
@@ -173,48 +145,16 @@ export default class PostsController {
                                 }
                             )
                             .then( async city => {
-                                await city.load( 'department' )
-                                return {
-                                    success: true,
-                                    response: city,
-                                } as {
-                                    success: boolean,
-                                    response: City,
-                                }
+                                request.all().city_id = city.id
                             } )
-                            .catch( err => {
-                                return {
-                                    success: false,
-                                    model: 'new_city',
-                                    response: err.message,
-                                } as {
-                                    success: boolean,
-                                    model: string,
-                                    response: string,
-                                }
+                            .catch( () => {
+                                request.all().city_id = null
                             } )
 
                     } )
-                    .catch( err => {
-                        return {
-                            success: false,
-                            model: 'dep',
-                            response: err.message,
-                        } as {
-                            success: boolean,
-                            model: string,
-                            response: string,
-                        }
+                    .catch( () => {
+                        request.all().city_id = null
                     } )
-
-
-                if ( !get_city.success ) {
-                    return get_city
-                } else {
-                    const ct = get_city.response as City
-                    request.all().city_id = ct.id
-                }
-
 
                 return await request.validate( PostValidator )
                     .then( async (data: Object) => {
@@ -226,43 +166,41 @@ export default class PostsController {
                                 const pics = request.files( 'photos' )
                                 const public_path = Application.publicPath( '/uploads' )
 
-                                if ( request.all().video_type ) {
+                                if ( request.all().video_type == 'iframe' ) {
+                                    post.videoLink = request.all().video_link
+                                    post.save()
+                                        .catch( err => {
+                                            return {
+                                                success: false,
+                                                message: err.message,
+                                            }
+                                        } )
+                                }
+                                else {
+                                    const video = request.file( 'video_link' )
 
-                                    if ( request.all().video_type == 'iframe' && typeof request.all().video_link == 'string' ) {
-                                        post.videoLink = request.all().video_link
-                                        post.save()
+                                    if ( video ) {
+                                        await video.move( `${public_path}/${post.id}-${post.slug}`, {
+                                            name: `video.${video.extname}`
+                                        } )
+                                            .then( () => {
+                                                post.videoLink = `/uploads/${post.id}-${post.slug}/${video.clientName}`
+                                                post.save()
+                                                    .catch( err => {
+                                                        return {
+                                                            success: false,
+                                                            message: err.message,
+                                                        }
+                                                    } )
+                                            } )
                                             .catch( err => {
                                                 return {
                                                     success: false,
                                                     message: err.message,
                                                 }
                                             } )
-                                    } else {
-                                        const video = request.file( 'video_link' )
-
-                                        if ( request.all().video_type == 'local' && video ) {
-                                            await video.move( `${public_path}/${post.id}-${post.slug}`, {
-                                                name: `video.${video.extname}`
-                                            } )
-                                                .then( () => {
-                                                    post.videoLink = `/uploads/${post.id}-${post.slug}/${video.clientName}`
-                                                    post.save()
-                                                        .catch( err => {
-                                                            return {
-                                                                success: false,
-                                                                message: err.message,
-                                                            }
-                                                        } )
-                                                } )
-                                                .catch( err => {
-                                                    return {
-                                                        success: false,
-                                                        message: err.message,
-                                                    }
-                                                } )
-                                        }
-
                                     }
+
                                 }
 
                                 if ( pics.length ) {
@@ -310,9 +248,19 @@ export default class PostsController {
 
                     } )
                     .catch( (err: ValidationException) => {
+                        const validation_errors = err.messages.errors
+                        const errors = {}
+
+                        for ( const messageKey in validation_errors ) {
+                            var message = validation_errors[messageKey]
+                            errors[message.field] = message.message
+                        }
+
                         return {
                             success: false,
-                            message: err.messages.errors,
+                            result: errors,
+                            error: "validation",
+                            req: request.all()
                         }
                     } )
 

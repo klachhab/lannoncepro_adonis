@@ -49,7 +49,6 @@ export default {
             },
 
             errors: {},
-            errorFields: [],
 
             hide: {
                 password: true,
@@ -102,11 +101,6 @@ export default {
     },
 
     methods: {
-
-        ...mapMutations([
-            'setErrorFields'
-        ]),
-
         
         // Save user ======================
         async newUser(){
@@ -138,7 +132,6 @@ export default {
 
                     this.saving = false
                     this.errors = {}
-                    this.errorFields = []
 
                     const success = response.data.success
                     const data = response.data
