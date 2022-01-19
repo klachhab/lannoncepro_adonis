@@ -672,9 +672,9 @@
                                     @{{ review.created_at }}
                                 </span>
 
-                                <hr class="w-4/5 border-0.5 border-gray-200 mt-2">
+                                <hr v-if="review.comment" class="w-4/5 border-0.5 border-gray-200 mt-2">
 
-                                <p class="text-center text-base text-gray-700 text-sm mx-5 my-3"
+                                <p v-if="review.comment" class="text-center text-base text-gray-700 text-sm mx-5 my-3"
                                    v-html="review.comment"></p>
 
 <!--                                <span class="text-red-500 hove:text-red-700 text-center text-xs font-light cursor-pointer mb-3"

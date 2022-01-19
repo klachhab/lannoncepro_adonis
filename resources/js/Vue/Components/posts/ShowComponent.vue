@@ -96,7 +96,7 @@ export default {
             // --------------------------
             review_form: {
                 rate: 0,
-                comment: null
+                comment: ""
             },
 
             reviews: [],
