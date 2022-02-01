@@ -20,7 +20,7 @@ const store = new Vuex.Store({
         input_class: {
             container: "items-center grid-cols-none lg:flex-none my-10",
             label: "lg:col-span-2 lg:mr-10 lg:ml-0 ml-2",
-            base: "block w-full px-3 py-2 transition duration-100 ease-in-out border rounded-md border focus-visible:outline-none " +
+            base: "block w-full px-3 py-2 transition duration-100 ease-in-out rounded-md border focus-visible:outline-none " +
                 "disabled:bg-gray-100 disabled:text-gray-600 ",
             variants: {
                 default: "border-gray-300 bg-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-300",

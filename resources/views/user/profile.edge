@@ -11,7 +11,7 @@
                   is_online="{{ user.is_online }}"
     >
 
-        <div class="grid grid-cols-1 min-h-screen pb-20">
+        <div class="grid grid-cols-1 pb-20">
 
             <div class="h-full w-full mx-auto mt-14" :class="container">
                 <span class="text-white font-light">
@@ -56,6 +56,8 @@
                             <span data-v-785a652c="" class="lg:text-left text-center text-sm text-red-500 mt-1">
                                 Votre compte n'est pas encore validé merci de consulter votre boite e-mail
                             </span>
+
+                            <a href="#" @click.prevent="resend_verification_email" class="text-blue-500 text-sm mt-1">Renvoyer l'email de vérification</a>
 
                         @end
                     </div>
@@ -123,7 +125,8 @@
                     @else
 
                         <user-post is_me="{{ my_username == user.username }}"></user-post>
-                        @end
+
+                    @end
 
 
                         <div class="hidden lg:flex justify-center w-full h-24 rounded bg-white col-span-5">4</div>

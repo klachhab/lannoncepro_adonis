@@ -48,7 +48,7 @@ Route.group(() => {
         Route.put('/update-password',  'AuthController.update_password')
             .as('update_password')
 
-        Route.get('/verify', 'AuthController.verify')
+        Route.route('/verify',['GET', 'POST'], 'AuthController.verify')
             .as('verify')
 
     })

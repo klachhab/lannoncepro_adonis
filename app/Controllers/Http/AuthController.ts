@@ -5,8 +5,8 @@ import {AuthenticationException} from "@adonisjs/auth/build/standalone";
 import Encryption from "@ioc:Adonis/Core/Encryption";
 import { rules, schema } from "@ioc:Adonis/Core/Validator";
 import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
-// import VerifyEmail from "App/Mailers/VerifyEmail";
-
+import RegisterVerification from "App/Mailers/RegisterVerification";
+import { EmailTransportException } from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
 
 export default class AuthController {
 
@@ -274,48 +274,70 @@ export default class AuthController {
 
     public async verify({request, auth, response, view}: HttpContextContract) {
 
-        // return request.qs().key
-        const authenticated = await auth.check().then( ok => {
-            return ok
-        })
-        if ( !authenticated ){
+        if ( request.method() === 'GET' ) {
 
-            if ( auth.defaultGuard == "api" ) {
-                return {
-                    success: false,
-                    response: 'authenticated'
-                }
-            }
+            return await User.query()
+                .where( 'verification_code', request.qs().key )
+                .firstOrFail()
+                .then( async user => {
 
-            // return response.redirect().toRoute('web.my_profile')
-            return {
-                response: 'unauthenticated'
-            }
+                    user.verification_code = null
+                    user.email_verified = true
+
+                    return await user.save()
+                        .then( () => {
+                            return response.redirect().toRoute( 'web.my_profile',
+                                {
+                                    validated: true
+                                })
+                        })
+                        .catch( (err) => {
+                            return { error: err.message }
+                        })
+
+                } )
+
+                .catch( () => {
+                    return view.render( 'errors/not-found' )
+                } )
         }
 
+        else if ( request.method() === 'POST' ) {
+            return await auth.check().then( async authenticated => {
+                if ( !authenticated ) {
+                    return {
+                        success: false,
+                        response: 'unauthenticated'
+                    }
+                }
 
-        return await User.query()
-            .where('verification_code', request.qs().key)
-            .firstOrFail()
-            .then(async user => {
+                const user = auth.user as User
+                return await new RegisterVerification( user )
+                    .send()
+                    .then( async (response) => {
+                        return {
+                            success: true,
+                            response,
+                        }
 
-                user.verification_code = null
-                user.email_verified = true
+                    } )
+                    .catch( (e: EmailTransportException) => {
+                        return {
+                            meth: "email_send",
+                            success: false,
+                            message: e.message
+                        }
+                    } )
 
-                return await user.save()
-                    .then( () => {
-                        return response.redirect().toRoute('web.my_profile')
-                    })
-                    .catch( err => {
-                        console.log(err.message)
-                        return response.status(500)
-                    })
-            })
-            .catch( err => {
+            } )
+                .catch( (e: AuthenticationException) => {
+                    return {
+                        success: false,
+                        response: e.message
+                    }
+                })
 
-                console.log(err.message)
-                return response.status(404)
-            })
+        }
     }
 
 

@@ -136,8 +136,6 @@ export default {
                     const success = response.data.success
                     const data = response.data
 
-                    // return
-
                     if (success) {
                         this.$swal({
                             icon: 'success',

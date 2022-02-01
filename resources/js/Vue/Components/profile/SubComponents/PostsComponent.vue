@@ -89,6 +89,7 @@ import {
 
 export default {
     name: "PostsComponent",
+    props: ['is_me'],
     components: {
         TPagination
     },
@@ -114,9 +115,8 @@ export default {
 
     mounted() {
         this.getPosts(this.meta.current_page)
-
         // if (JSON.parse(this.is_me)){
-        //     this.setIsMyProfile(true)
+        //     this.setIsMyProfile(this.is_me)
         // }
     },
 
@@ -133,6 +133,8 @@ export default {
             })
 
                 .then(response => {
+                    console.log(response.data)
+                    return
                     const config = response.data.meta
 
                     this.meta = {

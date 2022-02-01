@@ -56,6 +56,7 @@ export default {
 
     created() {
         this.setUserName(this.username)
+
         this.setIsMyProfile(this.username === this.my_username)
 
         if (this.isMyProfile && !window.location.pathname.includes('mon-profil')){
@@ -78,6 +79,34 @@ export default {
             'setIsMyProfile', 'update_message_count', 'setUserName'
         ]),
 
+        async resend_verification_email() {
+            await axios.post( '/auth/verify' )
+                .then( response => {
+                    const success = response.data.success
+
+                    if (success) {
+                        this.$swal({
+                            icon: 'success',
+                            html: "<p class='mb-3'>Merci de vérifier votre boite e-mail afin de valider votre compte</p>",
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+
+                        })
+                    }
+                    this.$swal( {
+                        icon: 'error',
+                        text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
+                    } );
+                })
+                .catch( e => {
+                    this.$swal( {
+                        icon: 'error',
+                        text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
+                    } );
+                } )
+        },
+
         deleteAccount(){
 
             this.$swal({
@@ -91,8 +120,7 @@ export default {
 
                 if ( result.isConfirmed ){
                     await axios.delete(`/api/profile/p/${ this.username }`)
-                        .then(response => {
-                            console.log(response.data)
+                        .then(() => {
 
                             this.$swal('Votre compte a été supprimé', '', 'success')
                                 .then( () => {
@@ -100,7 +128,10 @@ export default {
                                 })
                         })
                         .catch(err => {
-                            console.log(err.message)
+                            this.$swal( {
+                                icon: 'error',
+                                text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
+                            } );
                         })
                 }
             })

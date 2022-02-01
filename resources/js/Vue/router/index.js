@@ -11,7 +11,11 @@ const routes = [
     {
         path: '/mon-profil',
         name: 'ads',
-        component: Subs.PostsComponent
+        component: Subs.PostsComponent,
+        props: {
+            default: true,
+            is_me: true
+        },
     },
 
     {

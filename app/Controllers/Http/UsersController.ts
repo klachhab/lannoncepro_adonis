@@ -7,6 +7,9 @@ import Department from "App/Models/Department";
 import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
 import Hash from "@ioc:Adonis/Core/Hash";
 import { AuthenticationException } from "@adonisjs/auth/build/standalone";
+import { EmailTransportException } from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
+import RegisterVerification from "App/Mailers/RegisterVerification";
+import Encryption from "@ioc:Adonis/Core/Encryption";
 
 export default class UsersController {
 
@@ -40,7 +43,6 @@ export default class UsersController {
             departments
         } )
     }
-
 
     public async store({ request, auth }: HttpContextContract) {
 
@@ -137,25 +139,31 @@ export default class UsersController {
                         user.name = request.all().name
                         user.username = request.all().username
                         user.phone = request.all().phone
+                        user.verification_code = Encryption.encrypt(user.email)
                         user.email_verified = false
                         user.cityId = request.all().city_id
 
                         return await usr.save()
-                            .then( async u => {
+                            .then( async (u: User) => {
 
-                                return await auth.login(u)
-                                    .then( response => {
+                                return await new RegisterVerification( u )
+                                    .send()
+                                    .then( async (response) => {
                                         return {
                                             success: true,
                                             response,
                                         }
-                                    })
-                                    .catch( error => {
+
+                                    } )
+                                    .catch( (e: EmailTransportException) => {
                                         return {
+                                            meth: "email_send",
                                             success: false,
-                                            response: error.message,
+                                            message: e.message
                                         }
                                     } )
+
+
 
                             } )
                             .catch( err => {
@@ -200,16 +208,10 @@ export default class UsersController {
 
 
 
-    public async show({ params, auth, view, response }: HttpContextContract) {
-        if ( await auth.check().then( logged => {
-            return logged
-        } ) ) {
-            const user = auth.user as User
-
-            if ( params.id == user.username ) {
-                return response.redirect().toRoute( "web.my_profile" )
-            }
-        }
+    public async show({ params, auth, view }: HttpContextContract) {
+        // if ( await auth.check().then(valid => {return valid}) && auth.defaultGuard === "web"){
+        //     return response.redirect().toRoute( "web.my_profile" )
+        // }
 
         const username = await auth.check()
             .then( () => {
@@ -217,7 +219,8 @@ export default class UsersController {
 
                 if ( params.id ) {
                     return params.id
-                } else return user.username
+                }
+                else return user.username
             } )
             .catch( (err: AuthenticationException) => {
                 return {
@@ -227,7 +230,7 @@ export default class UsersController {
 
         return await User.query().where( 'username', username )
             .withCount( 'posts', posts => {
-                posts.whereNull('deleted_at')
+                posts.whereNull( 'deleted_at' )
                     .andWhere( 'is_valid', 1 )
             } )
             .withCount( 'favourites', favourites => {
@@ -254,13 +257,15 @@ export default class UsersController {
                         success: true,
                         user,
                     }
-                } else {
+                }
+                else {
                     const my_username = await auth.check()
                         .then( logged => {
                             if ( logged ) {
                                 const user = auth.user as User
                                 return user.username
-                            } else {
+                            }
+                            else {
                                 return null
                             }
                         } )
@@ -415,7 +420,6 @@ export default class UsersController {
             .select( 'id', 'name' )
             .firstOrFail()
             .then( async user => {
-
                 return await user.related( 'posts' )
                     .query()
                     .where( 'is_valid', request.all().valid )
