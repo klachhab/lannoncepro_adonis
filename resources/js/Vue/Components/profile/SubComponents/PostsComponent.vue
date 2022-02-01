@@ -133,8 +133,6 @@ export default {
             })
 
                 .then(response => {
-                    console.log(response.data)
-                    return
                     const config = response.data.meta
 
                     this.meta = {

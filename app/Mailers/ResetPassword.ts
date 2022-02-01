@@ -2,7 +2,7 @@ import { BaseMailer, MessageContract } from '@ioc:Adonis/Addons/Mail'
 import User from "App/Models/User";
 import Env from "@ioc:Adonis/Core/Env";
 
-export default class RegisterVerification extends BaseMailer {
+export default class ResetPassword extends BaseMailer {
     /**
      * WANT TO USE A DIFFERENT MAILER?
      *
@@ -13,22 +13,24 @@ export default class RegisterVerification extends BaseMailer {
 
     // public mailer = this.mail.use()
 
-    constructor(private user: User) {
-        super();
-    }
     /**
      * The prepare method is invoked automatically when you run
-     * "RegisterVerification.send".
+     * "ResetPassword.send".
      *
      * Use this method to prepare the email message. The method can
      * also be async.
      */
+
+    constructor(private user: User) {
+        super();
+    }
+
     public prepare(message: MessageContract) {
         message
-            .subject( 'E-mail de bienvenue' )
+            .subject( 'Réinitialisation du mot de passe' )
             .from( 'support@lannoncepro.fr', "L'Annonce Pro" )
             .to( this.user.email, this.user.name )
-            .htmlView('emails/register_verify', {
+            .htmlView('emails/reset_password', {
                 user: this.user,
                 host: `http://${Env.get('HOST')}:${Env.get('PORT')}`
             })

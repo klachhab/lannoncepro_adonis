@@ -8,7 +8,6 @@ export default class Categories extends BaseSchema {
       table.increments('id')
       table.string('name').notNullable()
       table.string('slug').notNullable()
-      table.string('icon')
 
       table.integer('category_id')
           .unsigned()

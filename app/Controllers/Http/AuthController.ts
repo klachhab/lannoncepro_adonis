@@ -7,6 +7,7 @@ import { rules, schema } from "@ioc:Adonis/Core/Validator";
 import { ValidationException } from "@adonisjs/validator/build/src/ValidationException";
 import RegisterVerification from "App/Mailers/RegisterVerification";
 import { EmailTransportException } from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
+import ResetPassword from "App/Mailers/ResetPassword";
 
 export default class AuthController {
 
@@ -182,15 +183,26 @@ export default class AuthController {
 
                     user.verification_code = Encryption.encrypt(user.email)
                     return await user.save()
-                        .then( usr => {
-                            // Send Validation email ==========================
+                        .then( async usr => {
 
                             // Send Validation email ==========================
+                            return await new ResetPassword( usr )
+                                .send()
+                                .then( async (response) => {
+                                    return {
+                                        success: true,
+                                        response,
+                                    }
 
-                            return {
-                                success: true,
-                                response: usr
-                            }
+                                } )
+                                .catch( (e: EmailTransportException) => {
+                                    return {
+                                        meth: "email_send",
+                                        success: false,
+                                        message: e.message
+                                    }
+                                } )
+                            // Send Validation email ==========================
                         })
                         .catch( err => {
                             return {
@@ -203,7 +215,6 @@ export default class AuthController {
                 .catch( () => {
                     return {
                         success: false,
-                        reason: "auth",
                         response: 'user'
                     }
                 })
@@ -213,14 +224,6 @@ export default class AuthController {
         else {
 
             if ( await auth.check() ){
-
-                // if ( auth.defaultGuard == "api" ) {
-                //     return {
-                //         success: false,
-                //         response: 'authenticated'
-                //     }
-                // }
-
                 return response.redirect().toRoute('web.my_profile')
             }
 
@@ -423,46 +426,6 @@ export default class AuthController {
                         reason: "save_exception"
                     })
                 })
-
-            return await auth.check()
-                .then( async success => {
-
-                    if ( !success ) {
-                        return {
-                            success: false,
-                            response: "Vous n'êtes pas connecté",
-                            reason: "auth"
-                        }
-                    }
-
-                    const user = auth.user as User
-
-                    user.password = request.all().password
-
-                    return await user.save()
-                        .then( () => {
-                            return {
-                                success: true,
-                            }
-                        })
-                        .catch( err => {
-                            console.log({
-                                success: false,
-                                response: err.message,
-                                reason: "save_exception"
-                            })
-                        })
-
-
-                })
-                .catch( (err: AuthenticationException) => {
-                    console.log({
-                        success: false,
-                        response: err.message,
-                        reason: "auth_exception"
-                    })
-                })
-
 
         }
 

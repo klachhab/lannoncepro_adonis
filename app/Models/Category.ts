@@ -18,9 +18,6 @@ export default class Category extends compose(BaseModel, SoftDeletes)  {
   @column()
   public slug: string
 
-  @column()
-  public icon: string
-
   @column({ serializeAs: null })
   public categoryId: number
 
