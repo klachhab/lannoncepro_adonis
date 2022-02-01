@@ -108,17 +108,17 @@
                     >
                         <div class="mt-2">
                             <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
-                                <input v-model="filters.type" type="radio" class="form-radio" value="ind">
+                                <input v-model="filters.seller" type="radio" class="form-radio" value="ind">
                                 <span class="ml-2">Individuel</span>
                             </label>
 
                             <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
-                                <input v-model="filters.type" type="radio" class="form-radio" value="pro">
+                                <input v-model="filters.seller" type="radio" class="form-radio" value="pro">
                                 <span class="ml-2">Professionnel</span>
                             </label>
 
                             <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
-                                <input v-model="filters.type" type="radio" class="form-radio" value="" checked>
+                                <input v-model="filters.seller" type="radio" class="form-radio" value="" checked>
                                 <span class="ml-2">Tous</span>
                             </label>
 
@@ -249,17 +249,20 @@
                             <span
                                 class="text-2xl font-semibold">
                                 {{ post.prix }}
+                                <small class="text-sm font-light" v-if="post.negotiable">
+                                    ( Négociable )
+                                </small>
                             </span>
                         </p>
 
                         <div class="flex items-center w-full h-full mt-2 bg-gray-100 px-4 rounded">
 
-                            <span class="text-sm text-gray-400 font-light mr-4">
+                            <span class="text-sm text-gray-400 font-light mr-4 select-none">
                                 <i class="far fa-clock"></i>
                                 {{ post.creation_date }}
                             </span>
 
-                            <span class="flex flex-1 items-center text-sm text-gray-400 font-light hover:text-blue-400 transition-all duration-200">
+                            <span class="flex flex-1 items-center text-sm text-gray-400 font-light select-none">
                                 <svg class="h-4 w-4 mr-1"
                                      xmlns="http://www.w3.org/2000/svg"
                                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -369,7 +372,7 @@ export default {
                 maxprx: null,
                 negotiable: null,
                 featured: null,
-                type: '',
+                seller: '',
                 page: 1,
                 orderBy: '',
             },
@@ -384,12 +387,34 @@ export default {
     },
 
     watch: {
+        categories(categs) {
+            if ( this.$route.query.pctg ){
+                const categories = categs.map(categ => categ.slug)
+                const index = categories.indexOf(this.$route.query.pctg)
+                this.getSubCategories(index)
+            }
+
+            else if ( this.$route.query.ctg ){
+
+                const category = this.categories.filter( category => {
+                    const subs = category.subs.map( sub => sub.slug)
+                    return subs.includes(this.$route.query.ctg)
+                })[0]
+
+                const index = categs.map(categ => categ.slug)
+                    .indexOf(category.slug)
+
+                this.getSubCategories(index)
+
+            }
+
+        },
         filters: {
             handler(filters) {
                 this.filterPosts(filters)
             },
             deep: true
-        }
+        },
     },
 
     computed: {
@@ -398,13 +423,24 @@ export default {
         ]),
     },
 
-    mounted() {
-        // this.filters = this.$route.query
-        this.filterPosts(this.filters)
+    beforeMount() {
         this.getCategories()
 
+        const queries = this.$route.query
+
+        for ( const queriesKey in queries ) {
+            this.filters[queriesKey] = queries[queriesKey]
+        }
+
+        this.filterPosts(this.filters)
+    },
+
+    mounted() {
+
         if ( this.$router.currentRoute.fullPath !== '/annonces') {
-            this.$router.replace( '/annonces' )
+            setTimeout( () => {
+                this.$router.replace('/annonces')
+            }, 500)
         }
     },
 
@@ -423,11 +459,16 @@ export default {
 
 
         getSubCategories(index){
+
             this.selected_categ_name = this.categories[index].name
 
             this.sub_categories = this.categories[index].subs
             this.filters.pctg = this.categories[index].slug
-            this.filters.ctg = null
+
+            if ( this.$route.query.ctg ){
+                this.filters.ctg =  this.$route.query.ctg
+            }
+            else this.filters.ctg = null
 
         },
 

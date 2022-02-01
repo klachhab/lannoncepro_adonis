@@ -115,7 +115,7 @@ export default class PostFilter extends BaseModelFilter {
         this.post.where('featured', Number.parseInt(featured))
     }
 
-    public type(pro: string){
+    public seller(pro: string){
 
         const user_id = User.query()
             .select('id')
