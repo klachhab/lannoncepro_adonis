@@ -133,7 +133,7 @@ export default {
                         if ( reason === 'auth') {
                             this.error_field = response
                         }
-                        else console.log(response)
+                        else this.error_field = 'user'
                     }
 
                     else {

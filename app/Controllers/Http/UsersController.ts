@@ -181,17 +181,30 @@ export default class UsersController {
                 return await User.create( data )
                     .then( async user => {
 
-                        return await auth.login(user)
-                            .then( response => {
+                        return await new RegisterVerification( user )
+                            .send()
+                            .then( async (response) => {
+                                return await auth.login(user)
+                                    .then( () => {
+                                        return {
+                                            success: true,
+                                            response,
+                                        }
+                                    })
+                                    .catch( error => {
+                                        return {
+                                            meth: "login",
+                                            success: false,
+                                            response: error.message,
+                                        }
+                                    } )
+
+                            } )
+                            .catch( (e: EmailTransportException) => {
                                 return {
-                                    success: true,
-                                    response,
-                                }
-                            })
-                            .catch( error => {
-                                return {
+                                    meth: "email_send",
                                     success: false,
-                                    response: error.message,
+                                    message: e.message
                                 }
                             } )
 

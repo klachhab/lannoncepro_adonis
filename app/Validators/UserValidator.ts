@@ -41,7 +41,7 @@ export default class UserValidator {
                     'deleted_at': null
                 }
             }),
-            rules.regex(/^[a-zA-Z]+?[0-9]/)
+            rules.regex(/^[a-z]*[a-z0-9]+$/)
         ]),
 
         email: schema.string({}, [
@@ -83,11 +83,11 @@ export default class UserValidator {
         // city_code: schema.number( [
         //     rules.exists({table: 'cities', column: 'code'})
         // ]),
-
+        //
         // department_code: schema.string({}, [
         //     rules.exists({table: 'departments', column: 'code'})
         // ]),
-
+        //
         // avatar: schema.file({
         // 	size: '2mb',
         // 	extnames: ['jpg', 'gif', 'png'],
@@ -114,7 +114,7 @@ export default class UserValidator {
 
         'username.required': "Merci de choisir un nom d'utilisateur",
         'username.unique': "Le nom d'utilisateur est déjà existant. Merci d'en choisir un autre",
-        'username.regex': "Le nom d'utilisateur doit contenir seulement des chiffres et lettres commençant par une lettre",
+        'username.regex': "Le nom d'utilisateur doit contenir seulement des chiffres et lettres miniscules (commençant par une lettre)",
 
         'email.required': "L'adresse e-email est obligatoire",
         'email.email': "L'adresse e-email n'est pas valide",

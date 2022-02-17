@@ -43,6 +43,43 @@
             <!-- Filters section -->
             <div class="flex flex-col w-full self-start rounded">
 
+                <!-- Reason -->
+                <div class="w-full flex flex-col rounded mb-3">
+                    <div class="flex w-full items-center bg-gray-200 rounded-t py-2 px-4 cursor-pointer"
+                         @click="show.reason = !show.reason"
+                    >
+                        <span class="flex-1 w-full">Raison</span>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+
+                    <div class="w-full rounded-b bg-white overflow-auto"
+                         :class="show.reason ? 'py-2' : 'h-0'"
+                    >
+                        <div class="mt-2">
+
+                            <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
+                                <input v-model="filters.reason" type="radio" class="form-radio" value="buy">
+                                <span class="ml-2">Demande</span>
+                            </label>
+
+                            <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
+                                <input v-model="filters.reason" type="radio" class="form-radio" value="sell">
+                                <span class="ml-2">Vente</span>
+                            </label>
+
+                            <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
+                                <input v-model="filters.reason" type="radio" class="form-radio" value="" checked>
+                                <span class="ml-2">Toutes</span>
+                            </label>
+
+                        </div>
+                    </div>
+
+                </div>
+
                 <!-- Category -->
                 <div class="w-full flex flex-col rounded mb-3">
 
@@ -142,7 +179,7 @@
                     <div class="w-full rounded-b bg-white overflow-auto"
                          :class="show.price ? 'py-2' : 'h-0'"
                     >
-                        <div class="mt-2 px-2">
+                        <div class="my-2 px-2">
                             <label class="relative block my-1">
 
                                 <input type="text" v-model="filters.minprx"
@@ -172,6 +209,11 @@
                             </label>
 
                         </div>
+
+                        <label class="w-full ml-4 my-1 inline-flex items-center cursor-pointer select-none">
+                            <input v-model="filters.negotiable" type="checkbox" class="form-radio">
+                            <span class="ml-2">Négociable</span>
+                        </label>
                     </div>
 
                 </div>
@@ -349,8 +391,9 @@ export default {
                 user_type: true,
                 price: true,
                 condition: true,
-
+                reason: true,
             },
+
             selected_categ_name: null,
 
             categories: [],
@@ -365,12 +408,13 @@ export default {
                 cndt: "",
                 cty: null,
                 dpt: null,
+                reason: "",
                 ctg: null,
                 pctg: null,
                 prx: null,
                 minprx: null,
                 maxprx: null,
-                negotiable: null,
+                negotiable: false,
                 featured: null,
                 seller: '',
                 page: 1,

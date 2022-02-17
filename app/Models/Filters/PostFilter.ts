@@ -1,11 +1,11 @@
 import {BaseModelFilter} from '@ioc:Adonis/Addons/LucidFilter'
 import {ModelQueryBuilderContract} from '@ioc:Adonis/Lucid/Orm'
 import Post from 'App/Models/Post/Post'
-import Database from "@ioc:Adonis/Lucid/Database";
 import User from "App/Models/User";
 import Category from "App/Models/Category";
 import Department from "App/Models/Department";
 import City from "App/Models/City";
+import Database from "@ioc:Adonis/Lucid/Database";
 
 export default class PostFilter extends BaseModelFilter {
     public $query: ModelQueryBuilderContract<typeof Post, Post>
@@ -64,6 +64,10 @@ export default class PostFilter extends BaseModelFilter {
         this.post.whereIn('city_id', city_id)
     }
 
+    public reason(reason: string) {
+        this.post.where('reason', reason)
+    }
+
     public pctg(category_code: string) {
 
         const category_id = Category.query()
@@ -93,13 +97,14 @@ export default class PostFilter extends BaseModelFilter {
     }
 
     public negotiable(negotiable: string) {
-        this.post.where('negotiable', Number.parseInt(negotiable))
+        this.post.where('negotiable', JSON.parse(negotiable))
     }
 
     public prx(price: string) {
         const prix = price.split(`,`)
             .map(prx => Number.parseInt(prx))
 
+        // @ts-ignore
         this.post.whereBetween('price', prix)
     }
 

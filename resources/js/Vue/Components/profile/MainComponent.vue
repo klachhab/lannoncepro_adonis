@@ -91,13 +91,14 @@ export default {
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             allowEnterKey: false,
-
                         })
                     }
-                    this.$swal( {
-                        icon: 'error',
-                        text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
-                    } );
+                    else {
+                        this.$swal( {
+                            icon: 'error',
+                            text: "Une erreur est survenue lors de la création de votre compte. Merci de contacter notre support",
+                        } );
+                    }
                 })
                 .catch( e => {
                     this.$swal( {
@@ -121,7 +122,6 @@ export default {
                 if ( result.isConfirmed ){
                     await axios.delete(`/api/profile/p/${ this.username }`)
                         .then(() => {
-
                             this.$swal('Votre compte a été supprimé', '', 'success')
                                 .then( () => {
                                     window.location.replace('/')

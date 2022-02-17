@@ -215,7 +215,7 @@ export default class AuthController {
                 .catch( () => {
                     return {
                         success: false,
-                        response: 'user'
+                        reason: 'user'
                     }
                 })
 

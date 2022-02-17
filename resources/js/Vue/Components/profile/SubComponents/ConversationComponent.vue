@@ -139,7 +139,7 @@
 
             <div v-else class="flex justify-center items-center mt-7 mb-4">
                 <span class="text-2xl text-gray-400 text-center select-none">
-                    Vous n'avez aucun messages
+                    Vous n'avez aucun message
                 </span>
             </div>
 
