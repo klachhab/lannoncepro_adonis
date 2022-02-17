@@ -15,6 +15,8 @@ import Conversation from "App/Models/Conversation";
 import IsAdminOwnerException from "App/Exceptions/IsAdminOwnerException";
 import Application from "@ioc:Adonis/Core/Application";
 import ReportValidator from "App/Validators/Post/ReportValidator";
+import PostCreated from "App/Mailers/PostCreated";
+import { EmailTransportException } from "@adonisjs/mail/build/src/Exceptions/EmailTransportException";
 
 export default class PostsController {
 
@@ -233,10 +235,21 @@ export default class PostsController {
                                 await post.load( 'user' )
                                 await post.load( 'city' )
 
-                                return {
-                                    success: true,
-                                    message: post,
-                                }
+                                return await new PostCreated(post)
+                                    .send()
+                                    .then( () => {
+                                        return {
+                                            success: true,
+                                            message: post,
+                                        }
+                                    })
+                                    .catch( (e: EmailTransportException) => {
+                                        return {
+                                            meth: "email_send",
+                                            success: false,
+                                            message: e.message
+                                        }
+                                    } )
 
                             } )
                             .catch( err => {
