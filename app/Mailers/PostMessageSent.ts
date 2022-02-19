@@ -1,8 +1,8 @@
 import { BaseMailer, MessageContract } from '@ioc:Adonis/Addons/Mail'
+import Conversation from "App/Models/Conversation";
 import Env from "@ioc:Adonis/Core/Env";
-import Post from "App/Models/Post/Post";
 
-export default class PostCreated extends BaseMailer {
+export default class PostMessageSent extends BaseMailer {
     /**
      * WANT TO USE A DIFFERENT MAILER?
      *
@@ -12,25 +12,27 @@ export default class PostCreated extends BaseMailer {
      */
     // public mailer = this.mail.use()
 
-    constructor(private post: Post) {
+    constructor(private conversation: Conversation, private name: string, private email: string) {
         super();
     }
 
     /**
      * The prepare method is invoked automatically when you run
-     * "PostCreated.send".
+     * "PostMessageSent.send".
      *
      * Use this method to prepare the email message. The method can
      * also be async.
      */
     public prepare(message: MessageContract) {
         message
-            .subject( "Annonce créée" )
+            .subject( 'Message envoyé' )
             .from( 'support@lannoncepro.fr', "L'Annonce Pro" )
-            .to( this.post.user.email, this.post.user.name )
-            .htmlView( 'emails/post_created', {
-                post: this.post,
+            .to( this.email, this.name )
+            .htmlView( 'emails/message_received', {
+                name: this.name,
+                conversation: this.conversation,
                 host: `http://${Env.get( 'HOST' )}:${Env.get( 'PORT' )}`
             } )
+
     }
 }

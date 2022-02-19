@@ -45,8 +45,16 @@
     </style>
 </head>
 <body style="margin: 0; width: 100%; padding: 0; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #f3f4f6;">
-<div style="display: none;">Merci d'avoir rejoint</div>
-
+<div style="display: none;">Merci d'avoir rejoint &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &zwnj;
+    &#160;&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &zwnj;
+    &#160;&#847; &#847; &#847; &#847; &#847;
+</div>
 <div role="article" aria-roledescription="email" aria-label="Confirmation de votre e-mail" lang="fr">
     <table style="width: 100%; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;"
            cellpadding="0" cellspacing="0" role="presentation">
@@ -67,27 +75,29 @@
                                 <tr>
                                     <td class="sm-px-24"
                                         style="border-radius: 4px; background-color: #ffffff; padding: 48px; text-align: left; font-size: 16px; line-height: 24px; color: #1f2937;">
-                                        <p>Bonjour {{ user.name }},</p>
-                                        <p>Merci d&#039;avoir rejoint
-                                            <a href="#" style="font-size: 16px; color: #3b82f6; text-decoration: none;">
-                                                L'annonce Pro
-                                            </a>.
-                                        </p>
+                                        <p>Bonjour {{ name }},</p>
+
+
                                         <p style="margin: 0; margin-bottom: 24px;">
                                             Nous aimerions vous confirmer que
-                                            votre compte a été créé avec succès.
-                                            Afin de valider votre profil, veuillez cliquer sur le lien ci-dessous.
+                                            votre message a bien été envoyé au vendeur.
+
+                                            Afin de communiquer avec le vendeur plus facilement, veuillez cliquer sur le lien ci-dessous.
                                         </p>
 
                                         <div style="line-height: 100%;">
-                                            <a href="{{ host }}/auth/verify?key={{ user.verification_code }}"
+                                            <a href="{{ host }}/chatroom/{{ conversation.conversation_key }}"
                                                class="hover-bg-blue-600"
                                                style="display: inline-block; border-radius: 4px; background-color: #3b82f6; padding-top: 16px; padding-bottom: 16px; padding-left: 24px; padding-right: 24px; text-align: center; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none;">
                                                 <!--[if mso]><i style="letter-spacing: 24px; mso-font-width: -100%; mso-text-raise:30px;">&#8202;</i><![endif]-->
-                                                <span style="mso-text-raise: 16px;">Confirmer &rarr;</span>
+                                                <span style="mso-text-raise: 16px;">
+                                                    Consulter
+                                                </span>
                                                 <!--[if mso]><i style="letter-spacing: 24px; mso-font-width: -100%;">&#8202;</i><![endif]-->
                                             </a>
                                         </div>
+                                        <p style="margin: 0; margin-top: 24px;">Ce lien sera toujours valid tant que l'annonce n'est pas supprimé.
+                                        </p>
                                         <p style="margin: 0; margin-top: 24px;">Si vous rencontrez des difficultés ou des erreurs,
                                             veuillez contacter notre support par e-mail au
                                             <a href="#" style="font-size: 16px; color: #3b82f6; text-decoration: none;">support@lannoncepr.fr</a>
@@ -103,9 +113,7 @@
                                                 </td>
                                             </tr>
                                         </table>
-                                        <p style="margin: 0; margin-bottom: 16px;">Si vous n'avez pas soumis votre
-                                            e-mail pour vous inscrire à notre liste d'abonnés, veuillez ignorer ce
-                                            message.</p>
+
                                         <p style="margin: 0; margin-bottom: 16px;">Conrdialement, <br>L'équipe de
                                             L'annonce Pro</p>
                                     </td>
